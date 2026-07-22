@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stratascan"
+version = "0.1.0"
+description = "Gamma-stratified kNN-DBSCAN for variable-density clustering"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "StrataSCAN contributors"}]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy>=2.0",
+  "scipy>=1.13",
+  "scikit-learn>=1.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pandas>=2", "build>=1"]
+perf = ["faiss-cpu>=1.8", "numba>=0.61"]
+benchmark = ["pandas>=2", "psutil>=5.9", "numba>=0.61"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100

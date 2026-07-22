@@ -1,0 +1,25 @@
+.tmp-source/
+.tmp-source.zip
+.tmp/
+.tmp-matplotlib/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+tmp/
+
+# Large primary datasets are external and are not distributed with the package.
+data/
+
+# Benchmark executions are reproducible but can contain many per-job artifacts.
+# Commit only curated evidence under results/published/.
+results/*
+!results/published/
+results/published/*
+!results/published/v0.1.0/
+!results/published/v0.1.0/**
