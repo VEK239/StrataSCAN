@@ -1,0 +1,19 @@
+{
+  "annotations": "quality and runtime from this full recomputation",
+  "benchmark_results": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\publication_full_7synthetic_20260722\\results.csv",
+  "clustering_input": "full native-dimensional dataset",
+  "display_points_per_dataset": 10000,
+  "display_sampling": "deterministic uniform sample used only for plotting",
+  "formats": [
+    "PDF",
+    "SVG",
+    "PNG 600 dpi"
+  ],
+  "frozen_benchmark_comparison": "retained in the accompanying CSV; this figure does not mix frozen metrics with newly recomputed labels",
+  "max_absolute_pairwise_f1_delta": 0.19219678850587818,
+  "n": 50000,
+  "projection": "original coordinates for 2D; deterministic PCA for dimensions > 2",
+  "protocol": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\benchmarks\\protocol.full-legacy-grid-7synthetic.json",
+  "seed": 42,
+  "tier": "quality"
+}
