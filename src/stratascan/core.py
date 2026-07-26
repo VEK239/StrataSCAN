@@ -8,6 +8,7 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 
 from .neighbors import Backend, HNSWConfig, build_knn_graph
+from .multiscale import MultiscaleConfig, estimate_multiscale_stratification
 from .types import KNNGraph
 from .uniform_tail import UniformTailConfig
 
@@ -114,7 +115,7 @@ def stratified_knn_dbscan_from_graph(
 
 
 class StrataSCAN:
-    """StrataSCAN 0.1.0: the frozen Gamma-StrictCore clustering estimator."""
+    """StrataSCAN 0.1.1: multiscale Gamma-stratified clustering estimator."""
 
     def __init__(
         self,
@@ -131,8 +132,11 @@ class StrataSCAN:
         tail_probe_outer_rank: int = 32,
         tail_probe_alpha: float = 0.05,
         tail_core_quantile: float = 0.05,
+        tail_multiple_components: bool = False,
+        tail_seed_min_size: int = 5,
         border_multiplier: float = 1.25,
         uniform_tail_config: UniformTailConfig | None = None,
+        multiscale_config: MultiscaleConfig | None = None,
     ) -> None:
         self.k = int(k)
         self.backend = backend
@@ -146,8 +150,11 @@ class StrataSCAN:
         self.tail_probe_outer_rank = int(tail_probe_outer_rank)
         self.tail_probe_alpha = float(tail_probe_alpha)
         self.tail_core_quantile = float(tail_core_quantile)
+        self.tail_multiple_components = bool(tail_multiple_components)
+        self.tail_seed_min_size = int(tail_seed_min_size)
         self.border_multiplier = float(border_multiplier)
         self.uniform_tail_config = uniform_tail_config or UniformTailConfig()
+        self.multiscale_config = multiscale_config or MultiscaleConfig()
 
     def _config(self):
         from .strict_core import GammaStrictCoreConfig
@@ -160,6 +167,8 @@ class StrataSCAN:
             tail_probe_outer_rank=self.tail_probe_outer_rank,
             tail_probe_alpha=self.tail_probe_alpha,
             tail_core_quantile=self.tail_core_quantile,
+            tail_multiple_components=self.tail_multiple_components,
+            tail_seed_min_size=self.tail_seed_min_size,
             border_multiplier=self.border_multiplier,
             uniform_tail=self.uniform_tail_config,
         )
@@ -173,15 +182,27 @@ class StrataSCAN:
         from .strict_core import gamma_strict_core_from_graph
 
         dimension = self.ambient_dimension if ambient_dimension is None else ambient_dimension
+        if dimension is None:
+            dimension = 1.0
+        stratification = estimate_multiscale_stratification(
+            graph,
+            ambient_dimension=float(dimension),
+            config=self.multiscale_config,
+        )
         result = gamma_strict_core_from_graph(
             graph,
-            ambient_dimension=dimension,
+            ambient_dimension=float(dimension),
             config=self._config(),
+            stratification=stratification,
         )
         self.labels_ = result.labels
         self.core_sample_indices_ = np.flatnonzero(result.core_mask)
         self.n_clusters_ = int(np.unique(result.labels[result.labels >= 0]).size)
-        self.profile_ = dict(result.profile)
+        self.profile_ = {
+            "algorithm_version": "0.1.1",
+            "stratification": "multiscale-density-ratios-v1",
+            **result.profile,
+        }
         self.graph_ = graph
         return self
 

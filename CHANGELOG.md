@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.1
+
+- Promoted the four-shell multiscale Gamma stratification from the experimental
+  `MultiscaleStrataSCAN` estimator to the public `StrataSCAN` default.
+- The primary estimator now fits local-Poisson Gamma shells at neighbour ranks
+  4, 8, 16, and 32, using `log(d4)` and anchored distance ratios to separate
+  dense strata from the uniform background tail.
+- Added `MultiscaleConfig` to the public API for explicit configuration of the
+  primary algorithm. The experimental multiscale estimator has been removed;
+  `ResidualStrataSCAN` remains experimental.
+
 ## 0.1.0
 
 - Released the frozen Gamma-StrictCore StrataSCAN algorithm as the only public

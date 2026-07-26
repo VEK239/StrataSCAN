@@ -1,4 +1,5 @@
 from .core import StrataSCAN
+from .multiscale import MultiscaleConfig
 from .neighbors import HNSWConfig, build_knn_graph
 from .strict_core import (
     GammaStrictCoreConfig,
@@ -13,10 +14,11 @@ __all__ = [
     "GammaStrictCoreResult",
     "HNSWConfig",
     "KNNGraph",
+    "MultiscaleConfig",
     "StrataSCAN",
     "UniformTailConfig",
     "build_knn_graph",
     "gamma_strict_core_from_graph",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

@@ -1,9 +1,9 @@
 # StrataSCAN
 
-StrataSCAN 0.1.0 is a single frozen variable-density clustering algorithm. It
-combines Gamma density strata with strict kNN-DBSCAN core seeds and a wider,
-core-radius border assignment. Earlier experimental stratifiers, selectors,
-fallbacks, vetoes, and structural-recovery paths are not part of the package.
+StrataSCAN 0.1.1 is a variable-density clustering algorithm. It combines a
+four-shell local-Poisson Gamma stratifier with strict kNN-DBSCAN core seeds and
+a wider, core-radius border assignment. The earlier standalone multiscale
+estimator is now the public `StrataSCAN` algorithm.
 
 ## Installation
 
@@ -30,13 +30,14 @@ usual `fit`, `fit_predict`, `labels_`, and `n_clusters_` conventions. A
 prebuilt graph can be supplied with `fit_from_graph` or
 `fit_predict_from_graph`.
 
-## Frozen 0.1.0 method
+## 0.1.1 method
 
 1. Build a 32-neighbour graph. The default uses exact KD-tree search in 2D,
    FAISS HNSW above 2D when FAISS is installed, and brute-force search as the
    dependency-free fallback.
-2. Fit a local-Poisson Gamma mixture to fourth-neighbour volume and collapse
-   sparse mixture components into one background tail.
+2. Fit a local-Poisson Gamma mixture to the volume increments at neighbour
+   ranks 4, 8, 16, and 32. The fitting diagnostics use `log(d4)` and anchored
+   ratios `log(d4/d8)`, `log(d4/d16)`, and `log(d4/d32)`.
 3. Use `q95(d4)` for core detection in supported dense strata.
 4. In the tail, test the lowest 2% of `d4 / d32` against 49 equally sized rank
    windows using the largest induced 4-NN component. Activate only at
@@ -46,13 +47,14 @@ prebuilt graph can be supplied with `fit_from_graph` or
 6. Attach border points within `1.25 * core epsilon`.
 
 There is no fallback to scalar kNN-DBSCAN and no post-hoc structural recovery.
+`MultiscaleConfig` exposes the multiscale mixture settings when non-default
+configuration is required.
 
 ## Release evidence
 
-The frozen acceptance scope contains seven synthetic datasets, Levine
-cytometry, and 24 Gaia fields. Mosmann and Nilsson are intentionally outside
-the 0.1.0 evaluation scope. Results and limitations are recorded in
+The 0.1.0 frozen evidence is retained as an archival baseline in
 [`results/published/v0.1.0/RESULTS.md`](results/published/v0.1.0/RESULTS.md).
+It does not evaluate the new 0.1.1 multiscale default.
 
 ## Development
 
@@ -62,8 +64,7 @@ python -m pytest
 python -m build
 ```
 
-The frozen release protocol is
-[`benchmarks/protocol.gamma-strict-core.json`](benchmarks/protocol.gamma-strict-core.json).
+Use the benchmark runner with `StrataSCAN` to evaluate the 0.1.1 default.
 
 ## License
 

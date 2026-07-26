@@ -6,6 +6,7 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 
 from .core import stratified_knn_dbscan_from_graph
+from .stratification import StratificationResult
 from .types import KNNGraph
 from .uniform_tail import UniformTailConfig, estimate_stratification_uniform_tail
 
@@ -72,10 +73,13 @@ class GammaStrictCoreConfig:
     min_samples: int = 5
     min_cluster_size: int = 5
     dense_core_quantile: float = 0.95
+    min_core_seeds_per_stratum: int = 0
     tail_probe_quantile: float = 0.02
     tail_probe_outer_rank: int = 32
     tail_probe_alpha: float = 0.05
     tail_core_quantile: float = 0.05
+    tail_multiple_components: bool = False
+    tail_seed_min_size: int = 5
     border_multiplier: float = 1.25
     uniform_tail: UniformTailConfig = field(default_factory=UniformTailConfig)
 
@@ -120,8 +124,10 @@ def _candidate_component_seed_mask(
     probe: np.ndarray,
     *,
     min_samples: int,
+    select_multiple: bool = False,
+    min_component_size: int = 5,
 ) -> np.ndarray:
-    """Return the q-core component with greatest overlap with the probe."""
+    """Return one or more q-core components supported by the tail probe."""
 
     rank = min_samples - 1
     rows_idx = np.flatnonzero(candidates).astype(np.int32)
@@ -142,8 +148,14 @@ def _candidate_component_seed_mask(
     ).tocsr()
     count, labels = connected_components(adjacency, directed=False, return_labels=True)
     overlap = np.bincount(labels, weights=probe[rows_idx].astype(float), minlength=count)
-    chosen = int(np.argmax(overlap))
-    out[rows_idx[labels == chosen]] = True
+    sizes = np.bincount(labels, minlength=count)
+    if select_multiple:
+        chosen = np.flatnonzero(sizes >= max(min_samples, min_component_size))
+        if chosen.size:
+            out[rows_idx[np.isin(labels, chosen)]] = True
+    else:
+        chosen = int(np.argmax(overlap))
+        out[rows_idx[labels == chosen]] = True
     return out
 
 
@@ -152,6 +164,7 @@ def gamma_strict_core_from_graph(
     *,
     ambient_dimension: float,
     config: GammaStrictCoreConfig | None = None,
+    stratification: StratificationResult | None = None,
 ) -> GammaStrictCoreResult:
     """Gamma strata with strict core seeds and independently expanded borders."""
 
@@ -166,15 +179,23 @@ def gamma_strict_core_from_graph(
             raise ValueError(f"{name} must lie in (0, 1)")
     if cfg.border_multiplier <= 0.0:
         raise ValueError("border_multiplier must be positive")
+    if cfg.tail_seed_min_size < 1:
+        raise ValueError("tail_seed_min_size must be positive")
+    if cfg.min_core_seeds_per_stratum < 0:
+        raise ValueError("min_core_seeds_per_stratum must be nonnegative")
     if not cfg.min_samples - 1 < cfg.tail_probe_outer_rank <= graph.k:
         raise ValueError("tail_probe_outer_rank must exceed the core rank and fit the graph")
 
-    strat = estimate_stratification_uniform_tail(
-        graph,
-        eps_rank=cfg.min_samples - 1,
-        ambient_dimension=ambient_dimension,
-        config=cfg.uniform_tail,
-    )
+    strat = stratification
+    if strat is None:
+        strat = estimate_stratification_uniform_tail(
+            graph,
+            eps_rank=cfg.min_samples - 1,
+            ambient_dimension=ambient_dimension,
+            config=cfg.uniform_tail,
+        )
+    elif strat.groups.shape != (graph.n_samples,):
+        raise ValueError("precomputed stratification must align with the graph")
     groups = np.asarray(strat.groups, dtype=np.int32)
     dense_groups = set(map(int, strat.supported_groups.tolist()))
     eps = np.zeros(strat.selected_components, dtype=np.float32)
@@ -184,15 +205,28 @@ def gamma_strict_core_from_graph(
     tail_probe_component_sizes: list[int] = []
     tail_probe_null_windows: list[int] = []
     activated_tail_groups: list[int] = []
+    effective_dense_quantiles = np.full(strat.selected_components, np.nan, dtype=float)
+    stratum_sizes = np.zeros(strat.selected_components, dtype=np.int64)
     kth = graph.distances[:, cfg.min_samples - 2]
 
     for group in range(strat.selected_components):
         mask = groups == group
         values = kth[mask]
+        stratum_sizes[group] = values.size
         if values.size == 0:
             continue
         if group in dense_groups:
-            eps[group] = np.quantile(values, cfg.dense_core_quantile)
+            effective_quantile = cfg.dense_core_quantile
+            if cfg.min_core_seeds_per_stratum:
+                effective_quantile = max(
+                    effective_quantile,
+                    min(1.0, cfg.min_core_seeds_per_stratum / values.size),
+                )
+            eps[group] = np.quantile(values, effective_quantile)
+            if cfg.min_core_seeds_per_stratum:
+                seed_index = min(cfg.min_core_seeds_per_stratum, values.size) - 1
+                eps[group] = max(eps[group], np.partition(values, seed_index)[seed_index])
+            effective_dense_quantiles[group] = effective_quantile
             point_eps[mask] = eps[group]
             continue
         contrast = kth / np.maximum(
@@ -220,6 +254,8 @@ def gamma_strict_core_from_graph(
                 candidates,
                 probe,
                 min_samples=cfg.min_samples,
+                select_multiple=cfg.tail_multiple_components,
+                min_component_size=cfg.tail_seed_min_size,
             )
             core_seed_mask[mask] = selected_component[mask]
             activated_tail_groups.append(group)
@@ -237,10 +273,15 @@ def gamma_strict_core_from_graph(
         core_mask=core,
         profile={
             "strict_core_dense_quantile": cfg.dense_core_quantile,
+            "strict_core_min_core_seeds_per_stratum": cfg.min_core_seeds_per_stratum,
+            "strict_core_effective_dense_quantiles": effective_dense_quantiles.tolist(),
+            "strict_core_stratum_sizes": stratum_sizes.tolist(),
             "strict_core_tail_probe_quantile": cfg.tail_probe_quantile,
             "strict_core_tail_probe_outer_rank": cfg.tail_probe_outer_rank,
             "strict_core_tail_probe_alpha": cfg.tail_probe_alpha,
             "strict_core_tail_quantile": cfg.tail_core_quantile,
+            "strict_core_tail_multiple_components": cfg.tail_multiple_components,
+            "strict_core_tail_seed_min_size": cfg.tail_seed_min_size,
             "strict_core_border_multiplier": cfg.border_multiplier,
             "strict_core_dense_groups": len(dense_groups),
             "strict_core_tail_probe_pvalues": tail_probe_pvalues,
@@ -250,10 +291,16 @@ def gamma_strict_core_from_graph(
             "strict_core_core_fraction": float(np.mean(core)),
             "strict_core_active_fraction": float(np.mean(labels >= 0)),
             "strict_core_clusters": int(np.unique(labels[labels >= 0]).size),
-            "strict_core_gamma_components": int(strat.diagnostics["uniform_tail_components"]),
-            "strict_core_gamma_background_fraction": float(
-                strat.diagnostics["uniform_tail_background_fraction"]
+            "strict_core_stratification_mode": strat.mode,
+            "strict_core_stratification_components": int(strat.selected_components),
+            "strict_core_stratification_seconds": float(sum(strat.timings.values())),
+            "strict_core_gamma_components": int(
+                strat.diagnostics.get("uniform_tail_components", 0)
             ),
+            "strict_core_gamma_background_fraction": float(
+                strat.diagnostics.get("uniform_tail_background_fraction", 0.0)
+            ),
+            **strat.diagnostics,
             **clustering_profile,
         },
     )

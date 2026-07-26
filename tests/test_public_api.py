@@ -7,12 +7,13 @@ from stratascan import StrataSCAN
 
 
 def test_release_exports_only_current_algorithm() -> None:
-    assert stratascan.__version__ == "0.1.0"
+    assert stratascan.__version__ == "0.1.1"
     assert set(stratascan.__all__) == {
         "GammaStrictCoreConfig",
         "GammaStrictCoreResult",
         "HNSWConfig",
         "KNNGraph",
+        "MultiscaleConfig",
         "StrataSCAN",
         "UniformTailConfig",
         "build_knn_graph",
@@ -20,7 +21,7 @@ def test_release_exports_only_current_algorithm() -> None:
     }
 
 
-def test_default_estimator_is_frozen_strict_core() -> None:
+def test_default_estimator_is_multiscale_strict_core() -> None:
     rng = np.random.default_rng(42)
     X = np.vstack(
         [
@@ -42,3 +43,5 @@ def test_estimator_records_release_profile() -> None:
     assert model.core_sample_indices_.ndim == 1
     assert model.profile_["strict_core_dense_quantile"] == 0.95
     assert model.profile_["strict_core_tail_probe_alpha"] == 0.05
+    assert model.profile_["algorithm_version"] == "0.1.1"
+    assert model.profile_["strict_core_stratification_mode"] == "multiscale_gamma_uniform_tail"

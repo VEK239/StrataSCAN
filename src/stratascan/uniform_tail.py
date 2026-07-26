@@ -26,6 +26,8 @@ class UniformTailConfig:
     max_rate: float = 1e14
     max_fit_samples: int = 50_000
     random_state: int = 42
+    retain_intermediate_components: bool = False
+    background_components: int = 1
 
 
 @dataclass(slots=True)
@@ -153,6 +155,8 @@ def estimate_stratification_uniform_tail(
         raise ValueError("epsilon_quantile must lie in (0, 1]")
     if cfg.max_fit_samples < 100:
         raise ValueError("max_fit_samples must be at least 100")
+    if cfg.background_components < 1:
+        raise ValueError("background_components must be at least 1")
 
     started = perf_counter()
     signatures = (
@@ -221,6 +225,9 @@ def estimate_stratification_uniform_tail(
     else:
         cut = int(max(1, weights.size - 1))
 
+    density_cut = cut
+    if cfg.retain_intermediate_components:
+        cut = max(1, weights.size - cfg.background_components)
     background_probability = np.sum(responsibilities[:, cut:], axis=1)
     active = background_probability < cfg.background_posterior_threshold
     dense_responsibility = responsibilities[:, :cut]
@@ -234,7 +241,8 @@ def estimate_stratification_uniform_tail(
         if values.size:
             eps[group] = np.quantile(values, cfg.epsilon_quantile)
     point_eps = eps[groups]
-    supported = np.arange(cut, dtype=np.int32)
+    supported_count = density_cut if cfg.retain_intermediate_components else cut
+    supported = np.arange(supported_count, dtype=np.int32)
     timings = {
         "uniform_tail_mixture": perf_counter() - fit_started,
         "density_signatures": 0.0 if cached_signatures is not None else perf_counter() - started,
@@ -244,6 +252,11 @@ def estimate_stratification_uniform_tail(
         "uniform_tail_dimension": float(dimension),
         "uniform_tail_components": int(weights.size),
         "uniform_tail_dense_components": int(cut),
+        "uniform_tail_density_gap_cut": int(density_cut),
+        "uniform_tail_retain_intermediate_components": bool(
+            cfg.retain_intermediate_components
+        ),
+        "uniform_tail_background_components": int(weights.size - cut),
         "uniform_tail_weights": weights.tolist(),
         "uniform_tail_rates": rates.tolist(),
         "uniform_tail_rate_ratios": ratios.tolist(),

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stratascan"
-version = "0.1.0"
-description = "Gamma-stratified kNN-DBSCAN for variable-density clustering"
+version = "0.1.1"
+description = "Multiscale Gamma-stratified kNN-DBSCAN for variable-density clustering"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
