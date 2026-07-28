@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from time import perf_counter
 
 import numpy as np
@@ -9,6 +10,267 @@ from sklearn.decomposition import PCA
 from .core import StrataSCAN
 from .neighbors import Backend, HNSWConfig, build_knn_graph
 from .uniform_tail import UniformTailConfig
+
+
+class RankedTailStrataSCAN(StrataSCAN):
+    """Experimental cutoff-free tail enrichment variant.
+
+    The released estimator is unchanged.  This variant replaces the fixed 2%
+    rank window with a hypergeometric scan over all useful ranked cutoffs and
+    validates candidate components on the first neighbour shell not used to
+    construct their 4-NN graph.
+    """
+
+    def _config(self):
+        return replace(super()._config(), tail_probe_method="ranked_shell_mhg")
+
+
+class PercolationTailStrataSCAN(StrataSCAN):
+    """Experimental tail test based on excess 4-NN component connectivity."""
+
+    def __init__(
+        self,
+        *args,
+        tail_percolation_permutations: int = 199,
+        tail_percolation_density_bins: int = 4,
+        tail_percolation_degree_bins: int = 4,
+        tail_percolation_random_state: int = 42,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.tail_percolation_permutations = int(tail_percolation_permutations)
+        self.tail_percolation_density_bins = int(tail_percolation_density_bins)
+        self.tail_percolation_degree_bins = int(tail_percolation_degree_bins)
+        self.tail_percolation_random_state = int(tail_percolation_random_state)
+
+    def _config(self):
+        return replace(
+            super()._config(),
+            tail_probe_method="component_percolation",
+            tail_percolation_permutations=self.tail_percolation_permutations,
+            tail_percolation_density_bins=self.tail_percolation_density_bins,
+            tail_percolation_degree_bins=self.tail_percolation_degree_bins,
+            tail_percolation_random_state=self.tail_percolation_random_state,
+        )
+
+
+class ComponentMultiscaleTailStrataSCAN(StrataSCAN):
+    """Experimental tail test using component-level multiscale density persistence."""
+
+    def __init__(
+        self,
+        *args,
+        tail_multiscale_permutations: int = 199,
+        tail_multiscale_density_bins: int = 4,
+        tail_multiscale_degree_bins: int = 4,
+        tail_multiscale_random_state: int = 42,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.tail_multiscale_permutations = int(tail_multiscale_permutations)
+        self.tail_multiscale_density_bins = int(tail_multiscale_density_bins)
+        self.tail_multiscale_degree_bins = int(tail_multiscale_degree_bins)
+        self.tail_multiscale_random_state = int(tail_multiscale_random_state)
+
+    def _config(self):
+        return replace(
+            super()._config(),
+            tail_probe_method="component_multiscale",
+            tail_percolation_permutations=self.tail_multiscale_permutations,
+            tail_percolation_density_bins=self.tail_multiscale_density_bins,
+            tail_percolation_degree_bins=self.tail_multiscale_degree_bins,
+            tail_percolation_random_state=self.tail_multiscale_random_state,
+        )
+
+
+class AdaptiveMultiscaleTailStrataSCAN(ComponentMultiscaleTailStrataSCAN):
+    """Experimental tail test that chooses its outer rank at a profile breakpoint."""
+
+    def __init__(self, *args, k: int = 256, **kwargs) -> None:
+        kwargs.setdefault("tail_multiple_components", True)
+        super().__init__(*args, k=k, **kwargs)
+
+    def _config(self):
+        return replace(
+            super()._config(),
+            tail_probe_method="component_adaptive_multiscale",
+            tail_probe_outer_rank=self.k,
+        )
+
+
+class PersistentContrastTailStrataSCAN(StrataSCAN):
+    """Experimental tail selection by density persistence and boundary contrast."""
+
+    def _config(self):
+        return replace(super()._config(), tail_probe_method="persistent_contrast")
+
+
+class PersistentDBCVTailStrataSCAN(StrataSCAN):
+    """Experimental tail selection by density persistence and DBCV-like separation."""
+
+    def _config(self):
+        return replace(super()._config(), tail_probe_method="persistent_dbcv")
+
+
+class CalibratedDBCVTailStrataSCAN(StrataSCAN):
+    """Persistent DBCV selector calibrated over the complete fixed-graph scan."""
+
+    def __init__(self, *args, bootstrap_replicates: int = 39, random_state: int = 42, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bootstrap_replicates = int(bootstrap_replicates)
+        self.random_state = int(random_state)
+
+    def _config(self):
+        return replace(
+            super()._config(),
+            tail_probe_method="persistent_dbcv_bootstrap",
+            tail_llr_bootstrap_replicates=self.bootstrap_replicates,
+            tail_llr_random_state=self.random_state,
+        )
+
+
+class StableDBCVTailStrataSCAN(PersistentDBCVTailStrataSCAN):
+    """Accept a DBCV tail only when its new cluster recurs after graph rebuilds."""
+
+    def __init__(
+        self,
+        *args,
+        stability_subsamples: int = 2,
+        stability_fraction: float = 0.75,
+        stability_jaccard: float = 0.50,
+        random_state: int = 42,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.stability_subsamples = int(stability_subsamples)
+        self.stability_fraction = float(stability_fraction)
+        self.stability_jaccard = float(stability_jaccard)
+        self.random_state = int(random_state)
+
+    def _model_kwargs(self) -> dict[str, object]:
+        return {
+            "k": self.k,
+            "backend": self.backend,
+            "n_jobs": self.n_jobs,
+            "ambient_dimension": self.ambient_dimension,
+            "hnsw_config": self.hnsw_config,
+            "min_samples": self.min_samples,
+            "min_cluster_size": self.min_cluster_size,
+            "dense_core_quantile": self.dense_core_quantile,
+            "tail_probe_quantile": self.tail_probe_quantile,
+            "tail_probe_outer_rank": self.tail_probe_outer_rank,
+            "tail_probe_alpha": self.tail_probe_alpha,
+            "tail_core_quantile": self.tail_core_quantile,
+            "tail_multiple_components": self.tail_multiple_components,
+            "tail_seed_min_size": self.tail_seed_min_size,
+            "border_multiplier": self.border_multiplier,
+            "uniform_tail_config": self.uniform_tail_config,
+            "multiscale_config": self.multiscale_config,
+        }
+
+    @staticmethod
+    def _novel_clusters(candidate: np.ndarray, baseline: np.ndarray) -> list[np.ndarray]:
+        clusters: list[np.ndarray] = []
+        for label in np.unique(candidate[candidate >= 0]):
+            members = candidate == label
+            if np.mean(baseline[members] < 0) >= 0.50:
+                clusters.append(members)
+        return clusters
+
+    @staticmethod
+    def _best_jaccard(target: np.ndarray, labels: np.ndarray) -> float:
+        if not np.any(target):
+            return 0.0
+        best = 0.0
+        for label in np.unique(labels[labels >= 0]):
+            predicted = labels == label
+            union = int(np.sum(target | predicted))
+            if union:
+                best = max(best, float(np.sum(target & predicted)) / union)
+        return best
+
+    def fit(self, X: ArrayLike, y: ArrayLike | None = None) -> "StableDBCVTailStrataSCAN":
+        del y
+        values = np.asarray(X, dtype=np.float32, order="C")
+        if values.ndim != 2:
+            raise ValueError("X must be a 2-D array")
+        if self.stability_subsamples < 1:
+            raise ValueError("stability_subsamples must be positive")
+        if not 0.0 < self.stability_fraction < 1.0:
+            raise ValueError("stability_fraction must lie in (0, 1)")
+        if not 0.0 <= self.stability_jaccard <= 1.0:
+            raise ValueError("stability_jaccard must lie in [0, 1]")
+
+        graph, graph_seconds = build_knn_graph(
+            values,
+            k=self.k,
+            backend=self.backend,
+            n_jobs=self.n_jobs,
+            hnsw_config=self.hnsw_config,
+        )
+        dimension = float(values.shape[1]) if self.ambient_dimension is None else float(self.ambient_dimension)
+        self.fit_from_graph(graph, ambient_dimension=dimension)
+        candidate_labels = self.labels_.copy()
+        candidate_core = self.core_sample_indices_.copy()
+        candidate_profile = dict(self.profile_)
+
+        baseline = StrataSCAN(**self._model_kwargs()).fit_from_graph(
+            graph, ambient_dimension=dimension
+        )
+        novel = self._novel_clusters(candidate_labels, baseline.labels_)
+        scores: list[float] = []
+        if novel:
+            rng = np.random.default_rng(self.random_state)
+            sample_size = max(self.k + 1, int(np.floor(self.stability_fraction * values.shape[0])))
+            for draw in range(self.stability_subsamples):
+                rows = np.sort(rng.choice(values.shape[0], size=sample_size, replace=False))
+                subsample = PersistentDBCVTailStrataSCAN(**self._model_kwargs()).fit(values[rows])
+                scores.append(
+                    max(
+                        self._best_jaccard(cluster[rows], subsample.labels_)
+                        for cluster in novel
+                    )
+                )
+        accepted = bool(scores) and bool(np.median(scores) >= self.stability_jaccard)
+        if accepted:
+            self.labels_ = candidate_labels
+            self.core_sample_indices_ = candidate_core
+            self.n_clusters_ = int(np.unique(candidate_labels[candidate_labels >= 0]).size)
+            self.profile_ = candidate_profile
+        else:
+            self.labels_ = baseline.labels_.copy()
+            self.core_sample_indices_ = baseline.core_sample_indices_.copy()
+            self.n_clusters_ = baseline.n_clusters_
+            self.profile_ = dict(baseline.profile_)
+        self.graph_ = graph
+        self.profile_ = {
+            "graph_seconds": float(graph_seconds),
+            **self.profile_,
+            "experimental_stable_dbcv_accepted": accepted,
+            "experimental_stable_dbcv_novel_clusters": len(novel),
+            "experimental_stable_dbcv_jaccards": scores,
+            "experimental_stable_dbcv_subsamples": self.stability_subsamples,
+            "experimental_stable_dbcv_fraction": self.stability_fraction,
+            "experimental_stable_dbcv_threshold": self.stability_jaccard,
+        }
+        return self
+
+
+class GammaLLRBootstrapTailStrataSCAN(StrataSCAN):
+    """Experimental local Gamma-rate scan calibrated over the full tail scan."""
+
+    def __init__(self, *args, bootstrap_replicates: int = 39, random_state: int = 42, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bootstrap_replicates = int(bootstrap_replicates)
+        self.random_state = int(random_state)
+
+    def _config(self):
+        return replace(
+            super()._config(),
+            tail_probe_method="gamma_llr_bootstrap",
+            tail_llr_bootstrap_replicates=self.bootstrap_replicates,
+            tail_llr_random_state=self.random_state,
+        )
 
 
 def _merge_pass_labels(

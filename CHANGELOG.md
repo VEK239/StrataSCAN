@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.2
+
+- Promoted `PredictiveMultiscaleStrataSCAN` to the released algorithm and made
+  the public `StrataSCAN` name an alias for it.
+- Replaced BIC selection of the multiscale Gamma mixture with constrained
+  repeated-holdout predictive likelihood and the one-standard-error rule.
+- Added `PredictiveMultiscaleConfig` and the explicit
+  `PredictiveMultiscaleStrataSCAN` class to the public API.
+- Froze the completed evaluation over seven synthetic scenarios, three classic
+  cytometry datasets, ten Samusik samples, all 359 Gaia fields, and synthetic
+  scaling through five million observations.
+
 ## 0.1.1
 
 - Promoted the four-shell multiscale Gamma stratification from the experimental

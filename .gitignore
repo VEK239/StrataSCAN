@@ -25,3 +25,5 @@ results/published/*
 !results/published/v0.1.0/**
 !results/published/v0.1.1/
 !results/published/v0.1.1/**
+!results/published/v0.1.2/
+!results/published/v0.1.2/**

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "protocol_version": "predictive-multiscale-pilot-v1",
+  "purpose": "compare_bic_multiscale_to_constrained_repeated_holdout_selection_at_n10000",
+  "parameter_mode": "fixed_predeclared_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1800,
+    "memory_limit_mb": 8192
+  },
+  "methods": ["StrataSCAN", "StrataSCAN-PredictiveMultiscale"],
+  "stochastic_methods": ["StrataSCAN", "StrataSCAN-PredictiveMultiscale"],
+  "method_parameters": {
+    "k": 32,
+    "ranks": [4, 8, 16, 32],
+    "rate_profile": "log_lambda_sj=mu_s+b_s_log_kj",
+    "candidate_components": [2, 3, 4, 5, 6, 7, 8],
+    "validation_fraction": 0.20,
+    "validation_repeats": 3,
+    "selection_rule": "smallest_K_within_one_standard_error_of_best_valid_score",
+    "min_component_mass": 0.005,
+    "min_assignment_stability": 0.80,
+    "dense_background_cut": "existing_max_first_shell_rate_gap"
+  },
+  "synthetic": {
+    "quality_seeds": [23, 42, 73, 101, 151],
+    "scaling_seeds": [],
+    "quality_sizes": [10000],
+    "scaling_sizes": [],
+    "cases": [
+      {"id": "multidensity_2d", "family": "multidensity", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "ultrasparse_16d", "family": "ultrasparse", "dimension": 16, "noise_fraction": 0.95},
+      {"id": "overlapping_density_16d", "family": "overlapping_density", "dimension": 16, "noise_fraction": 0.80, "signal_fraction": 0.20},
+      {"id": "moons_2d", "family": "moons", "dimension": 2, "noise_fraction": 0.25},
+      {"id": "rings_2d", "family": "rings", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "overlap_8d", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.25},
+      {"id": "imbalanced_16d", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 from datetime import datetime, timezone
 import hashlib
@@ -175,7 +176,16 @@ def atomic_json(path: Path, value: Any) -> None:
     ) as handle:
         json.dump(value, handle, indent=2, sort_keys=True)
         temporary = Path(handle.name)
-    os.replace(temporary, path)
+    for attempt in range(6):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError:
+            if attempt == 5:
+                raise
+            # Windows virus scanners and indexers can briefly hold a newly
+            # closed file. Keep the atomic replace, but tolerate that race.
+            time.sleep(0.05 * (2**attempt))
 
 
 def sha256(path: Path) -> str:
@@ -666,10 +676,18 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=Path("results/runs/full_v200"))
     parser.add_argument("--suite", choices=("all", "synthetic", "cytometry", "gaia"), default="all")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=1,
+        help="number of isolated benchmark jobs to execute concurrently",
+    )
     parser.add_argument("--list", action="store_true", help="print the frozen matrix size without executing jobs")
     parser.add_argument("--validate-only", action="store_true")
     parser.add_argument("--compare-to", type=Path, help="reference results.csv or its run directory")
     args = parser.parse_args()
+    if args.max_workers < 1:
+        parser.error("--max-workers must be at least 1")
 
     protocol_path = args.protocol.resolve()
     protocol = read_protocol(protocol_path)
@@ -708,6 +726,7 @@ def main() -> None:
         if existing_results and not args.resume:
             raise FileExistsError("results already exist; use --resume or a new output directory")
         total = len(jobs)
+        pending: list[tuple[int, dict[str, Any], Path, Path]] = []
         for index, job in enumerate(jobs, start=1):
             spec_path = specs_dir / f"{job['job_id']}.json"
             result_path = jobs_dir / f"{job['job_id']}.json"
@@ -717,9 +736,24 @@ def main() -> None:
                 if existing.get("job_id") == job["job_id"]:
                     print(f"[{index}/{total}] resume {job['job_id']}", flush=True)
                     continue
+            pending.append((index, job, spec_path, result_path))
+
+        def execute_pending(item: tuple[int, dict[str, Any], Path, Path]) -> tuple[int, dict[str, Any], dict[str, Any]]:
+            index, job, spec_path, result_path = item
             print(f"[{index}/{total}] run {job['job_id']}", flush=True)
             result = run_job(job, spec_path, result_path, manifest["resources"])
-            print(f"[{index}/{total}] {result['status']} {job['job_id']}", flush=True)
+            return index, job, result
+
+        if args.max_workers == 1:
+            completed = map(execute_pending, pending)
+            for index, job, result in completed:
+                print(f"[{index}/{total}] {result['status']} {job['job_id']}", flush=True)
+        else:
+            with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
+                futures = [executor.submit(execute_pending, item) for item in pending]
+                for future in as_completed(futures):
+                    index, job, result = future.result()
+                    print(f"[{index}/{total}] {result['status']} {job['job_id']}", flush=True)
 
     validation, results = validate(manifest, jobs_dir)
     atomic_json(output / "validation.json", validation)

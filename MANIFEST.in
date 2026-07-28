@@ -2,3 +2,4 @@ include README.md
 include CHANGELOG.md
 include LICENSE
 recursive-include results/published/v0.1.0 *.md
+recursive-include results/published/v0.1.2 *.md

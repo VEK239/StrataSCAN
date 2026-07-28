@@ -30,6 +30,14 @@ def clustering_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, floa
 
     true_noise = ~true_signal
     pred_noise = ~pred_signal
+    signal_tp = int(np.sum(true_signal & pred_signal))
+    signal_precision = signal_tp / int(np.sum(pred_signal)) if np.any(pred_signal) else 0.0
+    signal_recall = signal_tp / int(np.sum(true_signal)) if np.any(true_signal) else 0.0
+    signal_f1 = (
+        2 * signal_precision * signal_recall / (signal_precision + signal_recall)
+        if signal_precision + signal_recall
+        else 0.0
+    )
     noise_tp = int(np.sum(true_noise & pred_noise))
     noise_precision = noise_tp / int(np.sum(pred_noise)) if np.any(pred_noise) else 0.0
     noise_recall = noise_tp / int(np.sum(true_noise)) if np.any(true_noise) else 0.0
@@ -45,8 +53,13 @@ def clustering_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, floa
         "noise_precision": noise_precision,
         "noise_recall": noise_recall,
         "noise_f1": noise_f1,
-        "signal_coverage": float(np.mean(pred_signal[true_signal])) if np.any(true_signal) else 0.0,
-        "background_rejection": float(np.mean(pred_noise[true_noise])) if np.any(true_noise) else 0.0,
+        "signal_precision": signal_precision,
+        "signal_recall": signal_recall,
+        "signal_f1": signal_f1,
+        "binary_macro_f1": 0.5 * (signal_f1 + noise_f1),
+        "binary_balanced_accuracy": 0.5 * (signal_recall + noise_recall),
+        "signal_coverage": signal_recall,
+        "background_rejection": noise_recall,
         "n_clusters": int(np.unique(y_pred[y_pred >= 0]).size),
         "noise_fraction": float(np.mean(y_pred < 0)),
     }
