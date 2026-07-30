@@ -17,6 +17,12 @@ TABLES = ROOT / "tables"
 PUBLICATION = REPO / "results/runs/publication_full_7synthetic_20260722/results.csv"
 PILOT_BIO = REPO / "results/runs/optimization_dev10_real_pilot_cytometry/results.csv"
 LOCKED_SYNTH = REPO / "results/runs/optimization_dev10_locked_n5000_seeds197_251_k1/metrics.csv"
+RUNTIME_20K = REPO / "results/runs/optimization_dev10_runtime_n20000_seed197/metrics.csv"
+DEV9_SCALING = REPO / "results/runs/optimization_v020_dev9_scaling/results.csv"
+PREDECESSOR_SCALING = (
+    REPO
+    / "results/predictive_scaling_5m_20260727/analysis/extended-scaling-summary.csv"
+)
 
 DEV = "MDL-StrataSCAN"
 OLD = "StrataSCAN 0.1.2"
@@ -293,12 +299,103 @@ def synthetic_outputs() -> None:
     ).to_csv(TABLES / "locked_synthetic_method_summary.csv")
 
 
+def scalability_outputs() -> None:
+    """State exactly which scale claims belong to which algorithm snapshot."""
+    locked = pd.read_csv(LOCKED_SYNTH)
+    locked["runtime_seconds"] = locked["fit_seconds_without_graph"] + locked["graph_seconds"]
+    locked_current = locked.loc[locked["method"].eq("icl")]
+
+    runtime_20k = pd.read_csv(RUNTIME_20K)
+    runtime_20k["runtime_seconds"] = (
+        runtime_20k["fit_seconds_without_graph"] + runtime_20k["graph_seconds"]
+    )
+    runtime_20k_current = runtime_20k.loc[runtime_20k["method"].eq("icl")]
+
+    biological = pd.read_csv(PILOT_BIO)
+    biological_current = biological.loc[
+        biological["method"].eq("StrataSCAN-Optimization")
+        & biological["status"].eq("ok")
+    ]
+    largest_biological = biological_current.sort_values("n").iloc[-1]
+
+    dev9 = pd.read_csv(DEV9_SCALING)
+    dev9_million = dev9.loc[
+        dev9["method"].eq("StrataSCAN-Optimization") & dev9["n"].eq(1_000_000)
+    ].iloc[0]
+
+    predecessor = pd.read_csv(PREDECESSOR_SCALING)
+    predecessor_5m = predecessor.loc[predecessor["n"].eq(5_000_000)].iloc[0]
+
+    evidence = pd.DataFrame(
+        [
+            {
+                "snapshot": "Fixed-range MDL",
+                "scope": "14 locked synthetic pairs",
+                "n": 5_000,
+                "runtime_seconds": float(locked_current["runtime_seconds"].median()),
+                "memory_record": "not monitored",
+                "claim_boundary": "evaluated snapshot; paired-process engineering time",
+            },
+            {
+                "snapshot": "Fixed-range MDL",
+                "scope": "7 synthetic families",
+                "n": 20_000,
+                "runtime_seconds": float(runtime_20k_current["runtime_seconds"].median()),
+                "memory_record": "not monitored",
+                "claim_boundary": "evaluated snapshot; one seed",
+            },
+            {
+                "snapshot": "Fixed-range MDL",
+                "scope": str(largest_biological["dataset_id"]).capitalize(),
+                "n": int(largest_biological["n"]),
+                "runtime_seconds": float(largest_biological["runtime_seconds"]),
+                "memory_record": f"{float(largest_biological['peak_rss_mb']):.1f} peak",
+                "claim_boundary": "largest directly evaluated snapshot job",
+            },
+            {
+                "snapshot": "Earlier dev9",
+                "scope": "Moons smoke test",
+                "n": int(dev9_million["n"]),
+                "runtime_seconds": float(dev9_million["runtime_seconds"]),
+                "memory_record": f"{float(dev9_million['peak_rss_mb']):.1f} peak",
+                "claim_boundary": "different algorithm; sparse-lineage evidence only",
+            },
+            {
+                "snapshot": "Predecessor 0.1.2",
+                "scope": "7-family median",
+                "n": int(predecessor_5m["n"]),
+                "runtime_seconds": float(predecessor_5m["new_median_seconds"]),
+                "memory_record": "endpoint only",
+                "claim_boundary": "different algorithm; not MDL evidence",
+            },
+        ]
+    )
+    evidence.to_csv(TABLES / "scalability_evidence_boundaries.csv", index=False)
+
+    lines = [
+        r"\begin{tabular}{@{}lrrl@{}}",
+        r"\toprule",
+        r"Evidence & $n$ & Time (s) & Memory (MiB) \\",
+        r"\midrule",
+    ]
+    for row in evidence.itertuples(index=False):
+        label = f"{row.snapshot}: {row.scope}"
+        lines.append(
+            f"{label} & {row.n:,} & {row.runtime_seconds:.1f} & {row.memory_record} \\\\"
+        )
+    lines.extend([r"\bottomrule", r"\end{tabular}"])
+    (TABLES / "table_scalability_boundaries.tex").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
 def main() -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
     TABLES.mkdir(parents=True, exist_ok=True)
     configure_style()
     biological_outputs()
     synthetic_outputs()
+    scalability_outputs()
 
 
 if __name__ == "__main__":

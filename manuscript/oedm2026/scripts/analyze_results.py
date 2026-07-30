@@ -17,6 +17,7 @@ REPO = Path(__file__).resolve().parents[3]
 ROOT = Path(__file__).resolve().parents[1]
 FIGURES = ROOT / "figures"
 TABLES = ROOT / "tables"
+SUPPLEMENT_FIGURES = ROOT / "supplement" / "figures"
 
 PUBLICATION = REPO / "results/runs/publication_full_7synthetic_20260722/results.csv"
 SAMUSIK_01 = REPO / "results/runs/samusik_01/results.csv"
@@ -173,6 +174,7 @@ def paired_summary(left: pd.Series, right: pd.Series) -> dict[str, float | int]:
 
 def load_blocks() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     metrics_bio = [
+        "n",
         "macro_target_f1",
         "noise_f1",
         "pairwise_f1",
@@ -181,6 +183,7 @@ def load_blocks() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         "runtime_seconds",
     ]
     metrics_gaia = [
+        "n",
         "best_cluster_f1",
         "pairwise_f1",
         "background_rejection",
@@ -270,9 +273,10 @@ def write_tex_table(summary: pd.DataFrame, path: Path, methods: list[str]) -> No
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def save_figure(fig: plt.Figure, stem: str) -> None:
+def save_figure(fig: plt.Figure, stem: str, directory: Path = FIGURES) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
     for extension in ("pdf", "png", "svg"):
-        fig.savefig(FIGURES / f"{stem}.{extension}", bbox_inches="tight", pad_inches=0.02)
+        fig.savefig(directory / f"{stem}.{extension}", bbox_inches="tight", pad_inches=0.02)
     plt.close(fig)
 
 
@@ -390,7 +394,7 @@ def plot_paired(bio: pd.DataFrame, gaia: pd.DataFrame) -> None:
     save_figure(fig, "fig2_paired_tradeoffs")
 
 
-def plot_synthetic(synthetic: pd.DataFrame) -> pd.DataFrame:
+def summarize_synthetic(synthetic: pd.DataFrame) -> pd.DataFrame:
     pivot = synthetic.pivot_table(
         index=["case_id", "seed"], columns="method",
         values=["macro_target_f1", "pairwise_f1", "noise_f1"],
@@ -405,33 +409,108 @@ def plot_synthetic(synthetic: pd.DataFrame) -> pd.DataFrame:
             row[f"{metric}_predecessor"] = float(part[(metric, PREDECESSOR)].mean())
         rows.append(row)
     result = pd.DataFrame(rows).sort_values("macro_target_f1_delta")
+    return result
+
+
+def plot_secondary_diagnostics(
+    biological: pd.DataFrame,
+    biological_studies: pd.DataFrame,
+    gaia: pd.DataFrame,
+    synthetic: pd.DataFrame,
+) -> None:
+    """Consolidate secondary rank, paired-effect, and scaling diagnostics."""
+    fig, axes = plt.subplots(2, 2, figsize=(7.12, 5.1), constrained_layout=True)
+
+    selected = ["kNN + Leiden", PREDECESSOR, DEV, "SNN-DBSCAN"]
+    study_means = (
+        biological_studies.loc[biological_studies["method"].isin(selected)]
+        .groupby("method")["target_background_hmean_f1"]
+        .mean()
+        .reindex(selected)
+    )
+    ax = axes[0, 0]
+    colors = [PALETTE.get(method, PALETTE["baseline"]) for method in selected]
+    ax.barh(selected, study_means, color=colors, height=0.65)
+    for y, value in enumerate(study_means):
+        ax.text(value + 0.004, y, f"{value:.3f}", va="center", fontsize=6.5)
+    ax.set_xlim(0, 0.19)
+    ax.set_xlabel("Study-weighted post-hoc TB-HF1")
+    ax.set_title("(a) Biological rank sensitivity", loc="left", fontweight="bold")
+    ax.grid(axis="y", visible=False)
+    sns.despine(ax=ax)
+
+    gaia_delta = paired_frame(gaia, "best_cluster_f1")["delta"].sort_values()
+    ax = axes[0, 1]
+    gaia_colors = np.where(
+        gaia_delta > 1e-12,
+        PALETTE["gain"],
+        np.where(gaia_delta < -1e-12, PALETTE["loss"], PALETTE["baseline"]),
+    )
+    ax.bar(np.arange(len(gaia_delta)), gaia_delta, color=gaia_colors, width=0.82)
+    ax.axhline(0, color="#333333", lw=0.75)
+    ax.set_xlabel("Prespecified Gaia field (sorted)")
+    ax.set_ylabel(r"$\Delta$ best-cluster F1")
+    ax.set_title("(b) Gaia: 6 improve, 10 tie, 8 regress", loc="left", fontweight="bold")
+    sns.despine(ax=ax)
+
     labels = {
-        "multidensity_2d": "Multi-density 2D",
-        "ultrasparse_16d": "Ultra-sparse 16D",
-        "overlapping_density_16d": "Overlap-density 16D",
-        "moons_2d": "Moons 2D",
-        "rings_2d": "Rings 2D",
-        "overlap_8d": "Gaussian overlap 8D",
-        "imbalanced_16d": "Imbalanced 16D",
+        "multidensity_2d": "Multi-density",
+        "ultrasparse_16d": "Ultra-sparse",
+        "overlapping_density_16d": "Overlap-density",
+        "moons_2d": "Moons",
+        "rings_2d": "Rings",
+        "overlap_8d": "Gaussian overlap",
+        "imbalanced_16d": "Imbalanced",
     }
-    fig, ax = plt.subplots(figsize=(7.12, 2.75), constrained_layout=True)
-    x = np.arange(len(result))
+    ax = axes[1, 0]
+    x = np.arange(len(synthetic))
     width = 0.24
     specs = [
-        ("macro_target_f1_delta", "Macro target F1", "#0072B2"),
+        ("macro_target_f1_delta", "Target F1", "#0072B2"),
         ("pairwise_f1_delta", "Pairwise F1", "#009E73"),
         ("noise_f1_delta", "Noise F1", "#CC79A7"),
     ]
     for offset, (column, label, color) in zip((-width, 0.0, width), specs, strict=True):
-        ax.bar(x + offset, result[column], width=width, label=label, color=color)
-    ax.axhline(0, color="#333333", lw=0.8)
-    ax.set_xticks(x, [labels[value] for value in result["case_id"]], rotation=24, ha="right")
-    ax.set_ylabel(r"Mean paired $\Delta$ (MDL - 0.1.2)")
-    ax.set_title("Locked synthetic validation (two unseen seeds per family)", loc="left", fontweight="bold")
-    ax.legend(ncol=3, loc="upper left", frameon=False)
+        ax.bar(x + offset, synthetic[column], width=width, label=label, color=color)
+    ax.axhline(0, color="#333333", lw=0.75)
+    ax.set_xticks(
+        x,
+        [labels[value] for value in synthetic["case_id"]],
+        rotation=28,
+        ha="right",
+    )
+    ax.set_ylabel(r"Mean paired $\Delta$ (MDL $-$ 0.1.2)")
+    ax.set_title("(c) Locked synthetic effects", loc="left", fontweight="bold")
+    ax.legend(ncol=3, loc="upper left", frameon=False, fontsize=6.3)
     sns.despine(ax=ax)
-    save_figure(fig, "fig3_locked_synthetic")
-    return result
+
+    current_bio = biological.loc[biological["method"].eq(DEV)].copy()
+    current_gaia = gaia.loc[gaia["method"].eq(DEV)].copy()
+    ax = axes[1, 1]
+    ax.scatter(
+        current_gaia["n"], current_gaia["runtime_seconds"],
+        s=18, alpha=0.72, color="#56B4E9", label="Gaia fields",
+    )
+    ax.scatter(
+        current_bio["n"], current_bio["runtime_seconds"],
+        s=22, alpha=0.82, color=PALETTE[DEV], label="Cytometry datasets",
+    )
+    mosmann = current_bio.loc[current_bio["dataset_id"].eq("mosmann")].iloc[0]
+    ax.annotate(
+        "Mosmann\n396,460; 517 s",
+        (mosmann["n"], mosmann["runtime_seconds"]),
+        xytext=(-48, -12), textcoords="offset points", fontsize=6.2,
+        arrowprops={"arrowstyle": "-", "lw": 0.55, "color": "#444444"},
+    )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Observations per evaluated dataset")
+    ax.set_ylabel("End-to-end runtime (s)")
+    ax.set_title("(d) Fixed-range snapshot: direct pilots", loc="left", fontweight="bold")
+    ax.legend(frameon=False, loc="upper left", fontsize=6.3)
+    sns.despine(ax=ax)
+
+    save_figure(fig, "figS1_secondary_diagnostics", SUPPLEMENT_FIGURES)
 
 
 def write_synthetic_tex(table: pd.DataFrame) -> None:
@@ -481,9 +560,8 @@ def main() -> None:
     write_tex_table(gaia_summary, TABLES / "table_gaia24.tex", METHOD_ORDER)
 
     plot_method_pipeline()
-    plot_method_matrix(biological, gaia)
-    plot_paired(biological, gaia)
-    synthetic_table = plot_synthetic(synthetic)
+    synthetic_table = summarize_synthetic(synthetic)
+    plot_secondary_diagnostics(biological, bio_studies, gaia, synthetic_table)
     synthetic_table.to_csv(TABLES / "locked_synthetic_by_family.csv", index=False)
     write_synthetic_tex(synthetic_table)
 

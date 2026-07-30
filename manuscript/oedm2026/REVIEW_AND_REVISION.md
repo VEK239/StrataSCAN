@@ -76,12 +76,39 @@ These limitations prevent a strong accept. They do not invalidate the narrower
 OEDM paper because the title, abstract, evaluation, discussion, and conclusion
 now state the same scoped contribution and expose the principal failure modes.
 
+## Round 3 — post-tag evidence audit
+
+The preceding manuscript and code were frozen at commit `8c3db22` and annotated
+tag `v0.2.0` before this round. A fresh review against that immutable baseline
+found three additional presentation/provenance problems:
+
+1. The paper's sparse complexity bound was correct, but the narrative mixed a
+   20,000-point run of the submitted fixed-range snapshot, a one-million-point
+   dev9 prototype, and five-million-point 0.1.2 predecessor runs. The revision
+   adds an evidence-boundary table. The largest job attributable to the
+   submitted snapshot is now reported directly: Mosmann, 396,460 cells, 517.0
+   seconds, and 646.7 MiB monitored peak process RSS. The larger records are
+   explicitly labeled as different algorithms.
+2. The fixed-range benchmark profile called its Gamma-basis and background
+   models “adaptive,” although component expansion was disabled. The profile
+   strings now describe the frozen configuration exactly; the public adaptive
+   8–24 search and the evaluated 1–8 search are machine-distinguishable.
+3. Three uncited figures duplicated main-table ranks and paired effects. They
+   were consolidated into one supplemental diagnostic covering study-weighted
+   biology, signed Gaia field changes, locked synthetic trade-offs, and direct
+   pilot runtime versus size. All source tables and negative cases remain.
+
+No frozen seed, prediction, score, or endpoint changed. The resulting 0.2.1
+work is a provenance, reporting, and artifact-organization revision rather than
+a retrospectively tuned algorithm.
+
 ## Verification checklist
 
-- Focused metric and optimization tests: 18 passed.
+- Focused release-profile, public-API, and optimization tests: 19 passed.
+- Full project test suite: 44 passed.
+- Offline source and wheel builds completed for version 0.2.1.
 - Both replay protocols and the artifact manifest parse as JSON.
 - Every table and figure is regenerated from the frozen result files.
 - The stable PDF compiles without unresolved references or horizontal overflow.
 - Every page of the exact stable PDF is rendered and visually inspected.
 - Anonymous author text and PDF metadata contain no author identity.
-
