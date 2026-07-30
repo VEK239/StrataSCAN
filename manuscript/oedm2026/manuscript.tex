@@ -1,0 +1,306 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{balance}
+
+% Permit two wide result floats to share a page before the discussion.  The
+% defaults otherwise defer the biological diagnostic until after Conclusion.
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{dbltopnumber}{2}
+
+\graphicspath{{figures/}}
+\newcommand{\method}{MDL-StrataSCAN}
+\newcommand{\oldmethod}{StrataSCAN 0.1.2}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\given}{\,\middle|\,}
+
+\title{Description-Length Optimization of Density Strata on Sparse $k$-Nearest-Neighbor Graphs}
+
+\author{\IEEEauthorblockN{Anonymous Author(s)}
+\IEEEauthorblockA{Anonymous submission for triple-blind review}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Clustering data with several density levels and a dominant background is difficult because one neighborhood radius may erase sparse clusters or connect dense clusters through background bridges. We present \method, a label-free sparse-graph method that replaces several extraction quantiles with conditional codelength decisions. A constrained Gamma mixture models multiscale neighbor-shell volumes; an exact event sweep selects an observed core-distance threshold within each fitted stratum; a coded background scan can activate additional components; and density-ordered growth cannot merge previously separated dense clusters. We separate evidence by provenance. An original 315-run, five-seed development matrix compares nine methods with segmentation, time, and memory diagnostics. On two unseen seeds per synthetic family, the frozen revision improves mean macro target F1 by 0.077 over version 0.1.2. For 13 cytometry datasets (1.55 million cells), the predeclared target-only endpoint improves from 0.069 to 0.203 but permits an all-assigned Leiden partition to appear strong. We therefore add a clearly post-hoc target--background harmonic-F1 diagnostic. Its dataset-weighted mean rises from 0.112 to 0.217, but a study-weighted analysis places \method\ second to SNN-DBSCAN (0.160 versus 0.163) and exposes severe over-segmentation. On a 24-field Gaia DR3 pilot, mean best-cluster F1 is 0.867 versus 0.894 for the predecessor and 0.916 for the strongest baseline. The evidence supports the optimization mechanism, not universal dominance.
+\end{abstract}
+
+\begin{IEEEkeywords}
+variable-density clustering, minimum description length, $k$-nearest-neighbor graph, background rejection, graph optimization
+\end{IEEEkeywords}
+
+\section{Introduction}
+Density-based clustering is attractive when cluster count, shape, and background mass are unknown. DBSCAN formalized this setting through a neighborhood radius and a minimum number of neighbors~\cite{ester1996dbscan}; OPTICS and HDBSCAN reduce dependence on a single radius by representing a hierarchy of density levels~\cite{ankerst1999optics,campello2013hdbscan}. Nevertheless, extracting one flat, noise-aware partition from strongly heterogeneous data still requires consequential choices. A radius appropriate for a compact cell population or stellar cluster may exclude a diffuse population, whereas a radius appropriate for the diffuse structure may create background bridges. Graph community methods address connectivity but generally assign every vertex, which is undesirable when ``unassigned'' is a meaningful outcome.
+
+The practical difficulty is not merely parameter count. It is that common parameters are expressed in incomparable units: a distance quantile, a minimum component size, a posterior cutoff, a significance level, and a border multiplier may all influence the same final decision. Tuning these values on evaluation labels makes an unsupervised method partly supervised; fixing them globally makes performance brittle. The minimum-description-length (MDL) principle instead asks whether a candidate structure compresses the observations enough to pay for describing that structure~\cite{rissanen1978mdl}. This is particularly natural for density clustering: local density supplies pointwise evidence, within-component graph edges supply topology evidence, and model, threshold, and component identities have explicit code costs.
+
+We develop \method, a sparse-graph algorithm that operationalizes this idea. The method retains a fixed $k$NN representation and multiscale shell-volume model, but replaces dense-core and sparse-tail quantiles with conditional description-length optimizations. It is deliberately \emph{not} described as a globally optimal clustering solver: mixture complexity, stratum roles, core thresholds, and extraction are optimized in successive blocks. Within a fitted block, however, each stratum threshold is selected exactly over every observed core-distance event, not over a hand-written grid. The all-background solution is feasible, no minimum output-cluster size is imposed, and non-core vertices may remain noise.
+
+This paper makes four contributions:
+\begin{itemize}
+  \item a multiscale Gamma/ICL model that converts $k$NN shell volumes into ordered density strata and a posterior background probability without labels;
+  \item an explicit description-gain objective combining Gamma log odds, held-out graph topology, threshold codes, and component root codes, with an exact event sweep for each fitted stratum;
+  \item a unified extraction procedure that can recover coherent components from the inferred background, prevents low-density bridges from merging denser clusters, and attaches border vertices only inside a neighboring core radius; and
+  \item a layered evaluation that preserves the original five-seed synthetic baseline matrix and its resource measurements, separates a post-freeze paired revision comparison from real-data pilots, and reports segmentation failures and post-hoc metric sensitivity rather than hiding them behind an aggregate rank.
+\end{itemize}
+
+Fig.~\ref{fig:pipeline} summarizes the computational path. Every production object is an array or bounded-degree sparse graph; dense pairwise distances are never materialized.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig0_method_pipeline.pdf}
+  \caption{\method{} pipeline. Blue stages make label-free model or threshold decisions. The representation uses $k=32$ and shell ranks $(4,8,16,32)$; these are fixed geometry choices in the present study, not learned quality thresholds.}
+  \label{fig:pipeline}
+\end{figure*}
+
+\section{Related Work}
+\textbf{Density and graph clustering.}
+DBSCAN connects core points defined by $(\varepsilon,\mathrm{MinPts})$ and treats unassigned points as noise~\cite{ester1996dbscan}. OPTICS records a density-reachability ordering~\cite{ankerst1999optics}, while HDBSCAN builds and condenses a hierarchy of density-connected sets~\cite{campello2013hdbscan}. Shared-nearest-neighbor clustering replaces Euclidean proximity by neighborhood overlap~\cite{ertoz2003snn}. VDBSCAN and AMD-DBSCAN estimate several DBSCAN parameter pairs to address variable density~\cite{liu2007vdbscan,wang2022amd}. $k$NN+Leiden instead applies community detection to a proximity graph; Leiden guarantees connected communities after refinement but still optimizes a graph-partition objective rather than an explicit noise model~\cite{traag2019leiden}. Our experiments include controlled implementations of all of these families.
+
+\textbf{Local density and multiscale evidence.}
+Nearest-neighbor radii are classical nonparametric density statistics~\cite{loftsgaarden1965knn}. Rather than selecting one radius, we use disjoint volume increments between several neighbor ranks. Under a locally homogeneous Poisson process these increments have Gamma laws with known shape, which permits likelihood aggregation across scales. Approximate $k$NN construction uses HNSW/FAISS-style sparse search in higher dimensions~\cite{malkov2020hnsw,johnson2019faiss}; graph construction is separable from the clustering objective.
+
+\textbf{Description-length model selection.}
+MDL selects a model by the combined cost of the model and residual data~\cite{rissanen1978mdl}. BIC provides an asymptotic parameter code~\cite{schwarz1978bic}; integrated completed likelihood (ICL) adds an assignment-entropy penalty suited to mixture clustering~\cite{biernacki2000icl}. Our use of ICL chooses the number of density bases. A second, graph-level code determines whether a nested core prefix and its connected components repay their threshold and identity costs. This separation is important: a flexible density mixture can explain a smooth background without implying that every mixture component is a cluster.
+
+\section{Problem Statement}
+Let $X=\{x_i\}_{i=1}^n\subset\R^d$. The desired output is $z_i\in\{-1,0,\ldots,K-1\}$, where $-1$ denotes background/noise and $K$ is unknown. Let $G_k=(V,E_k)$ be the directed $k$NN graph with neighbor distance $d_{i,q}$ at rank $q$. We require:
+\begin{enumerate}
+  \item all geometric decisions use edges already present in $G_k$;
+  \item the all-background assignment is feasible;
+  \item density levels may differ across output clusters;
+  \item lower-density evidence cannot merge clusters already separated at higher density; and
+  \item evaluation labels are unavailable to model and threshold selection.
+\end{enumerate}
+
+The present solver is a blockwise optimization. First it chooses a Gamma density model $M$. Given $M$, it chooses supported density strata and core thresholds. Given the core set, it constructs identities and border/noise assignments. Each accepted core structure has positive description gain, but the complete pipeline is not claimed to solve a single joint nonconvex program to global optimality.
+
+\section{Method}
+\subsection{Multiscale Shell-Volume Mixture}
+For ranks $0=q_0<q_1<\cdots<q_J=k$, define the shell-volume observation
+\begin{equation}
+ y_{ij}=c_d\left(d_{i,q_j}^{d}-d_{i,q_{j-1}}^{d}\right),
+ \qquad a_j=q_j-q_{j-1},
+ \label{eq:shell}
+\end{equation}
+where $c_d$ is the unit-ball volume. Conditional on density component $s$, the locally Poisson approximation gives
+\begin{equation}
+ p(y_{ij}\mid s)=\operatorname{Gamma}(y_{ij};a_j,\lambda_{sj}),
+ \quad \log\lambda_{sj}=\mu_s+\beta_s\log q_j.
+ \label{eq:gamma}
+\end{equation}
+The log-linear rate constraint couples scales and uses two continuous parameters per component instead of one unrelated rate per shell. With mixture weights $\pi_s$, EM estimates $\Theta_m=\{\pi_s,\mu_s,\beta_s\}_{s=1}^{m}$ on all observations. The evaluated snapshot searches exactly $m=1,\ldots,8$ and uses three deterministic restarts; the current software exposes a separate adaptive-range option, but it is not used by any result reported here.
+
+Let $r_{is}=p(s\mid y_i,\Theta_m)$. We choose
+\begin{equation}
+ m^*=\arg\min_m\left[-2\ell(\Theta_m)+p_m\log n+2H(R_m)\right],
+ \label{eq:icl}
+\end{equation}
+where $p_m=(m-1)+2m$ and $H(R_m)=-\sum_{i,s}r_{is}\log r_{is}$. Equation~\eqref{eq:icl} is ICL in minimization form. Components are ordered by first-shell rate. In the evaluated version, the largest adjacent log-rate gap separates supported density strata from an explicit background group. A vertex receives its maximum-posterior component; its background posterior $b_i$ is the summed responsibility of background components. Thus the pointwise description gain of signal over background is
+\begin{equation}
+ u_i=\log\frac{1-b_i}{b_i}.
+ \label{eq:unary}
+\end{equation}
+
+This semantic split is a limitation: the largest rate gap can underselect signal when true cluster and field densities overlap. We retain it in the locked method because replacing it after inspecting the final labels would invalidate the evaluation.
+
+\subsection{Topology Code and Exact Core-Threshold Sweep}
+For each non-background stratum $s$, sort its vertices by $\delta_i=d_{i,4}$. Every prefix $P_s(t)$ is a candidate strict core, so the threshold is always an observed distance. The first four neighbor slots construct connectivity; slots five through eight provide disjoint topology evidence, avoiding the tautology of scoring a component using the same edges that created it.
+
+For a candidate set $C$ of size $a$, let $e_C$ be the number of held-out directed edges whose endpoint remains in $C$, and $T=4a$. Under a uniformly mixed reference, $p_0=(a-1)/(n-1)$. We integrate the alternative edge probability with a Jeffreys $\operatorname{Beta}(1/2,1/2)$ prior:
+\begin{align}
+ \log \mathrm{BF}(C)={}&\log\frac{B(e_C+\tfrac12,T-e_C+\tfrac12)}{B(\tfrac12,\tfrac12)} \nonumber\\
+ &-e_C\log p_0-(T-e_C)\log(1-p_0).
+ \label{eq:bf}
+\end{align}
+Candidates no denser than the null receive gain $-\infty$. The stratum-prefix gain is
+\begin{equation}
+ G_s(t)=\sum_{i\in P_s(t)}u_i+\log\mathrm{BF}(P_s(t))-\log n.
+ \label{eq:prefix}
+\end{equation}
+The final term is the conservative global code used by the implementation for selecting one observed threshold event. As vertices activate in sorted order, cumulative unary gain and held-out edge count update incrementally. We evaluate every event and take $t_s^*=\arg\max_t\max(0,G_s(t))$ exactly. Because $k$NN edges are dependent, $\log\mathrm{BF}$ is an integrated edge-surprisal score, not a calibrated Bayes factor for the complete clustering; the summed objective is MDL-inspired rather than a proof of a joint universal code.
+
+The selected prefix can contain several connected components. For component $C$, we recompute held-out topology evidence and retain it only if
+\begin{equation}
+ G(C)=\sum_{i\in C}u_i+\log\mathrm{BF}(C)-\log n>0,
+ \label{eq:component}
+\end{equation}
+where $\log n$ is a uniform code for one representative root. This removes the need for a fixed minimum cluster size: a small component is permitted if its density and topology repay its identity.
+
+\subsection{Coded Search Inside the Background}
+A sparse cluster may lie inside the Gamma background group. We therefore apply the same core concept through an adaptive scan rather than a fixed ``tail'' fraction. Background vertices are ordered by $d_{i,4}$. Candidate prefix widths are dyadic, $w\in\{4,8,16,\ldots\}$, up to half of the active background. For each $w$, the largest connected component in the first rank window is compared with equally sized later windows. Its smoothed empirical tail probability is
+\begin{equation}
+ \hat p_w=\frac{1+\#\{j>1:A_j\ge A_1\}}{J_w}.
+\end{equation}
+The activation gain $-\log\hat p_w-\log|\mathcal W|-\log 2$ pays for the width search and activate/skip decision. A candidate must additionally repay a Poisson/Beta boundary code and the graph code
+\begin{equation}
+ L_{\mathrm{graph}}=\log |B|+(|C|-1)\log 4+\log|\mathcal W|.
+\end{equation}
+Only positive net-gain components are removed from the active background and the process repeats. There is no fixed tail mass, quantile, or $p$-value cutoff; however, repeated adaptive scans do not provide a formal family-wise error guarantee and remain a future sensitivity target.
+
+\subsection{Density-Ordered Extraction and Border Decisions}
+Core strata are processed from high to low Gamma rate. Within one stratum, directed graph edges are admitted only when their metric length does not exceed the source core radius $\varepsilon_s=d_{(t_s^*),4}$. A core component without contact to an earlier stratum creates a new cluster. If it contacts existing denser clusters, multi-source shortest-path growth assigns its vertices to those seeds; it may extend, but never merge, the existing identities. This is a density-ordered, non-merging graph watershed.
+
+For a non-core vertex $i$, consider its first four graph neighbors that already have cluster labels. It attaches through the neighbor minimizing $d_{ij}/\varepsilon_{s(j)}$ only if that ratio is at most one. Otherwise $z_i=-1$. The rule is deliberately conservative: no global border multiplier and no post-hoc forced assignment are used.
+
+\subsection{Conditional Guarantees}
+The blockwise construction does not imply global optimality, but two useful guarantees hold inside its declared search space.
+
+\textbf{Proposition 1 (event-sweep optimality).} Fix a fitted mixture, one stratum $V_s$, its unary gains, the graph slots assigned to topology scoring, and a deterministic ordering of equal distances. The threshold $t_s^*$ maximizes~\eqref{eq:prefix} over every core set induced by an observed fourth-neighbor-distance event, including the empty core.
+
+\emph{Proof sketch.} Between consecutive observed distances, the strict core set is unchanged. Activating vertices in sorted order therefore enumerates every distinct candidate in this conditional family. The unary sum and held-out edge count are sufficient statistics for~\eqref{eq:prefix}; updating both at each event and retaining the largest nonnegative value returns its maximum. The outer maximum with zero explicitly represents the empty core. $\square$
+
+\textbf{Proposition 2 (non-merging invariant).} After a denser stratum has created cluster identities, processing any lower-density stratum cannot merge two of those identities.
+
+\emph{Proof sketch.} A lower-density component with no earlier contact receives a new identity. With one or more earlier contacts, multi-source growth assigns each new vertex to exactly one existing seed under deterministic distance and identifier tie-breaking. The update adds vertices to seed labels but never rewrites an earlier labeled vertex or unions seed identifiers. Strict-radius border assignment has the same one-label update. Induction over strata and border vertices proves the claim. $\square$
+
+These guarantees isolate what is exact and stable from what remains model-dependent: mixture selection, the largest-rate-gap semantic split, and the background scan are conditional modeling blocks rather than parts of a joint optimum.
+
+\subsection{Complexity}
+With fixed $k$, $J$, and candidate component cap $m_{\max}$, shell construction and EM storage are $O(nk+nm_{\max})$. Mixture fitting is $O(InJm_{\max})$ for $I$ EM iterations across candidates. Sorting core events costs $O(n\log n)$ in aggregate; edge scans, connected components, watershed growth, and border decisions use $O(nk)$ sparse state. Approximate neighbor construction dominates geometry at high dimension. The method therefore avoids $O(n^2)$ storage, although fitting every row for every ICL candidate is a significant runtime cost.
+
+\section{Experimental Design}
+\subsection{Datasets and Preprocessing}
+\textbf{Synthetic data.} Seven generators cover multi-density blobs, 95\% noise in 16 dimensions, overlapping density, moons, rings, Gaussian overlap, and severe imbalance. We retain the original $n=5{,}000$ comparison at seeds 23, 42, 73, 101, and 151: nine methods on 35 instances give 315 isolated-process jobs with wall time and memory monitoring. These seeds precede the MDL freeze and are therefore a reference/development matrix, not independent confirmation. After the algorithm was frozen, seeds 197 and 251 were evaluated only for \method\ and \oldmethod, yielding 14 paired locked conditions. We do not merge estimates across these two stages.
+
+\textbf{Biological data.} We evaluate Levine, Mosmann, and Nilsson benchmark cytometry data and ten independently processed Samusik mouse samples~\cite{levine2015aml,samusik2016phenotype,weber2016cytometry}. Together they contain 1,547,871 cells, 7--39 type markers per dataset, and expert population annotations plus an unassigned/background class. Type-marker intensities receive the predeclared arcsinh transform (cofactor 5 for Levine and Samusik; 150 for Mosmann and Nilsson) followed by robust median/IQR scaling.
+
+\textbf{Gaia DR3.} The source release contains 359 open-cluster cone fields from Gaia DR3~\cite{gaia2023dr3,wang2026mctnc}, with reference memberships related to the modern open-cluster census~\cite{hunt2024census}. Before any full-field evaluation, we selected 24 fields by a stable hash independent of labels. After finite-value and RUWE $\le1.6$ filtering, the pilot contains 185,586 stars (3,013--20,564 per field). The five features are tangent-plane sky position, parallax, and two proper-motion components, each robust-scaled using field data only. Reference-negative stars are treated as background for scoring, although they can contain uncatalogued structure.
+
+\subsection{Baselines and Protocol}
+The comparison panel is DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, AMD-DBSCAN, $k$NN-DBSCAN, $k$NN+Leiden, and frozen StrataSCAN versions. Library DBSCAN/HDBSCAN/OPTICS implementations use scikit-learn~\cite{pedregosa2011sklearn}; the other methods are controlled reference implementations. All profiles, transforms, one-thread execution, 600--1800~s time limits, and 8,192~MB memory limits were declared before evaluation. The five-seed matrix contains StrataSCAN 0.1.0 because it is the contemporaneous baseline artifact; the paired revision comparison uses the immediate 0.1.2 predecessor. The evaluated MDL snapshot is explicitly configured with the fixed component range $1$--$8$; benchmark manifests use explicit versioned identifiers rather than the mutable public StrataSCAN alias.
+
+The real-data pilot directly reran \method\ and \oldmethod\ at seed 42. Legacy baselines come from the earlier frozen all-method matrix on the identical processed datasets. Stochastic methods are collapsed by the within-dataset median over their declared seeds; failed jobs contribute zero. HDBSCAN and AMD-DBSCAN did not pass the initial Samusik screen, so the all-13 biological table uses the eight methods with complete coverage. The Gaia table includes all ten methods on the identical 24 fields. Cross-protocol runtimes are descriptive, not controlled microbenchmarks.
+
+\subsection{Metrics and Statistics}
+For biological data, each annotated population is matched to its best predicted cluster and population F1 scores are averaged with equal weight, giving macro target F1 $F_T$, the endpoint declared in the frozen protocol. This matching is many-to-one: two reference populations may choose the same predicted cluster. We therefore always report pairwise F1, merge counts, fragments, and $\hat K/K^*$ alongside it.
+
+After observing that $k$NN+Leiden assigns every cell yet scores well on target matching, we added a post-hoc guard diagnostic. Let $F_B$ be binary F1 for identifying the annotated unassigned/``other'' class as predicted background. We report
+\begin{equation}
+ F_{\mathrm{TB}}=\frac{2F_TF_B}{F_T+F_B},
+ \label{eq:noise-aware}
+\end{equation}
+with value zero when the denominator is zero. The target--background harmonic F1 (TB-HF1) makes both all-assigned and all-background outputs score zero, but its equal task weighting is a design choice, not a preregistered primary endpoint. Moreover, ``unassigned'' can contain uncharacterized biology; $F_B$ measures agreement with the reference background class, not physical noise truth. We retain $F_T$, $F_B$, background recall, and pairwise F1 separately. For Gaia, where reference-negative stars are not confirmed noise, the predeclared endpoint remains best-cluster F1.
+
+Segmentation is described by the predicted cluster count $\hat K$ relative to annotated population count $K^*$, extra signal fragments beyond the best match to each target, and predicted clusters containing substantial mass from multiple targets (merged segments). We visualize granularity as $\log_2(\hat K/K^*)$: zero is count agreement, negative values indicate under-segmentation, and positive values indicate over-segmentation. Count agreement is diagnostic rather than an objective, since a correct $K$ can still have incorrect membership.
+
+Paired effects compare \method\ with \oldmethod. Dataset-level summaries retain all 13 outputs for transparency. Because ten Samusik samples come from one benchmark study, cross-study summaries first average them and then weight Samusik, Levine, Mosmann, and Nilsson equally. Wilcoxon tests and 20,000-resample intervals over 13 datasets are labelled exploratory and are not interpreted as independent-study inference. No metric or test result changes the frozen predictions.
+
+\section{Results}
+\subsection{Original Five-Seed Synthetic Baseline Matrix}
+Table~\ref{tab:synth-reference} restores the complete quality/resource comparison on the original five seeds. All 315 jobs complete. HDBSCAN has the highest mean macro target F1 (0.822), followed by StrataSCAN 0.1.0 (0.770) and VDBSCAN (0.756). The ordering changes when membership structure and noise are considered: StrataSCAN 0.1.0 has the highest pairwise F1 (0.735) and noise F1 (0.977). It is not the efficient winner. Its 2.829~s median runtime is four to twenty times those of the conventional baselines, and its 40.3~MiB median incremental RSS is exceeded only by AMD-DBSCAN (381.9~MiB). These are isolated-process medians over the same 35 generated instances per method.
+
+Fig.~\ref{fig:synth-reference} explains why no aggregate rank suffices. Multi-density and ultra-sparse instances are broadly solvable, although DBSCAN-family methods can create up to $2^{5.4}$ times too many segments on multi-density data. Curved geometry induces the clearest fragmentation: DBSCAN returns median $\hat K=106$ on moons and 213 on rings, versus $K^*=2$; StrataSCAN 0.1.0 reduces this to 4 and 12 but still over-segments rings. The converse failure occurs in high-dimensional overlap. AMD-DBSCAN collapses the 8 overlap-density targets to one cluster, while StrataSCAN 0.1.0 returns four; on Gaussian overlap it returns two clusters for six targets. HDBSCAN's strong macro average masks both over-segmentation of rings (median 23 clusters) and under-segmentation of Gaussian overlap (three clusters). Thus the original matrix identifies the design pressure for the MDL revision: reduce manifold fragmentation without turning density overlap into mergers. Because the five seeds were available during development, this figure is diagnostic evidence, not the locked test of that revision.
+
+\begin{table*}[t]
+  \centering
+  \caption{Original five-seed synthetic reference matrix at $n=5{,}000$. Quality values are means over 35 instances; time and memory are medians. $\Delta$RSS is incremental process peak over the launch baseline. This pre-freeze matrix is not an independent test of \method.}
+  \label{tab:synth-reference}
+  \scriptsize
+  \setlength{\tabcolsep}{3.2pt}
+  \input{tables/table_synthetic_five_seed_resources.tex}
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig5_synthetic_baseline_segmentation.pdf}
+  \caption{Per-family synthetic comparison on the original five seeds. (a) Macro target F1. (b) Granularity relative to reference cluster count; blue indicates merging/under-segmentation and red indicates fragmentation/over-segmentation. The two panels reveal qualitatively different errors at similar mean F1.}
+  \label{fig:synth-reference}
+\end{figure*}
+
+\subsection{Post-Freeze Synthetic Revision Comparison}
+Table~\ref{tab:synth} isolates the MDL change on the two unseen seeds. Across 14 paired conditions, macro target F1 rises from 0.830 to 0.907 (mean $\Delta=+0.077$), and pairwise F1 improves by 0.060. The largest gains occur for Gaussian overlap, rings, and moons, the three families in which the reference matrix exposed merging or fragmentation. Ultra-sparse and imbalanced data are essentially unchanged in macro F1. The counterexamples are multi-density 2D ($-0.020$ macro) and overlap-density 16D ($-0.072$ pairwise). Noise F1 decreases by 0.008 on average, driven mainly by Gaussian overlap ($-0.069$), where stricter border attachment improves identities while leaving more signal unassigned. Median end-to-end time is 6.13~s for \method\ and 7.11~s for 0.1.2, but both variants share a graph and execute sequentially in one process; this paired engineering timing is not comparable to the isolated-process values in Table~\ref{tab:synth-reference}.
+
+\begin{table*}[t]
+  \centering
+  \caption{Locked synthetic validation. Values are means over unseen seeds 197 and 251. Deltas are \method\ minus \oldmethod.}
+  \label{tab:synth}
+  \small
+  \input{tables/table_locked_synthetic.tex}
+\end{table*}
+
+\subsection{Biological Results by Dataset}
+\method\ completes all 13 datasets. The predeclared target-only mean rises on every dataset, from 0.069 to 0.203. The post-hoc TB-HF1 mean rises from 0.112 to 0.217; 12 dataset outputs improve and Nilsson regresses. The dataset-level exploratory mean gain is 0.105 (bootstrap interval $[0.072,0.133]$; Wilcoxon $p=7.32\times10^{-4}$), but these numbers count ten Samusik samples separately. After averaging within source study, the gain is 0.070 (0.090 to 0.160), with three of four studies improving. Under that study-weighted comparison SNN-DBSCAN is marginally higher at 0.163, so the first-place dataset-weighted rank is not robust to the unit of aggregation.
+
+\begin{table}[t]
+  \centering
+  \caption{Post-hoc TB-HF1 sensitivity to the aggregation unit. The study mean first averages the ten Samusik samples.}
+  \label{tab:bio-weighting}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \input{tables/table_biological_weighting.tex}
+\end{table}
+
+The apparent $k$NN+Leiden paradox is resolved explicitly. Leiden has the highest target-only mean (0.268, and 0.335 on Samusik) because it can isolate annotated populations while assigning all remaining cells to communities. Since it never emits the background label, its background precision, recall, F1, and hence $F_{\mathrm{TB}}$ are zero. Target matching alone does not penalize reference-background cells outside the best-matched target clusters.
+
+\textbf{Levine.} Target F1 rises from 0.055 to 0.226 and background F1 from 0.297 to 0.379, so TB-HF1 rises from 0.092 to 0.284. The algorithm nevertheless returns 775 clusters for 14 populations, including nine extra target fragments, five merged segments, and 404 background-majority clusters. This is joint target/background improvement accompanied by extreme fragmentation, not a solved partition.
+
+\textbf{Mosmann.} Coverage changes from 0.064 to 0.991, but target F1 remains 0.001 and background F1 falls from 0.240 to 0.012; TB-HF1 is only 0.002. All 27 predicted clusters are background-majority. Near-total assignment is not recovery: this is a clear failure of the density/background semantic split. SNN-DBSCAN is strongest here at 0.436 TB-HF1.
+
+\textbf{Nilsson.} Target F1 increases from 0.098 to 0.378, but background F1 falls from 0.299 to 0.066; TB-HF1 decreases from 0.147 to 0.112. Pairwise F1 remains below $4\times10^{-4}$ and 34 segments are produced for one annotated target. The post-hoc diagnostic exposes a target-recovery/background-rejection reversal hidden by the declared endpoint.
+
+\textbf{Samusik 01--10.} The predecessor returns only 2--5 clusters for 24 annotated populations in every sample, a consistent under-segmentation signature. \method\ returns 92--139 clusters and moves to the opposite side of the target granularity. Mean target F1 rises from 0.074 to 0.204 while mean background F1 decreases from 0.344 to 0.303; TB-HF1 rises from 0.122 to 0.243. Pairwise F1 improves on eight, but samples 06 and 09 regress slightly. On average the MDL partitions contain 3.1 extra target fragments, 3.4 merged segments, and 46.6 background-majority clusters. Recovery improves, but the partition remains too fine for a strong biological-clustering claim.
+
+Table~\ref{tab:bio-datasets} reports every dataset in the same order as the figure. Across all 13, background recall falls from 0.256 to 0.202; 12 regress (mean $\Delta=-0.054$, exploratory bootstrap interval $[-0.080,-0.026]$). Background F1 also incorporates precision and is the component used in~\eqref{eq:noise-aware}. The separate columns prevent TB-HF1 from hiding either behavior.
+
+\begin{table*}[t]
+  \centering
+  \caption{Dataset-level biological results. Each paired entry is \oldmethod/\method. TB-HF1 is the post-hoc diagnostic in~\eqref{eq:noise-aware}; $K^*$ and $\hat K$ are annotated and predicted cluster counts.}
+  \label{tab:bio-datasets}
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \input{tables/table_biological_by_dataset.tex}
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig4_biological_by_dataset.pdf}
+  \caption{Biological results without pooling datasets. (a) Post-hoc target--background harmonic F1; all-assigned $k$NN+Leiden partitions score zero. (b) Paired changes in the combined score and its target/background components. (c) Predicted-to-annotated cluster-count ratio. (d) MDL target fragmentation and merging counts.}
+  \label{fig:bio-datasets}
+\end{figure*}
+
+\subsection{Gaia Pilot and Baseline Matrix}
+On the 24 prespecified fields, \method\ reaches mean best-cluster F1 0.867. This exceeds DBSCAN, OPTICS, VDBSCAN, and $k$NN-DBSCAN, but trails SNN-DBSCAN (0.916), HDBSCAN (0.916), AMD-DBSCAN (0.897), the predecessor (0.894), and $k$NN+Leiden (0.883); see Table~\ref{tab:gaia}. Relative to the predecessor, six fields improve, ten tie, and eight regress. The mean paired change is $-0.027$ with bootstrap interval $[-0.160,0.101]$ and Wilcoxon $p=0.623$. The pilot thus does not establish a Gaia quality improvement.
+
+It does expose a qualitatively different partition. Mean pairwise F1 is 0.144, versus approximately zero for HDBSCAN, AMD-DBSCAN, Leiden, and the predecessor under this field-level definition; SNN-DBSCAN remains strongest at 0.247. Mean background rejection rises from 0.247 to 0.338. This average is driven by large positive shifts on a minority of fields: rejection improves on eight and regresses on sixteen, giving a median change of $-0.173$ despite mean $+0.092$. In several fields the optimizer rejects nearly all reference-negative stars and recovers the target poorly; in others it preserves perfect target F1 but assigns most field stars to broad components. A single aggregate cannot hide this bimodality.
+
+\begin{table}[t]
+  \centering
+  \caption{Matched 24-field Gaia matrix. Primary is best-cluster F1; reference-negative stars are not confirmed noise.}
+  \label{tab:gaia}
+  \scriptsize
+  \setlength{\tabcolsep}{2.0pt}
+  \resizebox{\columnwidth}{!}{\input{tables/table_gaia24.tex}}
+\end{table}
+
+\subsection{Runtime and Resource Behavior}
+The reference synthetic resource matrix is fully reported in Table~\ref{tab:synth-reference}; no method fails at $n=5{,}000$. The StrataSCAN lineage pays a clear cost for its richer density model: version 0.1.0 is slower than every comparator and uses more incremental memory than all but AMD-DBSCAN. Peak RSS for the custom post-freeze revision comparison was not instrumented and is intentionally left unclaimed. At $n=20{,}000$, a separate seven-family engineering check measured a 1.95$\times$ median end-to-end ratio for \method\ relative to 0.1.2 because the new mixture fits every row instead of using the predecessor's 10,000-row cap.
+
+All 74 direct real-data pilot jobs (26 biological and 48 Gaia) complete without timeout, memory termination, or numerical failure. Median biological runtime is 14.57~s for \method\ versus 10.65~s for the predecessor, but Mosmann is an important outlier at 517.0 versus 50.0~s. Median Gaia runtime is 11.15 versus 7.89~s. Several Gaia baselines are much faster (0.15--0.66~s median), whereas VDBSCAN and OPTICS are substantially slower on the large biological samples. These results establish bounded sparse storage in the evaluated range; they do not establish million-point speed or memory parity.
+
+\section{Discussion and Limitations}
+The strongest positive evidence is the locked synthetic revision comparison: improvements concentrate on the curved and overlapping families that motivated the method, although only two unseen seeds per family were used. In biology, target-only F1 improves on every dataset, but this many-to-one metric does not certify a good partition. TB-HF1 improves on 12 outputs yet was constructed after inspecting the Leiden failure, and dataset weighting overrepresents Samusik. The study-weighted rank reversal against SNN-DBSCAN, the Nilsson target/background reversal, and severe Levine/Samusik fragmentation rule out a universal biological-superiority claim.
+
+The Gaia pilot prevents a universal-superiority claim. SNN-DBSCAN and HDBSCAN have higher best-cluster F1, and the method has rare catastrophic flips in both directions. Reference-negative stars are also not verified noise, so ``background rejection'' may penalize legitimate unlabelled structure. The full 359-field matrix was intentionally paused after the prescribed pilot; it remains required before a broad astronomical claim.
+
+There are five methodological limitations. First, the evaluated pipeline is blockwise rather than a globally optimized MDL program; its dependent-edge topology score is a composite codelength heuristic, not a calibrated probability for the full partition. Second, the largest Gamma rate gap can fail when signal density overlaps a background continuum. Third, the Poisson shell model uses ambient feature dimension and can be misspecified on lower-dimensional manifolds. Fourth, $k=32$, ranks $(4,8,16,32)$, and the one-to-eight mixture search are fixed representation/numerical controls; the method is parameter-light, not parameter-free. Fifth, full-data mixture fitting costs time and $O(nm)$ responsibilities. Explicit heterogeneous-background and intrinsic-dimension models, nested-$k$ selection, controlled component ablations, and a measured small-graph optimality gap are priorities.
+
+The comparison also mixes direct pilot runs for the two StrataSCAN variants with a frozen earlier baseline matrix. Datasets, transforms, method profiles, and resource limits match, but runtime comparisons across protocol generations are descriptive. The accompanying artifact pins explicit versioned method identifiers, the evaluated $1$--$8$ component configuration, immutable result hashes, and scripts that reproduce every table and figure; raw-data redistribution remains subject to source licenses.
+
+\section{Conclusion}
+\method\ replaces several quality-critical density thresholds with label-free conditional codelength decisions on a sparse $k$NN graph. Exact within-stratum event sweeps and non-merging growth are the strongest algorithmic properties; semantic background selection and the graph code remain modeling assumptions. The frozen revision improves targeted synthetic geometries, while biological and Gaia pilots expose background and granularity failures that aggregate target matching can hide. The defensible conclusion is therefore narrow: codelength-guided extraction is promising, but stronger background models, component ablations, study-level validation, and full Gaia evaluation are required before broad superiority claims.
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

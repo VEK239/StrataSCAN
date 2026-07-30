@@ -1,6 +1,10 @@
 import numpy as np
 
-from stratascan import PredictiveMultiscaleConfig, StrataSCAN, build_knn_graph
+from stratascan import (
+    PredictiveMultiscaleConfig,
+    PredictiveMultiscaleStrataSCAN,
+    build_knn_graph,
+)
 from stratascan.multiscale import (
     MultiscaleConfig,
     estimate_multiscale_stratification,
@@ -35,7 +39,7 @@ def test_multiscale_stratification_and_estimator_align_with_graph() -> None:
     assert stratification.selected_components >= 2
     assert stratification.diagnostics["multiscale_shell_shapes"] == [4, 4, 8, 16]
     assert stratification.supported_groups.size < stratification.selected_components
-    model = StrataSCAN(
+    model = PredictiveMultiscaleStrataSCAN(
         backend="brute",
         ambient_dimension=2.0,
         predictive_config=PredictiveMultiscaleConfig(

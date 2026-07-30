@@ -1,0 +1,78 @@
+{
+  "biological_background": {
+    "ci_high": -0.026315880155111996,
+    "ci_low": -0.07965661977441492,
+    "improved": 1,
+    "max_delta": 0.08093258921105281,
+    "mean_delta": -0.05432800275510768,
+    "median_delta": -0.05140029621650741,
+    "min_delta": -0.1419076332739482,
+    "n": 13,
+    "regressed": 12,
+    "sign_p": 0.00341796875,
+    "tied": 0,
+    "wilcoxon_p": 0.013427734375
+  },
+  "biological_posthoc_dataset_composite": {
+    "ci_high": 0.1330285958755984,
+    "ci_low": 0.07174134195877584,
+    "improved": 12,
+    "max_delta": 0.19119408375305746,
+    "mean_delta": 0.10501013887955635,
+    "median_delta": 0.119706025217185,
+    "min_delta": -0.03559222658518818,
+    "n": 13,
+    "regressed": 1,
+    "sign_p": 0.00341796875,
+    "tied": 0,
+    "wilcoxon_p": 0.000732421875
+  },
+  "biological_posthoc_study_composite": {
+    "ci_high": 0.15598348267364892,
+    "ci_low": -0.016895547130614443,
+    "improved": 3,
+    "max_delta": 0.19119408375305746,
+    "mean_delta": 0.06954396777151724,
+    "median_delta": 0.06128700695909984,
+    "min_delta": -0.03559222658518818,
+    "n": 4,
+    "regressed": 1,
+    "sign_p": 0.625,
+    "tied": 0,
+    "wilcoxon_p": 0.375
+  },
+  "gaia_background": {
+    "ci_high": 0.2953973420522114,
+    "ci_low": -0.1032321372113089,
+    "improved": 8,
+    "max_delta": 0.8427771556550951,
+    "mean_delta": 0.09178460163378503,
+    "median_delta": -0.172825,
+    "min_delta": -0.7105769230769232,
+    "n": 24,
+    "regressed": 16,
+    "sign_p": 0.15158963203430176,
+    "tied": 0,
+    "wilcoxon_p": 0.704756498336792
+  },
+  "gaia_primary": {
+    "ci_high": 0.10093451490341204,
+    "ci_low": -0.15969695958858607,
+    "improved": 6,
+    "max_delta": 0.8871126112304388,
+    "mean_delta": -0.026755339361422936,
+    "median_delta": 0.0,
+    "min_delta": -1.0,
+    "n": 24,
+    "regressed": 8,
+    "sign_p": 0.79052734375,
+    "tied": 10,
+    "wilcoxon_p": 0.6233436223982587
+  },
+  "protocol_note": "Legacy baselines are collapsed by dataset using the median over declared stochastic seeds; failed jobs contribute zero. MDL-StrataSCAN and its 0.1.2 predecessor use the direct seed-42 pilot runs.",
+  "source_rows": {
+    "biological": 104,
+    "gaia": 240,
+    "synthetic": 28
+  }
+}

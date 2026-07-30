@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "protocol_version": "optimization-v0.2.0-dev11-validation",
+  "purpose": "adaptive_gamma_basis_and_background_model_validation",
+  "status": "development_only_not_locked",
+  "resources": {
+    "threads": 1,
+    "memory_limit_mb": 8192
+  },
+  "gamma_basis": {
+    "shell_ranks": [4, 8, 16, 32],
+    "initial_component_bound": 8,
+    "hard_component_bound": 24,
+    "expansion_step": 4,
+    "boundary_margin": 1,
+    "criterion": "semantic_icl",
+    "initialization": "split_warm_plus_independent_restarts",
+    "fit_rows": "all"
+  },
+  "models": [
+    "dev10_fixed_gap",
+    "adaptive_gap",
+    "adaptive_rate_changepoint",
+    "adaptive_coded_background",
+    "validated_rate_prefix",
+    "continuous_rate_background"
+  ],
+  "nulls": {
+    "families": ["uniform_hypercube"],
+    "dimensions": [2, 8, 16],
+    "required_false_signal_rate": 0.0,
+    "required_false_cluster_rate": 0.0
+  },
+  "development": {
+    "seeds": [23, 42, 73],
+    "sizes": [1000, 2000, 5000]
+  },
+  "promotion_gates": [
+    "selected_component_count_has_an_interior_optimum",
+    "all_selected_fits_converge_with_three_restarts",
+    "uniform_and_cox_null_false_cluster_rate_is_zero",
+    "synthetic_pairwise_macro_and_noise_metrics_are_non_inferior",
+    "real_data_background_and_recall_metrics_are_non_inferior",
+    "fresh_locked_seeds_are_untouched_until_design_freeze"
+  ]
+}

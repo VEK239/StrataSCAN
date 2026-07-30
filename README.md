@@ -1,11 +1,11 @@
 # StrataSCAN
 
-StrataSCAN 0.1.2 is a variable-density clustering algorithm. The released
-`PredictiveMultiscaleStrataSCAN` estimator fits a constrained four-shell Gamma
-mixture, selects its complexity by repeated-holdout predictive likelihood, and
-combines the resulting density strata with strict kNN-DBSCAN core seeds and a
-wider, core-radius border assignment. `StrataSCAN` is the short public alias for
-the same estimator.
+StrataSCAN 0.2.0 is a variable-density clustering algorithm based on a
+full-data multiscale Gamma model and a unified description-length clustering
+objective. It adaptively selects Gamma density bases, separates semantic signal
+strata from one aggregated background state, optimizes supported core radii,
+and retains unsupported points as noise. `StrataSCAN` is the public alias for
+the explicit `OptimizationStrataSCAN` estimator.
 
 ## Installation
 
@@ -22,9 +22,9 @@ pip install "stratascan[perf]"
 ## Usage
 
 ```python
-from stratascan import PredictiveMultiscaleStrataSCAN
+from stratascan import StrataSCAN
 
-labels = PredictiveMultiscaleStrataSCAN().fit_predict(X)
+labels = StrataSCAN().fit_predict(X)
 ```
 
 The estimator accepts NumPy-compatible two-dimensional input and follows the
@@ -32,33 +32,47 @@ usual `fit`, `fit_predict`, `labels_`, and `n_clusters_` conventions. A
 prebuilt graph can be supplied with `fit_from_graph` or
 `fit_predict_from_graph`.
 
-## 0.1.2 method
+## 0.2.0 method
 
 1. Build a 32-neighbour graph. The default uses exact KD-tree search in 2D,
    FAISS HNSW above 2D when FAISS is installed, and brute-force search as the
    dependency-free fallback.
-2. Fit constrained local-Poisson Gamma rate profiles to the shell-volume
-   increments at neighbour ranks 4, 8, 16, and 32.
-3. Select 2--8 mixture components using three repeated 80/20 holdouts. Choose
-   the smallest stable model within one standard error of the best predictive
-   log likelihood, then refit it on up to 10,000 representative observations.
-4. Use `q95(d4)` for core detection in supported dense strata.
-5. In the tail, test the lowest 2% of `d4 / d32` against 49 equally sized rank
-   windows using the largest induced 4-NN component. Activate only at
-   empirical `p < 0.05`.
-6. A significant tail uses `q5(d4)`. Only the q5 component overlapping the
-   significant probe may seed a cluster.
-7. Attach border points within `1.25 * core epsilon`.
+2. Fit full-data local-Poisson Gamma shell profiles at neighbour ranks 4, 8,
+   16, and 32.
+3. Select the number of density bases with semantic ICL. Search starts at eight
+   bases and expands in blocks of four when the optimum is near the boundary,
+   up to a hard diagnostic bound of 24.
+4. Use the largest fitted log-rate gap to retain a dense signal prefix and
+   aggregate all remaining Gamma bases into one semantic background state.
+5. Optimize each signal stratum over observed fourth-neighbour radii using
+   Gamma posterior log-odds, held-out neighbour-window topology evidence, and
+   explicit description-length component costs.
+6. Scan the background separately for finitely supported overdensities using
+   rank-window and accessible-volume evidence.
+7. Form density-ordered, non-merging connected components and attach border
+   points only inside a selected core radius.
 
-There is no fallback to scalar kNN-DBSCAN and no post-hoc structural recovery.
-`PredictiveMultiscaleConfig` exposes the predictive mixture selection settings
-when non-default configuration is required.
+The released background model is `gamma_components`. Continuous Gamma-rate,
+lognormal-rate, and inverse-Gamma-rate backgrounds remain opt-in research
+controls. `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the two
+released configuration stages. The 0.1.2
+`PredictiveMultiscaleStrataSCAN` class remains available explicitly for
+historical reproduction.
 
 ## Release evidence
 
-The frozen 0.1.2 evaluation is recorded in
+The 0.2.0 release decision and known limitations are recorded in
+[`results/published/v0.2.0/RESULTS.md`](results/published/v0.2.0/RESULTS.md).
+Its machine-readable defaults are frozen in
+[`benchmarks/protocol.v0.2.0-release.json`](benchmarks/protocol.v0.2.0-release.json).
+The frozen 0.1.2 evaluation remains in
 [`results/published/v0.1.2/RESULTS.md`](results/published/v0.1.2/RESULTS.md).
-Earlier release evidence remains available under `results/published`.
+
+The 0.2.0 formulation and development evidence remain available in
+[`docs/V0.2.0_OPTIMIZATION.md`](docs/V0.2.0_OPTIMIZATION.md),
+[`docs/V0.2.0_DEV10_RESULTS.md`](docs/V0.2.0_DEV10_RESULTS.md),
+[`docs/V0.2.0_DEV11_VALIDATION.md`](docs/V0.2.0_DEV11_VALIDATION.md), and
+[`docs/V0.2.0_DEV12_BACKGROUND_VALIDATION.md`](docs/V0.2.0_DEV12_BACKGROUND_VALIDATION.md).
 
 ## Development
 
@@ -68,7 +82,8 @@ python -m pytest
 python -m build
 ```
 
-Use the benchmark runner with `StrataSCAN` to evaluate the 0.1.2 default.
+Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.0 default. Use
+`StrataSCAN-PredictiveMultiscale` when reproducing the 0.1.2 estimator.
 
 ### Samusik real-data benchmark
 
