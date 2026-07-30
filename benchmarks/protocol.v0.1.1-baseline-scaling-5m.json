@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.1.1-baseline-scaling-5m",
+  "purpose": "controlled_baseline_scaling_extension_from_500k_to_5m_without_rerunning_existing_evidence",
+  "parameter_mode": "fixed_predeclared_profiles",
+  "resources": {"threads": 1, "timeout_seconds": 7200, "memory_limit_mb": 8192},
+  "methods": ["DBSCAN", "HDBSCAN", "OPTICS", "SNN-DBSCAN", "VDBSCAN-2007", "AMD-DBSCAN", "kNN-DBSCAN", "kNN+Leiden"],
+  "stochastic_methods": ["kNN+Leiden"],
+  "method_parameters": {
+    "min_samples": 5,
+    "min_cluster_size": 5,
+    "scaling_mode": "fixed_seed_42; controlled time and RSS limits retained as outcomes"
+  },
+  "synthetic": {
+    "quality_seeds": [],
+    "scaling_seeds": [42],
+    "quality_sizes": [],
+    "scaling_sizes": [500000, 1000000, 2000000, 5000000],
+    "cases": [
+      {"id": "multidensity_2d", "family": "multidensity", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "ultrasparse_16d", "family": "ultrasparse", "dimension": 16, "noise_fraction": 0.95},
+      {"id": "overlapping_density_16d", "family": "overlapping_density", "dimension": 16, "noise_fraction": 0.80, "signal_fraction": 0.20},
+      {"id": "moons_2d", "family": "moons", "dimension": 2, "noise_fraction": 0.25},
+      {"id": "rings_2d", "family": "rings", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "overlap_8d", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.25},
+      {"id": "imbalanced_16d", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  }
+}

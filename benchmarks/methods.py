@@ -7,6 +7,7 @@ import numpy as np
 
 from baselines import dispatch_baseline
 from stratascan import StrataSCAN
+from stratascan.optimization import GammaMDLConfig, OptimizationStrataSCAN
 from stratascan.predictive import PredictiveMultiscaleStrataSCAN
 from stratascan.experimental import (
     AdaptiveMultiscaleTailStrataSCAN,
@@ -42,27 +43,37 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
         return MethodResult(
             labels,
             {
-                "version": "0.1.2",
+                "version": "0.2.0",
                 "geometry_profile": profile,
                 "knn_backend": backend,
                 "k": 32,
-                "min_samples": 5,
-                "density_features": ["log_d4", "log_d4/d8", "log_d4/d16", "log_d4/d32"],
-                "stratification_model": "four_shell_gamma_mixture",
-                "gamma_shell_shapes": [4, 4, 8, 16],
-                "max_components": 8,
-                "max_fit_samples": 10_000,
-                "dense_core_quantile": 0.95,
-                "tail_probe_quantile": 0.02,
-                "tail_probe_score": "d4/d32",
-                "tail_probe_alpha": 0.05,
-                "tail_core_quantile": 0.05,
-                "border_multiplier": 1.25,
+                "shell_ranks": [4, 8, 16, 32],
+                "stratification_model": (
+                    "adaptive_gamma_density_basis_with_semantic_background"
+                ),
+                "component_selection": "semantic_icl_with_adaptive_bound",
+                "initial_component_bound": 8,
+                "hard_component_bound": 24,
+                "component_initialization": (
+                    "split_warm_plus_independent_restarts"
+                ),
+                "background_model": (
+                    "adaptive_gamma_basis_mixture_with_largest_rate_gap"
+                ),
+                "assignment": "maximum_posterior_basis_then_semantic_role",
+                "fit_samples": "all_rows",
+                "extraction_objective": "gamma_topology_description_length",
+                "core_thresholds": "observed_d4_event_sweep",
+                "background_scan": (
+                    "adaptive_dyadic_rank_windows_with_poisson_beta_boundary_code"
+                ),
+                "connectivity": "density_ordered_non_merging_knn_watershed",
+                "border_rule": "strict_local_core_radius",
             },
             model.profile_,
         )
 
-    if method == "StrataSCAN-PredictiveMultiscale":
+    if method in {"StrataSCAN-PredictiveMultiscale", "StrataSCAN-0.1.2"}:
         model = PredictiveMultiscaleStrataSCAN(
             backend=backend,
             n_jobs=1,
@@ -79,6 +90,46 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
                 "component_selection": "repeated_holdout_one_standard_error",
                 "validation_repeats": 3,
                 "assignment_stability_threshold": 0.80,
+            },
+            model.profile_,
+        )
+
+    if method == "StrataSCAN-Optimization":
+        # Reproduce the algorithm snapshot evaluated in the OEDM manuscript.
+        # The public 0.2.0 estimator may explore an adaptive component range;
+        # the frozen dev10 experiments searched exactly m=1,...,8.
+        model = OptimizationStrataSCAN(
+            backend=backend,
+            n_jobs=1,
+            ambient_dimension=float(X.shape[1]),
+            gamma_config=GammaMDLConfig(
+                max_components=8,
+                hard_max_components=8,
+                adaptive_components=False,
+                entropy_scope="basis",
+            ),
+        )
+        labels = model.fit_predict(X)
+        return MethodResult(
+            labels,
+            {
+                "version": "0.2.0-dev10-oedm2026-evaluated",
+                "geometry_profile": profile,
+                "knn_backend": backend,
+                "k": 32,
+                "shell_ranks": [4, 8, 16, 32],
+                "stratification_model": "adaptive_gamma_density_basis_with_semantic_background",
+                "component_selection": "basis_icl_fixed_candidate_range",
+                "component_range": [1, 8],
+                "component_initialization": "split_warm_plus_independent_restarts",
+                "background_model": "adaptive_gamma_basis_mixture_with_largest_rate_gap",
+                "assignment": "maximum_posterior_basis_then_semantic_role",
+                "fit_samples": "all_rows",
+                "extraction_objective": "gamma_topology_description_length",
+                "core_thresholds": "observed_d4_event_sweep",
+                "background_scan": "adaptive_dyadic_rank_windows_with_poisson_beta_boundary_code",
+                "connectivity": "density_ordered_non_merging_knn_watershed",
+                "border_rule": "strict_local_core_radius",
             },
             model.profile_,
         )

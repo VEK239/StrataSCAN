@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stratascan"
-version = "0.1.2"
-description = "Predictive multiscale Gamma-stratified clustering for variable-density data"
+version = "0.2.0"
+description = "Semantic-MDL Gamma-stratified clustering for variable-density data"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

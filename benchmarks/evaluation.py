@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import numpy as np
@@ -7,6 +8,32 @@ from sklearn.metrics import adjusted_mutual_info_score, adjusted_rand_score
 
 from benchmarks.datasets import Dataset
 from stratascan.metrics import clustering_metrics
+
+
+def target_background_hmean_f1(
+    macro_target_f1: float, background_f1: float
+) -> float:
+    """Balance population recovery with reference-background identification.
+
+    The harmonic mean is zero when either task is completely missed, so a
+    partitioner that assigns every observation cannot lead solely by recovering
+    annotated populations. The reference background can contain heterogeneous
+    or uncharacterized observations, so this is an evaluation diagnostic rather
+    than a claim that every reference-background observation is physical noise.
+    """
+    target = float(macro_target_f1)
+    background = float(background_f1)
+    if not math.isfinite(target) or not math.isfinite(background):
+        raise ValueError("F1 inputs must be finite")
+    if not 0.0 <= target <= 1.0 or not 0.0 <= background <= 1.0:
+        raise ValueError("F1 inputs must lie in [0, 1]")
+    total = target + background
+    return 2.0 * target * background / total if total else 0.0
+
+
+def noise_aware_macro_f1(macro_target_f1: float, noise_f1: float) -> float:
+    """Backward-compatible alias for :func:`target_background_hmean_f1`."""
+    return target_background_hmean_f1(macro_target_f1, noise_f1)
 
 
 def _contingency(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -85,6 +112,13 @@ def evaluate(dataset: Dataset, labels: np.ndarray, suite: str) -> dict[str, Any]
         "ari_signal": ari_signal,
         "ami_signal": ami_signal,
         "macro_target_f1": macro_f1,
+        "target_background_hmean_f1": target_background_hmean_f1(
+            macro_f1, float(base["noise_f1"])
+        ),
+        # Retained so frozen CSV readers continue to work.
+        "noise_aware_macro_f1": target_background_hmean_f1(
+            macro_f1, float(base["noise_f1"])
+        ),
         "recovered_truth_clusters_f1_080": int(np.sum([row["f1"] >= 0.8 for row in matches])),
         "recovered_truth_clusters_f1_090": int(np.sum([row["f1"] >= 0.9 for row in matches])),
         "truth_clusters": int(len(matches)),

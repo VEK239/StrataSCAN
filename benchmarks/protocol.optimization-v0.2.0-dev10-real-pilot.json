@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "protocol_version": "optimization-v0.2.0-dev10-real-pilot",
+  "purpose": "paired_real_data_validation_of_dev10_before_full_gaia",
+  "parameter_mode": "fixed_before_real_data_validation",
+  "resources": {"threads": 1, "timeout_seconds": 1800, "memory_limit_mb": 8192},
+  "methods": ["StrataSCAN-PredictiveMultiscale", "StrataSCAN-Optimization"],
+  "stochastic_methods": [],
+  "method_parameters": {"k": 32, "shell_ranks": [4, 8, 16, 32], "gamma_component_range": [1, 8], "gamma_component_search": "fixed_evaluated_snapshot", "gamma_component_criterion": "icl", "gamma_restarts": 3, "gamma_fit_rows": "all", "core_rank": 4, "connectivity_rank": 4, "border_rule": "inside_neighbour_core_radius"},
+  "declared_primary_metrics": {"cytometry": "macro_target_f1", "gaia": "best_cluster_f1"},
+  "posthoc_diagnostics": ["target_background_hmean_f1"],
+  "cytometry": {
+    "seeds": [42],
+    "datasets": [
+      {"id": "levine", "features": "data/processed/levine/features.csv", "feature_metadata": "data/processed/levine/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/levine/event_metadata.csv", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "mosmann", "features": "data/processed/mosmann/features.csv", "feature_metadata": "data/processed/mosmann/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 150.0}, "metadata": "data/processed/mosmann/event_metadata.csv", "label_column": "population_id", "background_labels": ["other"]},
+      {"id": "nilsson", "features": "data/processed/nilsson/features.csv", "feature_metadata": "data/processed/nilsson/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 150.0}, "metadata": "data/processed/nilsson/event_metadata.csv", "label_column": "population_id", "background_labels": ["other"]},
+      {"id": "samusik_01", "features": "data/processed/samusik_01/features.csv.gz", "feature_metadata": "data/processed/samusik_01/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_01/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_02", "features": "data/processed/samusik_02/features.csv.gz", "feature_metadata": "data/processed/samusik_02/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_02/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_03", "features": "data/processed/samusik_03/features.csv.gz", "feature_metadata": "data/processed/samusik_03/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_03/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_04", "features": "data/processed/samusik_04/features.csv.gz", "feature_metadata": "data/processed/samusik_04/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_04/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_05", "features": "data/processed/samusik_05/features.csv.gz", "feature_metadata": "data/processed/samusik_05/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_05/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_06", "features": "data/processed/samusik_06/features.csv.gz", "feature_metadata": "data/processed/samusik_06/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_06/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_07", "features": "data/processed/samusik_07/features.csv.gz", "feature_metadata": "data/processed/samusik_07/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_07/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_08", "features": "data/processed/samusik_08/features.csv.gz", "feature_metadata": "data/processed/samusik_08/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_08/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_09", "features": "data/processed/samusik_09/features.csv.gz", "feature_metadata": "data/processed/samusik_09/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_09/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_10", "features": "data/processed/samusik_10/features.csv.gz", "feature_metadata": "data/processed/samusik_10/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_10/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]}
+    ]
+  },
+  "gaia": {"seeds": [42], "data_root": "data/raw/mctnc/MCTNC_open_data_release/MCTNC_open_data_release/data", "profiles": ["unsupervised_field"], "field_selection": {"strategy": "stable_hash", "count": 24, "salt": "stratascan-optimization-dev10-real-v1"}, "ruwe_max": 1.6}
+}

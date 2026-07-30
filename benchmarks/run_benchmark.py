@@ -469,6 +469,9 @@ def _primary_metric(result: dict[str, Any]) -> float | None:
     metrics = result.get("metrics", {})
     key = {
         "synthetic": "pairwise_f1",
+        # Historical protocols predeclare macro target F1. The joint
+        # target/background harmonic mean is emitted as a post-hoc diagnostic,
+        # not silently substituted as the confirmatory endpoint.
         "cytometry": "macro_target_f1",
         "gaia": "best_cluster_f1",
     }.get(result.get("suite"))

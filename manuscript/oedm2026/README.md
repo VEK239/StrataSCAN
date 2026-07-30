@@ -1,0 +1,77 @@
+# OEDM 2026 manuscript package
+
+This directory contains the anonymous IEEE ICDM OEDM draft, its compiled PDF,
+publication figures, result tables, bibliography, analysis code, and visual-QA
+renders.
+
+## Primary artifacts
+
+- `manuscript.tex` — IEEE conference manuscript source.
+- `references.bib` — bibliography used by the manuscript.
+- `MDL-StrataSCAN_OEDM2026_draft.pdf` — stable compiled draft for review.
+- `figures/` — every figure in vector PDF/SVG and high-resolution PNG form.
+- `tables/` — manuscript-ready LaTeX tables plus machine-readable CSV/JSON data.
+- `scripts/analyze_results.py` — regenerates the aggregate figures, tables,
+  confidence intervals, paired tests, and method-ranking matrices.
+- `scripts/revision_results.py` — regenerates the per-dataset biological
+  segmentation analysis and original five-seed synthetic quality/resource
+  matrix.
+- `scripts/build.ps1` — regenerates analysis artifacts and compiles the PDF.
+- `build/` — LaTeX outputs and analysis console output.
+- `artifact_manifest.json` — evaluated configuration, endpoint provenance, and
+  immutable result/protocol hashes.
+- `REVIEW_AND_REVISION.md` — adversarial reviewer findings, corrections, and
+  remaining limitations.
+- `qa/submission_verified/` — 150-dpi renders of every page of the exact stable
+  PDF used for final visual inspection.
+
+## Evidence included in this draft
+
+The evidence is deliberately separated by evaluation stage:
+
+- the original 315-job synthetic reference matrix: seven families, five
+  pre-freeze seeds, nine methods, `n = 5,000`, with quality, segmentation,
+  runtime, and process-memory measurements;
+- 14 post-freeze synthetic revision pairs: unseen seeds 197 and 251 at `n = 5,000`,
+  comparing MDL-StrataSCAN only with its immediate 0.1.2 predecessor;
+- all 13 biological/cytometry datasets (1,547,871 cells total), reported
+  separately with target recovery, reference-background identification, and
+  segmentation diagnostics; macro target F1 is the declared endpoint and the
+  target--background harmonic F1 is explicitly post-hoc;
+- the prespecified 24-field Gaia DR3 pilot;
+- conventional graph/density baselines where protocol coverage permits.
+
+The incomplete 359-field Gaia sweep is not included in any result, table, test,
+or conclusion. Its paused checkpoints remain outside this manuscript directory
+and can be resumed as a separate validation stage.
+
+The five-seed synthetic matrix is explicitly described as diagnostic/development
+evidence; it is not pooled with the locked two-seed ablation. No newly generated
+baseline measurements at seeds 197 or 251 are used.
+
+## Rebuild
+
+From the repository root, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File manuscript\oedm2026\scripts\build.ps1
+```
+
+The analysis requires the repository's Python scientific stack. The build script
+uses `.tmp/tectonic/tectonic.exe`, the project-local Tectonic binary used for the
+checked PDF. The final output is copied to
+`manuscript/oedm2026/MDL-StrataSCAN_OEDM2026_draft.pdf`.
+
+## Submission status
+
+The draft is formatted in IEEE two-column workshop style and uses anonymous
+author metadata for triple-blind review. Before submission, replace or confirm
+the workshop year/track metadata requested by the final EasyChair form, archive
+immutable benchmark manifests and result hashes, and prepare an anonymized code
+artifact. The manuscript distinguishes strong biological recovery evidence from
+segmentation/background limitations and the mixed Gaia pilot rather than making
+a universal-superiority claim.
+
+The checked PDF is nine US-Letter pages including references. Its SHA-256
+digest is
+`B85A120C534D1937EC52B0615126191A5748C9BA68FA814A7E08D2B9EE6C4D7F`.

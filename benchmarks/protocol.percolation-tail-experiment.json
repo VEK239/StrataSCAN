@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "protocol_version": "percolation-tail-experiment-v1",
+  "purpose": "paired_baseline_vs_stratified_component_percolation_tail_test",
+  "parameter_mode": "fixed_predeclared_profiles",
+  "resources": {"threads": 1, "timeout_seconds": 600, "memory_limit_mb": 8192},
+  "methods": ["StrataSCAN", "StrataSCAN-PercolationTail"],
+  "stochastic_methods": ["StrataSCAN", "StrataSCAN-PercolationTail"],
+  "method_parameters": {
+    "common": {"k": 32, "min_samples": 5, "min_cluster_size": 5, "dense_core_quantile": 0.95, "tail_core_quantile": 0.05, "tail_probe_alpha": 0.05, "border_multiplier": 1.25},
+    "StrataSCAN": {"tail_probe_method": "fixed_rank_window", "tail_probe_score": "d4/d32", "tail_probe_quantile": 0.02},
+    "StrataSCAN-PercolationTail": {"tail_probe_method": "stratified_component_percolation", "permutations": 199, "density_bins": 4, "degree_bins": 4}
+  },
+  "synthetic": {
+    "quality_seeds": [23, 42, 73], "scaling_seeds": [42],
+    "quality_sizes": [20000], "scaling_sizes": [],
+    "cases": [
+      {"id": "multidensity_2d", "family": "multidensity", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "ultrasparse_16d", "family": "ultrasparse", "dimension": 16, "noise_fraction": 0.95},
+      {"id": "overlapping_density_16d", "family": "overlapping_density", "dimension": 16, "noise_fraction": 0.80, "signal_fraction": 0.20},
+      {"id": "moons_2d", "family": "moons", "dimension": 2, "noise_fraction": 0.25},
+      {"id": "rings_2d", "family": "rings", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "overlap_8d", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.25},
+      {"id": "imbalanced_16d", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  },
+  "cytometry": {
+    "seeds": [42],
+    "datasets": [
+      {"id": "levine", "features": "data/processed/levine/features.csv", "feature_metadata": "data/processed/levine/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/levine/event_metadata.csv", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_01", "features": "data/processed/samusik_01/features.csv.gz", "feature_metadata": "data/processed/samusik_01/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_01/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]}
+    ]
+  },
+  "gaia": {
+    "seeds": [42],
+    "data_root": "data/raw/mctnc/MCTNC_open_data_release/MCTNC_open_data_release/data",
+    "profiles": ["unsupervised_field"],
+    "field_selection": {"strategy": "stable_hash", "count": 24, "salt": "stratascan-realtime-v1"},
+    "ruwe_max": 1.6
+  }
+}
