@@ -37,4 +37,4 @@ __all__ = [
 # class name remains available for precise configuration and provenance.
 StrataSCAN = OptimizationStrataSCAN
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"

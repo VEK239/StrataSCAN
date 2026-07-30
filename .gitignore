@@ -32,6 +32,8 @@ results/published/*
 !results/published/v0.2.0/**
 !results/published/v0.2.1/
 !results/published/v0.2.1/**
+!results/published/v0.2.2/
+!results/published/v0.2.2/**
 
 # Keep the exact submission render, but not intermediate manuscript review passes.
 manuscript/oedm2026/qa/*

@@ -86,19 +86,22 @@ def biological_outputs() -> None:
     matrix = pd.read_csv(TABLES / "biological_dataset_results.csv")
     matrix["dataset_label"] = matrix["dataset_id"].map(DATASET_LABELS)
     macro = matrix.pivot(
-        index="dataset_label", columns="method", values="target_background_hmean_f1"
+        index="dataset_label", columns="method", values="target_background_structure_hmean_f1"
     )
     dataset_order = [DATASET_LABELS[x] for x in DATASET_LABELS]
     macro = macro.reindex(index=dataset_order, columns=BIO_METHOD_ORDER)
 
     comparison = pd.read_csv(TABLES / "method_comparison_matrix.csv")
     weighting = comparison.loc[
-        comparison["block"].isin(["Biological (13)", "Biological studies (4)"])
+        comparison["block"].isin([
+            "Biological (13)", "Biological studies (4)",
+            "Biological TBS studies (4)",
+        ])
     ].pivot(index="method", columns="block", values="mean_primary")
     weighting_lines = [
-        r"\begin{tabular}{lrr}",
+        r"\begin{tabular}{lrrr}",
         r"\toprule",
-        r"Method & Dataset mean & Study mean \\",
+        r"Method & Dataset TB & Study TB & Study TBS \\",
         r"\midrule",
     ]
     for method in ["SNN-DBSCAN", OLD, DEV, "kNN + Leiden"]:
@@ -106,7 +109,8 @@ def biological_outputs() -> None:
         name = method.replace("kNN + Leiden", r"$k$NN+Leiden")
         weighting_lines.append(
             f"{name} & {row['Biological (13)']:.3f} & "
-            f"{row['Biological studies (4)']:.3f} \\\\"
+            f"{row['Biological studies (4)']:.3f} & "
+            f"{row['Biological TBS studies (4)']:.3f} \\\\"
         )
     weighting_lines.extend([r"\bottomrule", r"\end{tabular}"])
     (TABLES / "table_biological_weighting.tex").write_text(
@@ -139,11 +143,20 @@ def biological_outputs() -> None:
             row[f"noise_aware_macro_f1_{suffix}"] = row[
                 f"target_background_hmean_f1_{suffix}"
             ]
+            pairwise = row[f"pairwise_f1_{suffix}"]
+            row[f"target_background_structure_hmean_f1_{suffix}"] = (
+                3.0 / (1.0 / target + 1.0 / noise + 1.0 / pairwise)
+                if min(target, noise, pairwise) > 0.0 else 0.0
+            )
         row["target_background_hmean_delta"] = (
             row["target_background_hmean_f1_dev"]
             - row["target_background_hmean_f1_old"]
         )
         row["noise_aware_delta"] = row["target_background_hmean_delta"]
+        row["target_background_structure_hmean_delta"] = (
+            row["target_background_structure_hmean_f1_dev"]
+            - row["target_background_structure_hmean_f1_old"]
+        )
         row["noise_delta"] = row["noise_f1_dev"] - row["noise_f1_old"]
         row["pairwise_delta"] = row["pairwise_f1_dev"] - row["pairwise_f1_old"]
         row["coverage_delta"] = row["signal_coverage_dev"] - row["signal_coverage_old"]
@@ -155,9 +168,9 @@ def biological_outputs() -> None:
     detail.to_csv(TABLES / "biological_segmentation_by_dataset.csv", index=False)
 
     lines = [
-        r"\begin{tabular}{lrrrrrrrrr}",
+        r"\begin{tabular}{lrrrrrrrrrr}",
         r"\toprule",
-        r"Dataset & $n$ (k) & $K^*$ & $\hat K$ & Target F1 & BG F1 & TB-HF1 & Pairwise & BG recall & Time (s) \\",
+        r"Dataset & $n$ (k) & $K^*$ & $\hat K$ & Target & BG & TB & TBS & Pairwise & BG recall & Time (s) \\",
         r"\midrule",
     ]
     for row in detail.itertuples(index=False):
@@ -168,6 +181,7 @@ def biological_outputs() -> None:
             f"{row.macro_target_f1_old:.3f}/{row.macro_target_f1_dev:.3f} & "
             f"{row.noise_f1_old:.3f}/{row.noise_f1_dev:.3f} & "
             f"{row.target_background_hmean_f1_old:.3f}/{row.target_background_hmean_f1_dev:.3f} & "
+            f"{row.target_background_structure_hmean_f1_old:.3f}/{row.target_background_structure_hmean_f1_dev:.3f} & "
             f"{row.pairwise_f1_old:.3f}/{row.pairwise_f1_dev:.3f} & "
             f"{row.background_rejection_old:.3f}/{row.background_rejection_dev:.3f} & "
             f"{row.runtime_seconds_old:.1f}/{row.runtime_seconds_dev:.1f} \\\\"
@@ -178,14 +192,16 @@ def biological_outputs() -> None:
     fig = plt.figure(figsize=(7.12, 5.15), constrained_layout=True)
     gs = fig.add_gridspec(1, 4, width_ratios=[2.5, 1.30, 0.75, 0.78], wspace=0.04)
     ax0 = fig.add_subplot(gs[0, 0])
-    sns.heatmap(macro, ax=ax0, vmin=0, vmax=1, cmap="viridis", annot=True, fmt=".2f",
-                annot_kws={"fontsize": 5.6}, cbar_kws={"label": "Target-background H-F1", "shrink": 0.72})
+    sns.heatmap(macro, ax=ax0, vmin=0, vmax=0.3, cmap="viridis", annot=True, fmt=".2f",
+                annot_kws={"fontsize": 5.6}, cbar_kws={"label": "Target-background-structure H-F1", "shrink": 0.72})
     ax0.set(xlabel="", ylabel="")
-    ax0.set_title("(a) TB-HF1", loc="left", fontweight="bold")
+    ax0.set_title("(a) TBS-HF1", loc="left", fontweight="bold")
     ax0.set_xticklabels(ax0.get_xticklabels(), rotation=48, ha="right")
 
-    delta = detail.set_index("dataset")[["target_background_hmean_delta", "macro_delta", "noise_delta", "background_delta"]]
-    delta.columns = [r"$\Delta$TB", r"$\Delta$Target", r"$\Delta$BG F1", r"$\Delta$BG recall"]
+    delta = detail.set_index("dataset")[[
+        "target_background_structure_hmean_delta", "macro_delta", "noise_delta", "pairwise_delta"
+    ]]
+    delta.columns = [r"$\Delta$TBS", r"$\Delta$Target", r"$\Delta$BG F1", r"$\Delta$Pairwise"]
     ax1 = fig.add_subplot(gs[0, 1])
     sns.heatmap(delta, ax=ax1, vmin=-0.3, vmax=0.3, center=0, cmap="vlag", annot=True, fmt="+.2f",
                 annot_kws={"fontsize": 5.5}, yticklabels=False,

@@ -112,3 +112,49 @@ a retrospectively tuned algorithm.
 - The stable PDF compiles without unresolved references or horizontal overflow.
 - Every page of the exact stable PDF is rendered and visually inspected.
 - Anonymous author text and PDF metadata contain no author identity.
+
+## Round 4 — metric, dependence, and interpretability audit
+
+The 0.2.1 manuscript was reviewed as an immutable baseline. Six major issues
+were corrected without changing a frozen seed, prediction, declared endpoint,
+or clustering default:
+
+1. TB-HF1 addressed all-assigned outputs but could still hide severe merging or
+   fragmentation. A clearly post-hoc TBS-HF1 now also requires pairwise F1.
+   Because its equal weighting is subjective, every constituent and a
+   non-composite three-axis Pareto count remain visible.
+2. The biological narrative reported study weighting but not rank stability.
+   A leave-one-study-out TBS analysis now shows that MDL ranks first after each
+   omission, while its low absolute score range (0.057--0.125) prevents that
+   relative rank from being overstated.
+3. Dataset-level composite gains hid constituent trade-offs. Only Levine
+   improves target F1, reference-background F1, and pairwise F1 jointly; the
+   other twelve outputs are explicitly classified as trade-offs.
+4. The locked synthetic panel plotted two-seed family means, hiding the moons
+   sign reversal (+0.332 at seed 197, -0.062 at seed 251). The supplement now
+   plots both paired seed effects and retains noise deltas in its source table.
+5. The sorted Gaia plot hid field identity. UBC1322 and UBC1278 are now named as
+   the largest loss and gain, and all 24 signed field effects are exported.
+6. The pipeline graphic visually grouped conditional models, the exact sweep,
+   and heuristic scan. It now labels fixed, model-dependent, exact-within-block,
+   heuristic, and invariant stages separately.
+
+The implementation audit also found that pairwise metrics indexed arrays by raw
+label magnitude. Observed-value counting now supports sparse large integer
+labels without enormous allocation, and invalid shapes and noninteger labels
+fail explicitly. Valid benchmark scores are unchanged.
+
+The review recommendation remains weak accept. TBS-HF1 changes the relative
+biological rank but does not create a strong absolute partition: Mosmann still
+fails, Nilsson still reverses target/background behavior, Levine and Samusik
+remain over-segmented, Gaia still does not improve its primary endpoint, and
+the locked revision still has only two unseen seeds per family.
+
+### Round 4 verification
+
+- Focused metrics, evaluation, release-profile, public-API, and optimization
+  tests: 29 passed.
+- Full project test suite: 48 passed.
+- Offline source and wheel builds completed for version 0.2.2.
+- The exact final PDF is nine US-Letter pages with result floats before the
+  discussion and references.

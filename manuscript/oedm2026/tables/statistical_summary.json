@@ -27,6 +27,34 @@
     "tied": 0,
     "wilcoxon_p": 0.000732421875
   },
+  "biological_posthoc_structure_dataset_composite": {
+    "ci_high": 0.08662469235170007,
+    "ci_low": 0.04867078094630865,
+    "improved": 13,
+    "max_delta": 0.11603849468430402,
+    "mean_delta": 0.06868248525823689,
+    "median_delta": 0.0741968698310705,
+    "min_delta": 1.201148390938063e-06,
+    "n": 13,
+    "regressed": 0,
+    "sign_p": 0.000244140625,
+    "tied": 0,
+    "wilcoxon_p": 0.000244140625
+  },
+  "biological_posthoc_structure_study_composite": {
+    "ci_high": 0.08530993582119697,
+    "ci_low": 2.9151880674959722e-05,
+    "improved": 4,
+    "max_delta": 0.09037607909202326,
+    "mean_delta": 0.042669543850935965,
+    "median_delta": 0.040150447581664826,
+    "min_delta": 1.201148390938063e-06,
+    "n": 4,
+    "regressed": 0,
+    "sign_p": 0.125,
+    "tied": 0,
+    "wilcoxon_p": 0.125
+  },
   "biological_posthoc_study_composite": {
     "ci_high": 0.15598348267364892,
     "ci_low": -0.016895547130614443,
@@ -40,6 +68,56 @@
     "sign_p": 0.625,
     "tied": 0,
     "wilcoxon_p": 0.375
+  },
+  "biological_sensitivity": {
+    "pareto": {
+      "all_three_improve": 1,
+      "all_three_regress": 0,
+      "datasets": 13,
+      "tradeoff": 12
+    },
+    "study_leave_one_out": [
+      {
+        "mdl_mean": 0.09368273163669957,
+        "mdl_rank": 1,
+        "n_studies": 4,
+        "omitted_study": "None (all four)",
+        "winner": "MDL-StrataSCAN",
+        "winner_mean": 0.09368273163669957
+      },
+      {
+        "mdl_mean": 0.06872320184549414,
+        "mdl_rank": 1,
+        "n_studies": 3,
+        "omitted_study": "Levine",
+        "winner": "MDL-StrataSCAN",
+        "winner_mean": 0.06872320184549414
+      },
+      {
+        "mdl_mean": 0.1249099077484343,
+        "mdl_rank": 1,
+        "n_studies": 3,
+        "omitted_study": "Mosmann",
+        "winner": "MDL-StrataSCAN",
+        "winner_mean": 0.1249099077484343
+      },
+      {
+        "mdl_mean": 0.12453564337827572,
+        "mdl_rank": 1,
+        "n_studies": 3,
+        "omitted_study": "Nilsson",
+        "winner": "MDL-StrataSCAN",
+        "winner_mean": 0.12453564337827572
+      },
+      {
+        "mdl_mean": 0.05656217357459409,
+        "mdl_rank": 1,
+        "n_studies": 3,
+        "omitted_study": "Samusik",
+        "winner": "MDL-StrataSCAN",
+        "winner_mean": 0.05656217357459409
+      }
+    ]
   },
   "gaia_background": {
     "ci_high": 0.2953973420522114,

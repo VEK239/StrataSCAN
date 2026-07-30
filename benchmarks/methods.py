@@ -43,7 +43,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
         return MethodResult(
             labels,
             {
-                "version": "0.2.1",
+                "version": "0.2.2",
                 "geometry_profile": profile,
                 "knn_backend": backend,
                 "k": 32,
@@ -96,7 +96,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
 
     if method == "StrataSCAN-Optimization":
         # Reproduce the algorithm snapshot evaluated in the OEDM manuscript.
-        # The public 0.2.1 estimator may explore an adaptive component range;
+        # The public 0.2.2 estimator may explore an adaptive component range;
         # the frozen dev10 experiments searched exactly m=1,...,8.
         model = OptimizationStrataSCAN(
             backend=backend,

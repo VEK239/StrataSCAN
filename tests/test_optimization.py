@@ -92,7 +92,7 @@ def test_optimization_estimator_is_deterministic_and_keeps_noise() -> None:
     first = OptimizationStrataSCAN(backend="kd_tree", n_jobs=1).fit(X)
     second = OptimizationStrataSCAN(backend="kd_tree", n_jobs=1).fit(X)
     assert np.array_equal(first.labels_, second.labels_)
-    assert first.profile_["algorithm_version"] == "0.2.1"
+    assert first.profile_["algorithm_version"] == "0.2.2"
     assert first.profile_["mdl_gamma_criterion"] == "icl"
     assert first.profile_["mdl_gamma_fit_samples"] == X.shape[0]
     assert (

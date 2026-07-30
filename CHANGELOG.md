@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.2
+
+- Preserved the frozen clustering outputs and public 0.2.1 algorithm defaults
+  while hardening evaluation, evidence interpretation, and label validation.
+- Added post-hoc target-background-structure harmonic F1 and a non-composite
+  Pareto check so target recovery cannot hide background or segmentation loss.
+- Added study leave-one-out sensitivity, named Gaia extreme fields, and
+  seed-resolved locked synthetic effects; no seed, prediction, or declared
+  endpoint changed.
+- Reworked the method diagram to distinguish fixed choices, conditional models,
+  the exact within-block sweep, the heuristic scan, and the non-merging
+  invariant.
+- Made core metrics safe for sparse, very large integer label identifiers and
+  added explicit shape/type validation with regression tests.
+- Rebuilt and visually reviewed the OEDM manuscript and supplemental figure
+  after a fourth adversarial review round.
+
 ## 0.2.1
 
 - Preserved the 0.2.0 clustering decisions and defaults while correcting

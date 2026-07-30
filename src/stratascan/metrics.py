@@ -7,20 +7,36 @@ def _comb2(x: np.ndarray | int) -> np.ndarray | int:
     return x * (x - 1) // 2
 
 
+def _validated_labels(values: np.ndarray, name: str) -> np.ndarray:
+    result = np.asarray(values)
+    if result.ndim != 1:
+        raise ValueError(f"{name} must be one-dimensional")
+    if not np.issubdtype(result.dtype, np.integer):
+        raise TypeError(f"{name} must contain integer labels")
+    return result.astype(np.int64, copy=False)
+
+
+def _pair_count(values: np.ndarray) -> int:
+    if values.size == 0:
+        return 0
+    _, counts = np.unique(values, return_counts=True)
+    return int(np.sum(_comb2(counts)))
+
+
 def clustering_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float | int]:
-    y_true = np.asarray(y_true, dtype=np.int64)
-    y_pred = np.asarray(y_pred, dtype=np.int64)
+    y_true = _validated_labels(y_true, "y_true")
+    y_pred = _validated_labels(y_pred, "y_pred")
+    if y_true.shape != y_pred.shape:
+        raise ValueError("y_true and y_pred must have the same shape")
     true_signal = y_true >= 0
     pred_signal = y_pred >= 0
 
     mask = true_signal & pred_signal
-    true_pairs = int(np.sum(_comb2(np.bincount(y_true[true_signal])))) if np.any(true_signal) else 0
-    pred_vals = y_pred[pred_signal]
-    pred_pairs = int(np.sum(_comb2(np.bincount(pred_vals)))) if pred_vals.size else 0
+    true_pairs = _pair_count(y_true[true_signal])
+    pred_pairs = _pair_count(y_pred[pred_signal])
     if np.any(mask):
-        tvals, ti = np.unique(y_true[mask], return_inverse=True)
-        pvals, pi = np.unique(y_pred[mask], return_inverse=True)
-        counts = np.bincount(ti * len(pvals) + pi)
+        intersections = np.column_stack((y_true[mask], y_pred[mask]))
+        _, counts = np.unique(intersections, axis=0, return_counts=True)
         tp = int(np.sum(_comb2(counts)))
     else:
         tp = 0
