@@ -36,3 +36,13 @@ def test_oedm_snapshot_profile_and_search_are_explicitly_fixed(monkeypatch) -> N
     assert result.parameters["component_selection"] == "basis_icl_fixed_candidate_range"
     assert "adaptive" not in result.parameters["stratification_model"]
     assert "adaptive" not in result.parameters["background_model"]
+
+
+def test_component_ablation_changes_only_declared_gamma_control(monkeypatch) -> None:
+    monkeypatch.setattr(methods, "OptimizationStrataSCAN", _FakeEstimator)
+    result = methods.run_method("StrataSCAN-FixedComponentBound", np.zeros((4, 2)), seed=7)
+    gamma = _FakeEstimator.last_gamma_config
+    assert gamma is not None
+    assert gamma.adaptive_components is False
+    assert gamma.max_components == gamma.hard_max_components == 8
+    assert result.parameters["ablation_of"] == "adaptive_component_bound"
