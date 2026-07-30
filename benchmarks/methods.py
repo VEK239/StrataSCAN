@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 import numpy as np
@@ -69,6 +69,58 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
                 ),
                 "connectivity": "density_ordered_non_merging_knn_watershed",
                 "border_rule": "strict_local_core_radius",
+            },
+            model.profile_,
+        )
+
+    # These are deliberately narrow, named component ablations for the locked
+    # synthetic evidence protocol.  They use the released extraction stage and
+    # alter exactly one part of the Gamma stratification decision, so their
+    # outcomes cannot be mistaken for tuned alternatives to the public default.
+    ablations = {
+        "StrataSCAN-FixedComponentBound": (
+            replace(
+                GammaMDLConfig(), adaptive_components=False, max_components=8,
+                hard_max_components=8
+            ),
+            "adaptive_component_bound",
+            "fixed_candidate_range_1_to_8",
+        ),
+        "StrataSCAN-ContinuousBackground": (
+            replace(GammaMDLConfig(), background_distribution="gamma_rate_mixture"),
+            "discrete_gamma_background_basis",
+            "continuous_gamma_rate_background",
+        ),
+        "StrataSCAN-RateChangepoint": (
+            replace(GammaMDLConfig(), component_roles="rate_changepoint_mdl"),
+            "largest_rate_gap_semantic_role",
+            "rate_changepoint_mdl_role",
+        ),
+    }
+    if method in ablations:
+        gamma_config, ablated_component, replacement = ablations[method]
+        model = OptimizationStrataSCAN(
+            backend=backend,
+            n_jobs=1,
+            ambient_dimension=float(X.shape[1]),
+            gamma_config=gamma_config,
+        )
+        labels = model.fit_predict(X)
+        return MethodResult(
+            labels,
+            {
+                "version": "0.2.2-component-ablation-v1",
+                "geometry_profile": profile,
+                "knn_backend": backend,
+                "ablation_of": ablated_component,
+                "replacement": replacement,
+                "gamma_config": {
+                    "adaptive_components": gamma_config.adaptive_components,
+                    "max_components": gamma_config.max_components,
+                    "hard_max_components": gamma_config.hard_max_components,
+                    "background_distribution": gamma_config.background_distribution,
+                    "component_roles": gamma_config.component_roles,
+                },
             },
             model.profile_,
         )
