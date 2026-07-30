@@ -36,6 +36,28 @@ def noise_aware_macro_f1(macro_target_f1: float, noise_f1: float) -> float:
     return target_background_hmean_f1(macro_target_f1, noise_f1)
 
 
+def target_background_structure_hmean_f1(
+    macro_target_f1: float, background_f1: float, pairwise_f1: float
+) -> float:
+    """Post-hoc balance of target, reference-background, and partition structure.
+
+    This three-way harmonic mean is deliberately a sensitivity diagnostic, not
+    a replacement primary endpoint. It is zero if any constituent task is
+    completely missed, so many-to-one target matching cannot hide an
+    all-assigned, fully merged, or severely fragmented partition.
+    """
+    values = np.asarray(
+        [macro_target_f1, background_f1, pairwise_f1], dtype=float
+    )
+    if not np.all(np.isfinite(values)):
+        raise ValueError("F1 inputs must be finite")
+    if np.any((values < 0.0) | (values > 1.0)):
+        raise ValueError("F1 inputs must lie in [0, 1]")
+    if np.any(values == 0.0):
+        return 0.0
+    return float(3.0 / np.sum(1.0 / values))
+
+
 def _contingency(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     true_values = np.unique(y_true[y_true >= 0])
     pred_values = np.unique(y_pred[y_pred >= 0])
@@ -118,6 +140,9 @@ def evaluate(dataset: Dataset, labels: np.ndarray, suite: str) -> dict[str, Any]
         # Retained so frozen CSV readers continue to work.
         "noise_aware_macro_f1": target_background_hmean_f1(
             macro_f1, float(base["noise_f1"])
+        ),
+        "target_background_structure_hmean_f1": target_background_structure_hmean_f1(
+            macro_f1, float(base["noise_f1"]), float(base["pairwise_f1"])
         ),
         "recovered_truth_clusters_f1_080": int(np.sum([row["f1"] >= 0.8 for row in matches])),
         "recovered_truth_clusters_f1_090": int(np.sum([row["f1"] >= 0.9 for row in matches])),

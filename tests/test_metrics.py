@@ -31,3 +31,22 @@ def test_binary_metrics_penalize_calling_every_cell_noise() -> None:
     assert np.isclose(metrics["noise_f1"], 2.0 / 3.0)
     assert np.isclose(metrics["binary_macro_f1"], 1.0 / 3.0)
     assert metrics["binary_balanced_accuracy"] == 0.5
+
+
+def test_pairwise_metrics_support_sparse_large_integer_labels() -> None:
+    truth = np.array([1_000_000_000, 1_000_000_000, 7, 7, -1], dtype=np.int64)
+    predicted = np.array([9_000_000_000, 9_000_000_000, 3, 3, -1], dtype=np.int64)
+
+    metrics = clustering_metrics(truth, predicted)
+
+    assert metrics["pairwise_f1"] == 1.0
+    assert metrics["n_clusters"] == 2
+
+
+def test_clustering_metrics_validate_label_arrays() -> None:
+    with np.testing.assert_raises(ValueError):
+        clustering_metrics(np.array([[0, 1]]), np.array([0, 1]))
+    with np.testing.assert_raises(ValueError):
+        clustering_metrics(np.array([0, 1]), np.array([0]))
+    with np.testing.assert_raises(TypeError):
+        clustering_metrics(np.array([0.0, 1.0]), np.array([0, 1]))

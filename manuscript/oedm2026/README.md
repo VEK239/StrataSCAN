@@ -38,8 +38,9 @@ The evidence is deliberately separated by evaluation stage:
   comparing MDL-StrataSCAN only with its immediate 0.1.2 predecessor;
 - all 13 biological/cytometry datasets (1,547,871 cells total), reported
   separately with target recovery, reference-background identification, and
-  segmentation diagnostics; macro target F1 is the declared endpoint and the
-  target--background harmonic F1 is explicitly post-hoc;
+  segmentation diagnostics; macro target F1 is the declared endpoint, while
+  target--background and target--background--structure harmonic F1 are
+  explicitly post-hoc sensitivity diagnostics;
 - the prespecified 24-field Gaia DR3 pilot;
 - conventional graph/density baselines where protocol coverage permits.
 
@@ -82,4 +83,4 @@ segmentation/background limitations and the mixed Gaia pilot rather than making
 a universal-superiority claim.
 
 The checked PDF is nine US-Letter pages including references. Its SHA-256
-digest is `cda0fead05c984ed3e7968a08a20faf3cec72a9e0de58969d21216053d0d704c`.
+digest is `fa85c74693abfe82b92f1bacf73ff81d983e0449c3da5a898d382a3bf4e7c19f`.

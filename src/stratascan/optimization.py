@@ -2358,7 +2358,7 @@ def optimize_strict_core_from_graph(
 
 
 class OptimizationStrataSCAN(GraphStrataSCAN):
-    """StrataSCAN 0.2.1 semantic-MDL Gamma plus unified StrictCore estimator."""
+    """StrataSCAN 0.2.2 semantic-MDL Gamma plus unified StrictCore estimator."""
 
     def __init__(
         self,
@@ -2406,7 +2406,7 @@ class OptimizationStrataSCAN(GraphStrataSCAN):
         self.n_clusters_ = int(np.unique(result.labels[result.labels >= 0]).size)
         self.stratification_ = stratification
         self.profile_ = {
-            "algorithm_version": "0.2.1",
+            "algorithm_version": "0.2.2",
             "algorithm": "OptimizationStrataSCAN",
             "stratification": "adaptive-semantic-information-criterion-gamma-v2",
             **stratification.diagnostics,

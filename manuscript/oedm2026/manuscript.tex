@@ -31,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-Clustering data with several density levels and a dominant background is difficult because one neighborhood radius may erase sparse clusters or connect dense clusters through background bridges. We present \method, a label-free sparse-graph method that replaces several extraction quantiles with conditional codelength decisions. A constrained Gamma mixture models multiscale neighbor-shell volumes; an exact event sweep selects an observed core-distance threshold within each fitted stratum; a coded background scan can activate additional components; and density-ordered growth cannot merge previously separated dense clusters. We separate evidence by provenance. An original 315-run, five-seed development matrix compares nine methods with segmentation, time, and memory diagnostics. On two unseen seeds per synthetic family, the fixed-range frozen revision improves mean macro target F1 by 0.077 over version 0.1.2. For 13 cytometry datasets (1.55 million cells), the predeclared target-only endpoint improves from 0.069 to 0.203 but permits an all-assigned Leiden partition to appear strong. We therefore add a clearly post-hoc target--background harmonic-F1 diagnostic. Its dataset-weighted mean rises from 0.112 to 0.217, but a study-weighted analysis places \method\ second to SNN-DBSCAN (0.160 versus 0.163) and exposes severe over-segmentation. Direct snapshot runs reach 396,460 cells (517~s; 646.7~MiB monitored peak); million-point evidence belongs only to an earlier prototype. On a 24-field Gaia DR3 pilot, mean best-cluster F1 is 0.867 versus 0.894 for the predecessor and 0.916 for the strongest baseline. The evidence supports the optimization mechanism, not universal dominance.
+Clustering with several density levels and a dominant background is difficult because one radius may erase sparse clusters or connect dense clusters through background bridges. We present \method, a label-free sparse-graph method combining a multiscale Gamma mixture, exact within-stratum core-distance event sweeps, a coded background scan, and density-ordered non-merging growth. Evidence is separated by provenance. A 315-run, five-seed development matrix compares nine methods with segmentation and resource diagnostics. On two unseen seeds per synthetic family, the frozen revision improves mean macro target F1 by 0.077 over version 0.1.2, but moons reverses sign across seeds. On 13 cytometry datasets, the target-only endpoint rises from 0.069 to 0.203; post-hoc target--background and structure-aware diagnostics change the method ranking, and only one dataset improves target, background, and pairwise F1 jointly. Direct runs reach 396,460 cells (517~s; 646.7~MiB peak); million-point evidence belongs to an earlier prototype. On a 24-field Gaia pilot, best-cluster F1 is 0.867 versus 0.894 for the predecessor and 0.916 for the strongest baseline. The evidence supports the mechanism, not universal dominance.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -58,7 +58,7 @@ Fig.~\ref{fig:pipeline} summarizes the computational path. Every production obje
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{fig0_method_pipeline.pdf}
-  \caption{\method{} pipeline. Blue stages make label-free model or threshold decisions. The representation uses $k=32$ and shell ranks $(4,8,16,32)$; these are fixed geometry choices in the present study, not learned quality thresholds.}
+  \caption{\method{} pipeline with claim boundaries. Color and stage labels distinguish fixed representation, conditional models, the exact within-block event sweep, the heuristic background scan, and the non-merging invariant. Labels are used only by the evaluator.}
   \label{fig:pipeline}
 \end{figure*}
 
@@ -189,11 +189,11 @@ After observing that $k$NN+Leiden assigns every cell yet scores well on target m
  F_{\mathrm{TB}}=\frac{2F_TF_B}{F_T+F_B},
  \label{eq:noise-aware}
 \end{equation}
-with value zero when the denominator is zero. The target--background harmonic F1 (TB-HF1) makes both all-assigned and all-background outputs score zero, but its equal task weighting is a design choice, not a preregistered primary endpoint. Moreover, ``unassigned'' can contain uncharacterized biology; $F_B$ measures agreement with the reference background class, not physical noise truth. We retain $F_T$, $F_B$, background recall, and pairwise F1 separately. For Gaia, where reference-negative stars are not confirmed noise, the predeclared endpoint remains best-cluster F1.
+with value zero when the denominator is zero. TB-HF1 rejects all-assigned and all-background outputs but ignores fragmentation and merging. A stricter sensitivity diagnostic, $F_{\mathrm{TBS}}=3/(F_T^{-1}+F_B^{-1}+F_P^{-1})$, also requires pairwise F1 $F_P$ and is zero if any component is zero. Both equal-weight composites are post-hoc, so we retain every constituent and count simultaneous three-axis improvements. ``Unassigned'' may contain uncharacterized biology; $F_B$ measures reference-background agreement, not physical noise truth. Gaia reference-negatives are likewise unconfirmed noise, so its primary remains best-cluster F1.
 
 Segmentation is described by the predicted cluster count $\hat K$ relative to annotated population count $K^*$, extra signal fragments beyond the best match to each target, and predicted clusters containing substantial mass from multiple targets (merged segments). We visualize granularity as $\log_2(\hat K/K^*)$: zero is count agreement, negative values indicate under-segmentation, and positive values indicate over-segmentation. Count agreement is diagnostic rather than an objective, since a correct $K$ can still have incorrect membership.
 
-Paired effects compare \method\ with \oldmethod. Dataset-level summaries retain all 13 outputs for transparency. Because ten Samusik samples come from one benchmark study, cross-study summaries first average them and then weight Samusik, Levine, Mosmann, and Nilsson equally. Wilcoxon tests and 20,000-resample intervals over 13 datasets are labelled exploratory and are not interpreted as independent-study inference. No metric or test result changes the frozen predictions.
+Paired effects compare \method\ with \oldmethod. Dataset-level summaries retain all 13 outputs for transparency. Because ten Samusik samples come from one benchmark study, cross-study summaries first average them and then weight Samusik, Levine, Mosmann, and Nilsson equally; a leave-one-study-out analysis checks rank dependence. Wilcoxon tests and 20,000-resample intervals over 13 datasets are labelled exploratory, receive no multiplicity interpretation, and are not treated as independent-study inference. No diagnostic changes the frozen predictions.
 
 \section{Results}
 \subsection{Original Five-Seed Synthetic Baseline Matrix}
@@ -218,29 +218,29 @@ Fig.~\ref{fig:synth-reference} explains why no aggregate rank suffices. Multi-de
 \end{figure*}
 
 \subsection{Post-Freeze Synthetic Revision Comparison}
-Table~\ref{tab:synth} isolates the MDL change on the two unseen seeds. Across 14 paired conditions, macro target F1 rises from 0.830 to 0.907 (mean $\Delta=+0.077$), and pairwise F1 improves by 0.060. The largest gains occur for Gaussian overlap, rings, and moons, the three families in which the reference matrix exposed merging or fragmentation. Ultra-sparse and imbalanced data are essentially unchanged in macro F1. The counterexamples are multi-density 2D ($-0.020$ macro) and overlap-density 16D ($-0.072$ pairwise). Noise F1 decreases by 0.008 on average, driven mainly by Gaussian overlap ($-0.069$), where stricter border attachment improves identities while leaving more signal unassigned. Median end-to-end time is 6.13~s for \method\ and 7.11~s for 0.1.2, but both variants share a graph and execute sequentially in one process; this paired engineering timing is not comparable to the isolated-process values in Table~\ref{tab:synth-reference}.
-
-\begin{table*}[t]
-  \centering
-  \caption{Locked synthetic validation. Values are means over unseen seeds 197 and 251. Deltas are \method\ minus \oldmethod.}
-  \label{tab:synth}
-  \small
-  \input{tables/table_locked_synthetic.tex}
-\end{table*}
-
-\subsection{Biological Results by Dataset}
-\method\ completes all 13 datasets. The predeclared target-only mean rises on every dataset, from 0.069 to 0.203. The post-hoc TB-HF1 mean rises from 0.112 to 0.217; 12 dataset outputs improve and Nilsson regresses. The dataset-level exploratory mean gain is 0.105 (bootstrap interval $[0.072,0.133]$; Wilcoxon $p=7.32\times10^{-4}$), but these numbers count ten Samusik samples separately. After averaging within source study, the gain is 0.070 (0.090 to 0.160), with three of four studies improving. Under that study-weighted comparison SNN-DBSCAN is marginally higher at 0.163, so the first-place dataset-weighted rank is not robust to the unit of aggregation.
+Table~\ref{tab:synth} isolates the change on two unseen seeds. Across 14 pairs, macro target F1 rises from 0.830 to 0.907 ($\Delta=+0.077$) and pairwise F1 by 0.060. Gaussian overlap and rings improve on both seeds, but moons changes from $+0.332$ at seed 197 to $-0.062$ at seed 251. Both imbalanced seeds regress slightly; multi-density averages $-0.020$ macro and overlap-density $-0.072$ pairwise. Noise F1 falls by 0.008, mainly on Gaussian overlap ($-0.069$), where stricter borders leave more signal unassigned. Median paired-process time is 6.13~s for \method\ and 7.11~s for 0.1.2; it is not comparable to the isolated-process values in Table~\ref{tab:synth-reference}.
 
 \begin{table}[t]
   \centering
-  \caption{Post-hoc TB-HF1 sensitivity to the aggregation unit. The study mean first averages the ten Samusik samples.}
+  \caption{Locked synthetic validation. Values are means over unseen seeds 197 and 251. Deltas are \method\ minus \oldmethod.}
+  \label{tab:synth}
+  \scriptsize
+  \resizebox{\columnwidth}{!}{\input{tables/table_locked_synthetic.tex}}
+\end{table}
+
+\subsection{Biological Results by Dataset}
+\method\ completes all 13 datasets. Target-only F1 rises on every output (0.069 to 0.203 mean); TB-HF1 rises from 0.112 to 0.217, with 12 gains and a Nilsson regression. The dataset-level exploratory gain is 0.105 ($[0.072,0.133]$; Wilcoxon $p=7.32\times10^{-4}$), but ten outputs are Samusik samples. Under equal study weighting, SNN-DBSCAN leads TB-HF1 (0.163 versus 0.160), whereas \method\ leads TBS-HF1 (0.094 versus 0.017; predecessor 0.051). It remains first after each study omission, but its absolute TBS-HF1 is only 0.057--0.125. Metric choice changes the winner without making any partition uniformly strong.
+
+\begin{table}[t]
+  \centering
+  \caption{Post-hoc biological sensitivity. Study means first average the ten Samusik samples; TBS additionally requires pairwise structure.}
   \label{tab:bio-weighting}
   \scriptsize
   \setlength{\tabcolsep}{4pt}
   \input{tables/table_biological_weighting.tex}
 \end{table}
 
-The apparent $k$NN+Leiden paradox is resolved explicitly. Leiden has the highest target-only mean (0.268, and 0.335 on Samusik) because it can isolate annotated populations while assigning all remaining cells to communities. Since it never emits the background label, its background precision, recall, F1, and hence $F_{\mathrm{TB}}$ are zero. Target matching alone does not penalize reference-background cells outside the best-matched target clusters.
+The apparent $k$NN+Leiden paradox is resolved explicitly. Leiden has the highest target-only mean (0.268, and 0.335 on Samusik) because it can isolate annotated populations while assigning all remaining cells to communities. Since it never emits the background label, its background precision, recall, F1, $F_{\mathrm{TB}}$, and $F_{\mathrm{TBS}}$ are zero. Target matching alone does not penalize reference-background cells outside the best-matched target clusters.
 
 \textbf{Levine.} Target F1 rises from 0.055 to 0.226 and background F1 from 0.297 to 0.379, so TB-HF1 rises from 0.092 to 0.284. The algorithm nevertheless returns 775 clusters for 14 populations, including nine extra target fragments, five merged segments, and 404 background-majority clusters. This is joint target/background improvement accompanied by extreme fragmentation, not a solved partition.
 
@@ -250,28 +250,28 @@ The apparent $k$NN+Leiden paradox is resolved explicitly. Leiden has the highest
 
 \textbf{Samusik 01--10.} The predecessor returns only 2--5 clusters for 24 annotated populations in every sample, a consistent under-segmentation signature. \method\ returns 92--139 clusters and moves to the opposite side of the target granularity. Mean target F1 rises from 0.074 to 0.204 while mean background F1 decreases from 0.344 to 0.303; TB-HF1 rises from 0.122 to 0.243. Pairwise F1 improves on eight, but samples 06 and 09 regress slightly. On average the MDL partitions contain 3.1 extra target fragments, 3.4 merged segments, and 46.6 background-majority clusters. Recovery improves, but the partition remains too fine for a strong biological-clustering claim.
 
-Table~\ref{tab:bio-datasets} reports every dataset in the same order as the figure. Across all 13, background recall falls from 0.256 to 0.202; 12 regress (mean $\Delta=-0.054$, exploratory bootstrap interval $[-0.080,-0.026]$). Background F1 also incorporates precision and is the component used in~\eqref{eq:noise-aware}. The separate columns prevent TB-HF1 from hiding either behavior.
+Table~\ref{tab:bio-datasets} reports every dataset in the same order as the figure. Across all 13, background recall falls from 0.256 to 0.202; 12 regress (mean $\Delta=-0.054$, exploratory bootstrap interval $[-0.080,-0.026]$). TBS-HF1 rises from 0.102 to 0.171 at dataset level, yet a non-composite Pareto check finds simultaneous gains in target F1, background F1, and pairwise F1 only for Levine; the other 12 are trade-offs. The separate columns and Pareto count prevent either harmonic mean from hiding a degraded constituent.
 
 \begin{table*}[t]
   \centering
-  \caption{Dataset-level biological results. Each paired entry is \oldmethod/\method. TB-HF1 is the post-hoc diagnostic in~\eqref{eq:noise-aware}; $K^*$ and $\hat K$ are annotated and predicted cluster counts.}
+  \caption{Dataset-level biological results. Each pair is \oldmethod/\method. TB and TBS are post-hoc diagnostics; $K^*$ and $\hat K$ are annotated and predicted cluster counts.}
   \label{tab:bio-datasets}
   \scriptsize
-  \setlength{\tabcolsep}{2.5pt}
+  \setlength{\tabcolsep}{2.0pt}
   \input{tables/table_biological_by_dataset.tex}
 \end{table*}
 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{fig4_biological_by_dataset.pdf}
-  \caption{Biological results without pooling datasets. (a) Post-hoc target--background harmonic F1; all-assigned $k$NN+Leiden partitions score zero. (b) Paired changes in the combined score and its target/background components. (c) Predicted-to-annotated cluster-count ratio. (d) MDL target fragmentation and merging counts.}
+  \caption{Biological results without pooling datasets. (a) Post-hoc target--background--structure harmonic F1; all-assigned $k$NN+Leiden scores zero. (b) Paired changes in TBS and its target, background, and pairwise constituents. (c) Predicted-to-annotated cluster-count ratio. (d) MDL target fragmentation and merging counts.}
   \label{fig:bio-datasets}
 \end{figure*}
 
 \subsection{Gaia Pilot and Baseline Matrix}
 On the 24 prespecified fields, \method\ reaches mean best-cluster F1 0.867. This exceeds DBSCAN, OPTICS, VDBSCAN, and $k$NN-DBSCAN, but trails SNN-DBSCAN (0.916), HDBSCAN (0.916), AMD-DBSCAN (0.897), the predecessor (0.894), and $k$NN+Leiden (0.883); see Table~\ref{tab:gaia}. Relative to the predecessor, six fields improve, ten tie, and eight regress. The mean paired change is $-0.027$ with bootstrap interval $[-0.160,0.101]$ and Wilcoxon $p=0.623$. The pilot thus does not establish a Gaia quality improvement.
 
-It does expose a qualitatively different partition. Mean pairwise F1 is 0.144, versus approximately zero for HDBSCAN, AMD-DBSCAN, Leiden, and the predecessor under this field-level definition; SNN-DBSCAN remains strongest at 0.247. Mean background rejection rises from 0.247 to 0.338. This average is driven by large positive shifts on a minority of fields: rejection improves on eight and regresses on sixteen, giving a median change of $-0.173$ despite mean $+0.092$. In several fields the optimizer rejects nearly all reference-negative stars and recovers the target poorly; in others it preserves perfect target F1 but assigns most field stars to broad components. A single aggregate cannot hide this bimodality.
+It does expose a qualitatively different partition. Mean pairwise F1 is 0.144, versus approximately zero for HDBSCAN, AMD-DBSCAN, Leiden, and the predecessor under this field-level definition; SNN-DBSCAN remains strongest at 0.247. Mean background rejection rises from 0.247 to 0.338. This average is driven by large positive shifts on a minority of fields: rejection improves on eight and regresses on sixteen, giving a median change of $-0.173$ despite mean $+0.092$. The named extremes are UBC1322 (best-cluster F1 $1.000\rightarrow0.000$) and UBC1278 ($0.013\rightarrow0.900$); the supplement retains all field identities and signed effects. A single aggregate cannot hide this bimodality.
 
 \begin{table}[t]
   \centering
@@ -298,13 +298,13 @@ Table~\ref{tab:scalability-boundaries} prevents three algorithm generations from
 All 74 direct real-data pilot jobs (26 biological and 48 Gaia) complete without timeout, memory termination, or numerical failure. Across the 13 MDL biological jobs, median runtime is 14.57~s and median monitored peak RSS is 339.7~MiB; the predecessor runtime median is 10.65~s. Median MDL Gaia runtime is 11.15~s versus 7.89~s for the predecessor. Several Gaia baselines are much faster (0.15--0.66~s median), whereas VDBSCAN and OPTICS are substantially slower on the large biological samples. These observations establish monitored sparse execution through 396,460 points, not million-point parity for the evaluated snapshot.
 
 \section{Discussion and Limitations}
-The strongest positive evidence is the locked synthetic revision comparison: improvements concentrate on the curved and overlapping families that motivated the method, although only two unseen seeds per family were used. In biology, target-only F1 improves on every dataset, but this many-to-one metric does not certify a good partition. TB-HF1 improves on 12 outputs yet was constructed after inspecting the Leiden failure, and dataset weighting overrepresents Samusik. The study-weighted rank reversal against SNN-DBSCAN, the Nilsson target/background reversal, and severe Levine/Samusik fragmentation rule out a universal biological-superiority claim.
+The strongest positive evidence is the locked synthetic revision comparison: improvements concentrate on the curved and overlapping families that motivated the method, although only two unseen seeds per family were used and moons reverses sign. In biology, target-only F1 improves on every dataset, but this many-to-one metric does not certify a good partition. TB-HF1 places SNN-DBSCAN first under study weighting, whereas TBS-HF1 places \method\ first; this rank reversal is itself evidence that no single post-hoc composite is decisive. Only Levine improves target, background, and pairwise F1 jointly. The Nilsson reversal, Mosmann failure, and severe Levine/Samusik fragmentation rule out a universal biological-superiority claim.
 
 The Gaia pilot prevents a universal-superiority claim. SNN-DBSCAN and HDBSCAN have higher best-cluster F1, and the method has rare catastrophic flips in both directions. Reference-negative stars are also not verified noise, so ``background rejection'' may penalize legitimate unlabelled structure. The full 359-field matrix was intentionally paused after the prescribed pilot; it remains required before a broad astronomical claim.
 
 There are five methodological limitations. First, the evaluated pipeline is blockwise rather than a globally optimized MDL program; its dependent-edge topology score is a composite codelength heuristic, not a calibrated probability for the full partition. Second, the largest Gamma rate gap can fail when signal density overlaps a background continuum. Third, the Poisson shell model uses ambient feature dimension and can be misspecified on lower-dimensional manifolds. Fourth, $k=32$, ranks $(4,8,16,32)$, and the one-to-eight mixture search are fixed representation/numerical controls; the method is parameter-light, not parameter-free. Fifth, full-data mixture fitting costs time and $O(nm)$ responsibilities. Explicit heterogeneous-background and intrinsic-dimension models, nested-$k$ selection, controlled component ablations, and a measured small-graph optimality gap are priorities.
 
-The comparison also mixes direct pilot runs for the two StrataSCAN variants with a frozen earlier baseline matrix. Datasets, transforms, method profiles, and resource limits match, but runtime comparisons across protocol generations are descriptive. The accompanying artifact pins explicit versioned method identifiers, the evaluated $1$--$8$ component configuration, immutable result hashes, and scripts that reproduce every table and figure; raw-data redistribution remains subject to source licenses. A single supplemental diagnostic consolidates the omitted rank, paired-effect, locked-synthetic, and direct-runtime plots; their machine-readable tables and negative cases remain available rather than being discarded as redundant.
+The comparison also mixes direct pilot runs for the two StrataSCAN variants with a frozen earlier baseline matrix. Datasets, transforms, method profiles, and resource limits match, but runtime comparisons across protocol generations are descriptive. The accompanying artifact pins explicit versioned method identifiers, the evaluated $1$--$8$ component configuration, immutable result hashes, and scripts that reproduce every table and figure; raw-data redistribution remains subject to source licenses. The supplemental diagnostic exposes metric-dependent ranks, named Gaia extremes, both locked synthetic seeds, and direct runtime; machine-readable Pareto and leave-one-study-out tables retain the negative cases.
 
 \section{Conclusion}
 \method\ replaces several quality-critical density thresholds with label-free conditional codelength decisions on a sparse $k$NN graph. Exact within-stratum event sweeps and non-merging growth are the strongest algorithmic properties; semantic background selection and the graph code remain modeling assumptions. The frozen revision improves targeted synthetic geometries, while biological and Gaia pilots expose background and granularity failures that aggregate target matching can hide. The defensible conclusion is therefore narrow: codelength-guided extraction is promising, but stronger background models, component ablations, study-level validation, and full Gaia evaluation are required before broad superiority claims.

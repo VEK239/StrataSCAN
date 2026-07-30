@@ -19,7 +19,7 @@ class _FakeEstimator:
 def test_public_benchmark_profile_records_patch_release(monkeypatch) -> None:
     monkeypatch.setattr(methods, "StrataSCAN", _FakeEstimator)
     result = methods.run_method("StrataSCAN", np.zeros((4, 2)), seed=7)
-    assert result.parameters["version"] == "0.2.1"
+    assert result.parameters["version"] == "0.2.2"
     assert result.parameters["component_selection"] == "semantic_icl_with_adaptive_bound"
     assert result.parameters["hard_component_bound"] == 24
 

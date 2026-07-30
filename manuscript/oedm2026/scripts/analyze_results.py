@@ -125,6 +125,13 @@ def add_target_background_hmean_f1(frame: pd.DataFrame) -> pd.DataFrame:
         total > 0.0, 2.0 * target * noise / total, 0.0
     )
     result["noise_aware_macro_f1"] = result["target_background_hmean_f1"]
+    structure = result["pairwise_f1"].astype(float)
+    components = np.column_stack((target, noise, structure))
+    result["target_background_structure_hmean_f1"] = np.where(
+        np.all(components > 0.0, axis=1),
+        3.0 / np.sum(1.0 / np.maximum(components, np.finfo(float).tiny), axis=1),
+        0.0,
+    )
     return result
 
 
@@ -138,6 +145,57 @@ def study_aggregate(frame: pd.DataFrame) -> pd.DataFrame:
     )
     numeric = result.select_dtypes(include=[np.number]).columns.tolist()
     return result.groupby(["study", "method"], as_index=False)[numeric].mean()
+
+
+def biological_sensitivity_outputs(
+    biological: pd.DataFrame, biological_studies: pd.DataFrame
+) -> dict[str, object]:
+    """Write dependence-aware and non-composite biological diagnostics."""
+    direct = biological.loc[biological["method"].isin([DEV, PREDECESSOR])]
+    pivot = direct.pivot(index="dataset_id", columns="method")
+    axes = {
+        "target": "macro_target_f1",
+        "background": "noise_f1",
+        "structure": "pairwise_f1",
+    }
+    deltas = pd.DataFrame(index=pivot.index)
+    for name, metric in axes.items():
+        deltas[name] = pivot[(metric, DEV)] - pivot[(metric, PREDECESSOR)]
+    tolerance = 1e-12
+    deltas["all_three_improve"] = (deltas[list(axes)] > tolerance).all(axis=1)
+    deltas["all_three_regress"] = (deltas[list(axes)] < -tolerance).all(axis=1)
+    deltas["tradeoff"] = ~(deltas["all_three_improve"] | deltas["all_three_regress"])
+    deltas.reset_index().to_csv(TABLES / "biological_pareto_by_dataset.csv", index=False)
+
+    study_table = biological_studies.pivot(
+        index="study", columns="method", values="target_background_structure_hmean_f1"
+    )
+    methods = [method for method in METHOD_ORDER if method in study_table.columns]
+    rows = []
+    for omitted in [None, *study_table.index.tolist()]:
+        kept = study_table if omitted is None else study_table.drop(index=omitted)
+        means = kept[methods].mean().sort_values(ascending=False)
+        rows.append(
+            {
+                "omitted_study": "None (all four)" if omitted is None else omitted,
+                "n_studies": int(len(kept)),
+                "winner": str(means.index[0]),
+                "winner_mean": float(means.iloc[0]),
+                "mdl_mean": float(means.get(DEV, np.nan)),
+                "mdl_rank": int(means.rank(method="min", ascending=False)[DEV]),
+            }
+        )
+    loso = pd.DataFrame(rows)
+    loso.to_csv(TABLES / "biological_study_leave_one_out.csv", index=False)
+    return {
+        "pareto": {
+            "datasets": int(len(deltas)),
+            "all_three_improve": int(deltas["all_three_improve"].sum()),
+            "all_three_regress": int(deltas["all_three_regress"].sum()),
+            "tradeoff": int(deltas["tradeoff"].sum()),
+        },
+        "study_leave_one_out": rows,
+    }
 
 
 def bootstrap_mean_ci(values: np.ndarray, seed: int = 20260729) -> tuple[float, float]:
@@ -281,28 +339,27 @@ def save_figure(fig: plt.Figure, stem: str, directory: Path = FIGURES) -> None:
 
 
 def plot_method_pipeline() -> None:
-    fig, ax = plt.subplots(figsize=(7.12, 1.75), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(7.12, 1.92), constrained_layout=True)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
     boxes = [
-        (0.01, 0.55, 0.145, 0.30, "Sparse geometry", "$k$NN graph;\nshell volumes"),
-        (0.18, 0.55, 0.145, 0.30, "Density model", "Constrained Gamma\nmixture; ICL"),
-        (0.35, 0.55, 0.145, 0.30, "Semantic strata", "Largest log-rate gap;\nexplicit background"),
-        (0.52, 0.55, 0.145, 0.30, "Core optimization", "Exact observed-$d_4$\nMDL event sweep"),
-        (0.69, 0.55, 0.145, 0.30, "Background scan", "Dyadic windows;\nPoisson/Beta code"),
-        (0.845, 0.55, 0.145, 0.30, "Extraction", "Non-merging watershed;\nstrict-radius border"),
+        (0.01, 0.57, 0.145, 0.29, "Sparse geometry", "$k$NN graph;\nshell volumes", "Fixed", "#F2F3F5", "#6B7280"),
+        (0.18, 0.57, 0.145, 0.29, "Density model", "Constrained Gamma\nmixture; ICL", "Model", "#FFF1D6", "#B7791F"),
+        (0.35, 0.57, 0.145, 0.29, "Semantic strata", "Largest log-rate gap;\nexplicit background", "Model", "#FFF1D6", "#B7791F"),
+        (0.52, 0.57, 0.145, 0.29, "Core optimization", "Observed-$d_4$\nevent sweep", "Exact in block", "#E8F3F8", PALETTE[DEV]),
+        (0.69, 0.57, 0.145, 0.29, "Background scan", "Dyadic windows;\nPoisson/Beta code", "Heuristic", "#F3E8FF", "#7E57A2"),
+        (0.845, 0.57, 0.145, 0.29, "Extraction", "Non-merging watershed;\nstrict-radius border", "Invariant", "#E8F5E9", "#2E7D32"),
     ]
-    for index, (x, y, w, h, title, subtitle) in enumerate(boxes):
-        face = "#E8F3F8" if index in {1, 3, 4} else "#F2F3F5"
-        edge = PALETTE[DEV] if index in {1, 3, 4} else "#6B7280"
+    for index, (x, y, w, h, title, subtitle, status, face, edge) in enumerate(boxes):
         patch = FancyBboxPatch(
             (x, y), w, h, boxstyle="round,pad=0.008,rounding_size=0.012",
             linewidth=0.85, edgecolor=edge, facecolor=face,
         )
         ax.add_patch(patch)
-        ax.text(x + w / 2, y + 0.205, title, ha="center", va="center", fontsize=7.2, fontweight="bold")
-        ax.text(x + w / 2, y + 0.09, subtitle, ha="center", va="center", fontsize=6.2, linespacing=1.15)
+        ax.text(x + w / 2, y + 0.205, title, ha="center", va="center", fontsize=7.1, fontweight="bold")
+        ax.text(x + w / 2, y + 0.095, subtitle, ha="center", va="center", fontsize=6.0, linespacing=1.12)
+        ax.text(x + w / 2, y - 0.045, status, ha="center", va="center", fontsize=5.8, color=edge, fontweight="bold")
         if index < len(boxes) - 1:
             next_x = boxes[index + 1][0]
             ax.add_patch(
@@ -311,9 +368,9 @@ def plot_method_pipeline() -> None:
                     arrowstyle="-|>", mutation_scale=8, linewidth=0.8, color="#4B5563",
                 )
             )
-    ax.text(0.50, 0.30, "Label-free model and threshold selection", ha="center", va="center", fontsize=7.2, color=PALETTE[DEV], fontweight="bold")
-    ax.add_patch(FancyArrowPatch((0.18, 0.37), (0.835, 0.37), arrowstyle="|-|", mutation_scale=4, linewidth=0.75, color=PALETTE[DEV]))
-    ax.text(0.50, 0.10, r"Sparse bounded-degree state: $O(nk)$ storage; labels used only by the evaluator", ha="center", va="center", fontsize=6.8)
+    ax.text(0.50, 0.31, "Conditional blockwise solver (not a joint global optimum)", ha="center", va="center", fontsize=7.0, color="#374151", fontweight="bold")
+    ax.add_patch(FancyArrowPatch((0.18, 0.39), (0.835, 0.39), arrowstyle="|-|", mutation_scale=4, linewidth=0.75, color="#4B5563"))
+    ax.text(0.50, 0.11, r"Sparse bounded-degree state: $O(nk)$ storage; labels enter only after prediction", ha="center", va="center", fontsize=6.7)
     save_figure(fig, "fig0_method_pipeline")
 
 
@@ -412,30 +469,54 @@ def summarize_synthetic(synthetic: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def synthetic_seed_effects(synthetic: pd.DataFrame) -> pd.DataFrame:
+    pivot = synthetic.pivot_table(
+        index=["case_id", "seed"], columns="method",
+        values=["macro_target_f1", "pairwise_f1", "noise_f1"],
+    )
+    rows = []
+    for (case_id, seed), row in pivot.iterrows():
+        rows.append(
+            {
+                "case_id": case_id,
+                "seed": int(seed),
+                **{
+                    f"{metric}_delta": float(row[(metric, DEV)] - row[(metric, PREDECESSOR)])
+                    for metric in ("macro_target_f1", "pairwise_f1", "noise_f1")
+                },
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def plot_secondary_diagnostics(
     biological: pd.DataFrame,
     biological_studies: pd.DataFrame,
     gaia: pd.DataFrame,
     synthetic: pd.DataFrame,
+    synthetic_pairs: pd.DataFrame,
 ) -> None:
     """Consolidate secondary rank, paired-effect, and scaling diagnostics."""
     fig, axes = plt.subplots(2, 2, figsize=(7.12, 5.1), constrained_layout=True)
 
     selected = ["kNN + Leiden", PREDECESSOR, DEV, "SNN-DBSCAN"]
-    study_means = (
-        biological_studies.loc[biological_studies["method"].isin(selected)]
-        .groupby("method")["target_background_hmean_f1"]
-        .mean()
-        .reindex(selected)
-    )
+    study_means = biological_studies.loc[
+        biological_studies["method"].isin(selected)
+    ].groupby("method")[[
+        "target_background_hmean_f1",
+        "target_background_structure_hmean_f1",
+    ]].mean().reindex(selected)
     ax = axes[0, 0]
-    colors = [PALETTE.get(method, PALETTE["baseline"]) for method in selected]
-    ax.barh(selected, study_means, color=colors, height=0.65)
-    for y, value in enumerate(study_means):
-        ax.text(value + 0.004, y, f"{value:.3f}", va="center", fontsize=6.5)
+    y = np.arange(len(selected))
+    ax.barh(y + 0.17, study_means["target_background_hmean_f1"], height=0.32,
+            color="#9CA3AF", label="TB-HF1")
+    ax.barh(y - 0.17, study_means["target_background_structure_hmean_f1"], height=0.32,
+            color=PALETTE[DEV], label="TBS-HF1")
+    ax.set_yticks(y, selected)
     ax.set_xlim(0, 0.19)
-    ax.set_xlabel("Study-weighted post-hoc TB-HF1")
-    ax.set_title("(a) Biological rank sensitivity", loc="left", fontweight="bold")
+    ax.set_xlabel("Study-weighted post-hoc score")
+    ax.set_title("(a) Granularity changes the ranking", loc="left", fontweight="bold")
+    ax.legend(frameon=False, fontsize=6.1, loc="lower right")
     ax.grid(axis="y", visible=False)
     sns.despine(ax=ax)
 
@@ -451,6 +532,15 @@ def plot_secondary_diagnostics(
     ax.set_xlabel("Prespecified Gaia field (sorted)")
     ax.set_ylabel(r"$\Delta$ best-cluster F1")
     ax.set_title("(b) Gaia: 6 improve, 10 tie, 8 regress", loc="left", fontweight="bold")
+    for position in (0, len(gaia_delta) - 1):
+        field = str(gaia_delta.index[position]).split("__", 1)[0]
+        value = float(gaia_delta.iloc[position])
+        ax.annotate(
+            f"{field}\n{value:+.2f}", (position, value),
+            xytext=(7 if position == 0 else -7, -2), textcoords="offset points",
+            ha="left" if position == 0 else "right", va="top" if value < 0 else "bottom",
+            fontsize=5.6,
+        )
     sns.despine(ax=ax)
 
     labels = {
@@ -463,15 +553,18 @@ def plot_secondary_diagnostics(
         "imbalanced_16d": "Imbalanced",
     }
     ax = axes[1, 0]
-    x = np.arange(len(synthetic))
-    width = 0.24
-    specs = [
-        ("macro_target_f1_delta", "Target F1", "#0072B2"),
-        ("pairwise_f1_delta", "Pairwise F1", "#009E73"),
-        ("noise_f1_delta", "Noise F1", "#CC79A7"),
-    ]
-    for offset, (column, label, color) in zip((-width, 0.0, width), specs, strict=True):
-        ax.bar(x + offset, synthetic[column], width=width, label=label, color=color)
+    order = synthetic["case_id"].tolist()
+    x = np.arange(len(order))
+    for metric, marker, color, label, offset in [
+        ("macro_target_f1_delta", "o", "#0072B2", "Target F1", -0.10),
+        ("pairwise_f1_delta", "s", "#009E73", "Pairwise F1", +0.10),
+    ]:
+        for index, case_id in enumerate(order):
+            values = synthetic_pairs.loc[synthetic_pairs["case_id"].eq(case_id), metric]
+            ax.plot([index + offset, index + offset], [values.min(), values.max()], color=color, lw=1.0)
+            ax.scatter(np.full(len(values), index + offset), values, marker=marker, s=18,
+                       color=color, edgecolor="white", linewidth=0.35,
+                       label=label if index == 0 else None, zorder=3)
     ax.axhline(0, color="#333333", lw=0.75)
     ax.set_xticks(
         x,
@@ -479,9 +572,9 @@ def plot_secondary_diagnostics(
         rotation=28,
         ha="right",
     )
-    ax.set_ylabel(r"Mean paired $\Delta$ (MDL $-$ 0.1.2)")
-    ax.set_title("(c) Locked synthetic effects", loc="left", fontweight="bold")
-    ax.legend(ncol=3, loc="upper left", frameon=False, fontsize=6.3)
+    ax.set_ylabel(r"Per-seed paired $\Delta$ (MDL $-$ 0.1.2)")
+    ax.set_title("(c) Both locked seeds are visible", loc="left", fontweight="bold")
+    ax.legend(ncol=2, loc="upper left", frameon=False, fontsize=6.3)
     sns.despine(ax=ax)
 
     current_bio = biological.loc[biological["method"].eq(DEV)].copy()
@@ -551,8 +644,21 @@ def main() -> None:
         "target_background_hmean_f1",
         "Biological studies (4)",
     )
+    bio_structure_summary = method_summary(
+        biological,
+        "target_background_structure_hmean_f1",
+        "Biological TBS (13)",
+    )
+    bio_structure_study_summary = method_summary(
+        bio_studies.rename(columns={"study": "dataset_id"}),
+        "target_background_structure_hmean_f1",
+        "Biological TBS studies (4)",
+    )
     gaia_summary = method_summary(gaia, "best_cluster_f1", "Gaia (24)")
-    combined = pd.concat([bio_summary, bio_study_summary, gaia_summary], ignore_index=True)
+    combined = pd.concat(
+        [bio_summary, bio_study_summary, bio_structure_summary,
+         bio_structure_study_summary, gaia_summary], ignore_index=True
+    )
     combined.to_csv(TABLES / "method_comparison_matrix.csv", index=False)
     biological.to_csv(TABLES / "biological_dataset_results.csv", index=False)
     gaia.to_csv(TABLES / "gaia24_field_results.csv", index=False)
@@ -561,7 +667,11 @@ def main() -> None:
 
     plot_method_pipeline()
     synthetic_table = summarize_synthetic(synthetic)
-    plot_secondary_diagnostics(biological, bio_studies, gaia, synthetic_table)
+    synthetic_pairs = synthetic_seed_effects(synthetic)
+    synthetic_pairs.to_csv(TABLES / "locked_synthetic_seed_effects.csv", index=False)
+    plot_secondary_diagnostics(
+        biological, bio_studies, gaia, synthetic_table, synthetic_pairs
+    )
     synthetic_table.to_csv(TABLES / "locked_synthetic_by_family.csv", index=False)
     write_synthetic_tex(synthetic_table)
 
@@ -570,9 +680,19 @@ def main() -> None:
         bio_studies.rename(columns={"study": "dataset_id"}),
         "target_background_hmean_f1",
     )
+    bio_structure = paired_frame(
+        biological, "target_background_structure_hmean_f1"
+    )
+    bio_study_structure = paired_frame(
+        bio_studies.rename(columns={"study": "dataset_id"}),
+        "target_background_structure_hmean_f1",
+    )
     bio_bg = paired_frame(biological, "background_rejection")
     gaia_primary = paired_frame(gaia, "best_cluster_f1")
     gaia_bg = paired_frame(gaia, "background_rejection")
+    sensitivity = biological_sensitivity_outputs(biological, bio_studies)
+    gaia_extremes = gaia_primary[[PREDECESSOR, DEV, "delta"]].copy()
+    gaia_extremes.sort_values("delta").to_csv(TABLES / "gaia_paired_field_effects.csv")
     stats = {
         "biological_posthoc_dataset_composite": paired_summary(
             bio_primary[DEV], bio_primary[PREDECESSOR]
@@ -580,6 +700,13 @@ def main() -> None:
         "biological_posthoc_study_composite": paired_summary(
             bio_study_primary[DEV], bio_study_primary[PREDECESSOR]
         ),
+        "biological_posthoc_structure_dataset_composite": paired_summary(
+            bio_structure[DEV], bio_structure[PREDECESSOR]
+        ),
+        "biological_posthoc_structure_study_composite": paired_summary(
+            bio_study_structure[DEV], bio_study_structure[PREDECESSOR]
+        ),
+        "biological_sensitivity": sensitivity,
         "biological_background": paired_summary(bio_bg[DEV], bio_bg[PREDECESSOR]),
         "gaia_primary": paired_summary(gaia_primary[DEV], gaia_primary[PREDECESSOR]),
         "gaia_background": paired_summary(gaia_bg[DEV], gaia_bg[PREDECESSOR]),

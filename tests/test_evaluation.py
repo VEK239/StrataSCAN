@@ -7,6 +7,7 @@ from benchmarks.evaluation import (
     evaluate,
     noise_aware_macro_f1,
     target_background_hmean_f1,
+    target_background_structure_hmean_f1,
 )
 
 
@@ -50,3 +51,18 @@ def test_target_background_hmean_rejects_invalid_f1() -> None:
             pass
         else:
             raise AssertionError(f"invalid inputs were accepted: {values}")
+
+
+def test_structure_hmean_requires_all_three_tasks() -> None:
+    assert target_background_structure_hmean_f1(1.0, 1.0, 1.0) == 1.0
+    assert target_background_structure_hmean_f1(1.0, 1.0, 0.0) == 0.0
+    assert np.isclose(
+        target_background_structure_hmean_f1(0.6, 0.3, 0.2),
+        3.0 / (1.0 / 0.6 + 1.0 / 0.3 + 1.0 / 0.2),
+    )
+
+
+def test_structure_hmean_rejects_invalid_f1() -> None:
+    for values in ((-0.1, 0.5, 0.5), (0.5, 1.1, 0.5), (0.5, 0.5, np.nan)):
+        with np.testing.assert_raises(ValueError):
+            target_background_structure_hmean_f1(*values)

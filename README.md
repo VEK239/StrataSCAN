@@ -1,6 +1,6 @@
 # StrataSCAN
 
-StrataSCAN 0.2.1 is a variable-density clustering algorithm based on a
+StrataSCAN 0.2.2 is a variable-density clustering algorithm based on a
 full-data multiscale Gamma model and a unified description-length clustering
 objective. It adaptively selects Gamma density bases, separates semantic signal
 strata from one aggregated background state, optimizes supported core radii,
@@ -32,7 +32,7 @@ usual `fit`, `fit_predict`, `labels_`, and `n_clusters_` conventions. A
 prebuilt graph can be supplied with `fit_from_graph` or
 `fit_predict_from_graph`.
 
-## 0.2.1 method
+## 0.2.2 method
 
 1. Build a 32-neighbour graph. The default uses exact KD-tree search in 2D,
    FAISS HNSW above 2D when FAISS is installed, and brute-force search as the
@@ -61,10 +61,10 @@ historical reproduction.
 
 ## Release evidence
 
-The 0.2.1 release decision and known limitations are recorded in
-[`results/published/v0.2.1/RESULTS.md`](results/published/v0.2.1/RESULTS.md).
+The 0.2.2 release decision and known limitations are recorded in
+[`results/published/v0.2.2/RESULTS.md`](results/published/v0.2.2/RESULTS.md).
 Its machine-readable defaults are frozen in
-[`benchmarks/protocol.v0.2.1-release.json`](benchmarks/protocol.v0.2.1-release.json).
+[`benchmarks/protocol.v0.2.2-release.json`](benchmarks/protocol.v0.2.2-release.json).
 The frozen 0.1.2 evaluation remains in
 [`results/published/v0.1.2/RESULTS.md`](results/published/v0.1.2/RESULTS.md).
 
@@ -82,7 +82,7 @@ python -m pytest
 python -m build
 ```
 
-Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.1 default. Use
+Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.2 default. Use
 `StrataSCAN-PredictiveMultiscale` when reproducing the 0.1.2 estimator.
 
 ### Samusik real-data benchmark
