@@ -22,6 +22,8 @@ renders.
   immutable result/protocol hashes.
 - `REVIEW_AND_REVISION.md` — adversarial reviewer findings, corrections, and
   remaining limitations.
+- `SUPPLEMENT.md` and `supplement/figures/` — consolidated secondary
+  diagnostics and their interpretation.
 - `qa/submission_verified/` — 150-dpi renders of every page of the exact stable
   PDF used for final visual inspection.
 
@@ -40,6 +42,13 @@ The evidence is deliberately separated by evaluation stage:
   target--background harmonic F1 is explicitly post-hoc;
 - the prespecified 24-field Gaia DR3 pilot;
 - conventional graph/density baselines where protocol coverage permits.
+
+The scalability evidence is deliberately separated by algorithm generation.
+The evaluated fixed-range snapshot has direct monitored runs through the
+396,460-cell Mosmann dataset. The one-million-point dev9 smoke test and the
+five-million-point 0.1.2 matrix are retained as lineage evidence, not attributed
+to the submitted solver. `tables/scalability_evidence_boundaries.csv` records
+this distinction explicitly.
 
 The incomplete 359-field Gaia sweep is not included in any result, table, test,
 or conclusion. Its paused checkpoints remain outside this manuscript directory
@@ -73,5 +82,4 @@ segmentation/background limitations and the mixed Gaia pilot rather than making
 a universal-superiority claim.
 
 The checked PDF is nine US-Letter pages including references. Its SHA-256
-digest is
-`B85A120C534D1937EC52B0615126191A5748C9BA68FA814A7E08D2B9EE6C4D7F`.
+digest is `cda0fead05c984ed3e7968a08a20faf3cec72a9e0de58969d21216053d0d704c`.

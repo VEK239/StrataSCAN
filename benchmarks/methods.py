@@ -43,7 +43,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
         return MethodResult(
             labels,
             {
-                "version": "0.2.0",
+                "version": "0.2.1",
                 "geometry_profile": profile,
                 "knn_backend": backend,
                 "k": 32,
@@ -96,7 +96,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
 
     if method == "StrataSCAN-Optimization":
         # Reproduce the algorithm snapshot evaluated in the OEDM manuscript.
-        # The public 0.2.0 estimator may explore an adaptive component range;
+        # The public 0.2.1 estimator may explore an adaptive component range;
         # the frozen dev10 experiments searched exactly m=1,...,8.
         model = OptimizationStrataSCAN(
             backend=backend,
@@ -118,11 +118,11 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
                 "knn_backend": backend,
                 "k": 32,
                 "shell_ranks": [4, 8, 16, 32],
-                "stratification_model": "adaptive_gamma_density_basis_with_semantic_background",
+                "stratification_model": "gamma_density_basis_with_semantic_background",
                 "component_selection": "basis_icl_fixed_candidate_range",
                 "component_range": [1, 8],
                 "component_initialization": "split_warm_plus_independent_restarts",
-                "background_model": "adaptive_gamma_basis_mixture_with_largest_rate_gap",
+                "background_model": "gamma_basis_mixture_with_largest_rate_gap",
                 "assignment": "maximum_posterior_basis_then_semantic_role",
                 "fit_samples": "all_rows",
                 "extraction_objective": "gamma_topology_description_length",

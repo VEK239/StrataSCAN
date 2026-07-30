@@ -10,7 +10,7 @@ from stratascan import StrataSCAN
 
 
 def test_release_exports_only_current_algorithm() -> None:
-    assert stratascan.__version__ == "0.2.0"
+    assert stratascan.__version__ == "0.2.1"
     assert set(stratascan.__all__) == {
         "GammaMDLConfig",
         "GammaStrictCoreConfig",
@@ -50,7 +50,7 @@ def test_estimator_records_release_profile() -> None:
     model = StrataSCAN(backend="brute").fit(X)
     assert model.labels_.shape == (250,)
     assert model.core_sample_indices_.ndim == 1
-    assert model.profile_["algorithm_version"] == "0.2.0"
+    assert model.profile_["algorithm_version"] == "0.2.1"
     assert model.profile_["algorithm"] == "OptimizationStrataSCAN"
     assert model.profile_["mdl_gamma_background_distribution"] == "gamma_components"
     assert model.profile_["mdl_gamma_grouping"] == "largest_rate_gap"
@@ -66,7 +66,7 @@ def test_release_protocol_matches_public_defaults() -> None:
     protocol_path = (
         Path(__file__).resolve().parents[1]
         / "benchmarks"
-        / "protocol.v0.2.0-release.json"
+        / "protocol.v0.2.1-release.json"
     )
     parameters = json.loads(protocol_path.read_text(encoding="utf-8"))[
         "method_parameters"

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.1
+
+- Preserved the 0.2.0 clustering decisions and defaults while correcting
+  release and benchmark provenance for the frozen fixed-range manuscript
+  snapshot versus the public adaptive 8--24 component search.
+- Replaced ambiguous adaptive-model labels in the fixed-range benchmark
+  profile with exact Gamma-basis and semantic-background identifiers.
+- Added an explicit scalability evidence boundary: the submitted snapshot is
+  directly monitored through 396,460 cells, while million- and five-million-
+  point records belong to earlier algorithm generations.
+- Consolidated three redundant secondary plots into one supplemental figure
+  and retained all negative biological, Gaia, synthetic, and resource results
+  in machine-readable tables.
+- Revised the OEDM manuscript, supplement, artifact manifest, and final PDF
+  after a fresh adversarial review; no benchmark seed or frozen prediction was
+  changed.
+
 ## 0.2.0
 
 - Promoted `OptimizationStrataSCAN` to the released algorithm and made the

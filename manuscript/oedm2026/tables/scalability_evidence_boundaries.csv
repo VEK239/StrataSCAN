@@ -1,0 +1,6 @@
+snapshot,scope,n,runtime_seconds,memory_record,claim_boundary
+Fixed-range MDL,14 locked synthetic pairs,5000,6.127842450001481,not monitored,evaluated snapshot; paired-process engineering time
+Fixed-range MDL,7 synthetic families,20000,29.840557399998943,not monitored,evaluated snapshot; one seed
+Fixed-range MDL,Mosmann,396460,516.9917684000029,646.7 peak,largest directly evaluated snapshot job
+Earlier dev9,Moons smoke test,1000000,42.30491740000434,1215.5 peak,different algorithm; sparse-lineage evidence only
+Predecessor 0.1.2,7-family median,5000000,1013.0414353000232,endpoint only,different algorithm; not MDL evidence
