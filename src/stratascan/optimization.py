@@ -73,7 +73,10 @@ class GammaMDLConfig:
         "largest_rate_gap",
     ] = "largest_rate_gap"
     role_rank: int = 4
-    n_init: int = 3
+    # Adjacent component counts retain a split warm start.  A second,
+    # independent start protects against a bad split without multiplying every
+    # full-data candidate fit by three.
+    n_init: int = 2
     max_iter: int = 300
     tolerance: float = 1e-7
     min_rate: float = 1e-14

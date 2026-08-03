@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import gammaln
+from scipy.special import gammaln, logsumexp
 
 from stratascan import build_knn_graph
 from stratascan.predictive import (
@@ -7,6 +7,7 @@ from stratascan.predictive import (
     _fit_rate_profiles,
     _gamma_workspace,
     _log_probabilities,
+    _responsibilities,
     estimate_predictive_multiscale_stratification,
 )
 
@@ -26,6 +27,12 @@ def test_constrained_rate_profiles_are_log_linear_in_rank() -> None:
     )
     expected = mu[:, None] + slopes[:, None] * np.log(ranks)[None, :]
     np.testing.assert_allclose(np.log(rates), expected, rtol=1e-10, atol=1e-10)
+    scaled = weighted_shells * np.exp(slopes[:, None] * np.log(ranks)[None, :])
+    weighted_log_rank = np.sum(scaled * np.log(ranks)[None, :], axis=1) / np.sum(
+        scaled, axis=1
+    )
+    target = np.sum(shapes * np.log(ranks)) / np.sum(shapes)
+    np.testing.assert_allclose(weighted_log_rank, target, rtol=1e-11, atol=1e-11)
 
 
 def test_cached_gamma_likelihood_matches_direct_formula() -> None:
@@ -52,6 +59,24 @@ def test_cached_gamma_likelihood_matches_direct_formula() -> None:
         workspace=_gamma_workspace(shells, shapes),
     )
     np.testing.assert_allclose(cached, direct, rtol=1e-12, atol=1e-12)
+
+
+def test_gamma_responsibilities_match_stable_logsumexp() -> None:
+    shells = np.array([[0.2, 0.4, 0.9], [0.5, 0.8, 1.7]])
+    shapes = np.array([4.0, 4.0, 8.0])
+    weights = np.array([0.35, 0.65])
+    rates = np.array([[3.0, 2.0, 1.0], [1.5, 1.0, 0.5]])
+    workspace = _gamma_workspace(shells, shapes)
+    log_probability = _log_probabilities(
+        shells, shapes=shapes, weights=weights, rates=rates, workspace=workspace
+    )
+    actual, actual_norm = _responsibilities(
+        shells, shapes=shapes, weights=weights, rates=rates, workspace=workspace
+    )
+    expected_norm = logsumexp(log_probability, axis=1)
+    expected = np.exp(log_probability - expected_norm[:, None])
+    np.testing.assert_allclose(actual_norm, expected_norm, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
 
 
 def test_predictive_selection_returns_aligned_stratification() -> None:
