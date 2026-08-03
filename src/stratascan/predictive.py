@@ -6,7 +6,7 @@ from time import perf_counter
 from typing import Literal
 
 import numpy as np
-from scipy.special import gammaln, logsumexp
+from scipy.special import gammaln
 from sklearn.metrics import adjusted_rand_score
 
 from .core import StrataSCAN
@@ -144,8 +144,16 @@ def _responsibilities(
         rates=rates,
         workspace=workspace,
     )
-    log_norm = logsumexp(log_probability, axis=1)
-    return np.exp(log_probability - log_norm[:, None]), log_norm
+    # This is the unweighted, real-valued specialization of ``logsumexp``.
+    # Keeping the shifted exponentials lets the E-step normalize them directly
+    # instead of materializing a second n-by-components exponential array.
+    maximum = np.max(log_probability, axis=1)
+    np.subtract(log_probability, maximum[:, None], out=log_probability)
+    np.exp(log_probability, out=log_probability)
+    normalizer = np.sum(log_probability, axis=1)
+    log_norm = maximum + np.log(normalizer)
+    np.divide(log_probability, normalizer[:, None], out=log_probability)
+    return log_probability, log_norm
 
 
 def _fit_rate_profiles(
@@ -162,16 +170,29 @@ def _fit_rate_profiles(
     low = np.full(effective.size, -20.0, dtype=float)
     high = np.full(effective.size, 20.0, dtype=float)
     safe_shells = np.maximum(weighted_shells, np.finfo(float).tiny)
-    for _ in range(60):
-        midpoint = 0.5 * (low + high)
-        scaled = safe_shells * np.exp(midpoint[:, None] * log_ranks[None, :])
-        predicted = np.sum(scaled * log_ranks[None, :], axis=1) / np.sum(
-            scaled, axis=1
-        )
+    slopes = np.zeros(effective.size, dtype=float)
+    # The score is monotone in the slope.  Safeguarded Newton updates normally
+    # converge in a handful of steps; retaining the bracket gives bisection's
+    # robustness when a proposal is numerically unsuitable.
+    for _ in range(12):
+        scaled = safe_shells * np.exp(slopes[:, None] * log_ranks[None, :])
+        totals = np.sum(scaled, axis=1)
+        predicted = np.sum(scaled * log_ranks[None, :], axis=1) / totals
+        if np.all(np.abs(predicted - target) <= 1e-12):
+            break
         move_right = predicted < target
-        low = np.where(move_right, midpoint, low)
-        high = np.where(move_right, high, midpoint)
-    slopes = 0.5 * (low + high)
+        low = np.where(move_right, slopes, low)
+        high = np.where(move_right, high, slopes)
+        derivative = np.sum(
+            scaled * (log_ranks[None, :] - predicted[:, None]) ** 2,
+            axis=1,
+        ) / totals
+        proposal = slopes - (predicted - target) / np.maximum(
+            derivative, np.finfo(float).tiny
+        )
+        midpoint = 0.5 * (low + high)
+        valid = np.isfinite(proposal) & (proposal > low) & (proposal < high)
+        slopes = np.where(valid, proposal, midpoint)
     normalizer = np.sum(
         safe_shells * np.exp(slopes[:, None] * log_ranks[None, :]), axis=1
     )
