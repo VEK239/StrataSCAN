@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import combinations
+import math
 from time import perf_counter
 from typing import Literal
 
+from numba import njit
 import numpy as np
 from scipy.special import gammaln
 from sklearn.metrics import adjusted_rand_score
@@ -18,7 +20,6 @@ from .multiscale import (
 from .neighbors import Backend, HNSWConfig, build_knn_graph
 from .stratification import StratificationResult
 from .types import KNNGraph
-
 
 @dataclass(slots=True)
 class PredictiveMultiscaleConfig:
@@ -204,6 +205,141 @@ def _fit_rate_profiles(
     return mu, slopes, rates
 
 
+@njit(cache=True)
+def _fit_once_compiled(
+    shells: np.ndarray,
+    data_term: np.ndarray,
+    shapes: np.ndarray,
+    log_ranks: np.ndarray,
+    responsibilities: np.ndarray,
+    iteration_limit: int,
+    convergence_tolerance: float,
+    min_rate: float,
+    max_rate: float,
+) -> tuple:
+    """Run constrained-Gamma EM without allocating per-iteration matrices."""
+
+    n_samples, n_shells = shells.shape
+    components = responsibilities.shape[1]
+    tiny = np.finfo(np.float64).tiny
+    total_shape = 0.0
+    target_numerator = 0.0
+    for shell in range(n_shells):
+        total_shape += shapes[shell]
+        target_numerator += shapes[shell] * log_ranks[shell]
+    target = target_numerator / total_shape
+
+    effective = np.empty(components, dtype=np.float64)
+    weights = np.empty(components, dtype=np.float64)
+    weighted_shells = np.empty((components, n_shells), dtype=np.float64)
+    mu = np.empty(components, dtype=np.float64)
+    slopes = np.empty(components, dtype=np.float64)
+    rates = np.empty((components, n_shells), dtype=np.float64)
+    component_term = np.empty(components, dtype=np.float64)
+    previous = -np.inf
+    log_likelihood = -np.inf
+    converged = False
+
+    for iteration in range(iteration_limit):
+        for component in range(components):
+            effective[component] = 0.0
+            for shell in range(n_shells):
+                weighted_shells[component, shell] = 0.0
+        for row in range(n_samples):
+            for component in range(components):
+                probability = responsibilities[row, component]
+                effective[component] += probability
+                for shell in range(n_shells):
+                    weighted_shells[component, shell] += probability * shells[row, shell]
+
+        for component in range(components):
+            if effective[component] < tiny:
+                effective[component] = tiny
+            weights[component] = effective[component] / n_samples
+            low = -20.0
+            high = 20.0
+            slope = 0.0
+            for _ in range(12):
+                total = 0.0
+                predicted_numerator = 0.0
+                for shell in range(n_shells):
+                    safe_shell = max(weighted_shells[component, shell], tiny)
+                    scaled = safe_shell * math.exp(slope * log_ranks[shell])
+                    total += scaled
+                    predicted_numerator += scaled * log_ranks[shell]
+                predicted = predicted_numerator / total
+                if abs(predicted - target) <= 1e-12:
+                    break
+                if predicted < target:
+                    low = slope
+                else:
+                    high = slope
+                derivative_numerator = 0.0
+                for shell in range(n_shells):
+                    safe_shell = max(weighted_shells[component, shell], tiny)
+                    scaled = safe_shell * math.exp(slope * log_ranks[shell])
+                    difference = log_ranks[shell] - predicted
+                    derivative_numerator += scaled * difference * difference
+                derivative = max(derivative_numerator / total, tiny)
+                proposal = slope - (predicted - target) / derivative
+                if math.isfinite(proposal) and proposal > low and proposal < high:
+                    slope = proposal
+                else:
+                    slope = 0.5 * (low + high)
+            slopes[component] = slope
+            normalizer = 0.0
+            for shell in range(n_shells):
+                safe_shell = max(weighted_shells[component, shell], tiny)
+                normalizer += safe_shell * math.exp(slope * log_ranks[shell])
+            value_mu = math.log(max(effective[component] * total_shape, tiny)) - math.log(
+                max(normalizer, tiny)
+            )
+            mu[component] = value_mu
+            rate_log_term = 0.0
+            for shell in range(n_shells):
+                rate = math.exp(value_mu + slope * log_ranks[shell])
+                rate = min(max(rate, min_rate), max_rate)
+                rates[component, shell] = rate
+                rate_log_term += shapes[shell] * math.log(rate)
+            component_term[component] = math.log(max(weights[component], tiny)) + rate_log_term
+
+        log_likelihood = 0.0
+        for row in range(n_samples):
+            maximum = -np.inf
+            for component in range(components):
+                log_probability = data_term[row] + component_term[component]
+                for shell in range(n_shells):
+                    log_probability -= shells[row, shell] * rates[component, shell]
+                responsibilities[row, component] = log_probability
+                maximum = max(maximum, log_probability)
+            normalizer = 0.0
+            for component in range(components):
+                probability = math.exp(responsibilities[row, component] - maximum)
+                responsibilities[row, component] = probability
+                normalizer += probability
+            log_likelihood += maximum + math.log(normalizer)
+            for component in range(components):
+                responsibilities[row, component] /= normalizer
+
+        if math.isfinite(previous) and abs(log_likelihood - previous) <= convergence_tolerance * (
+            1.0 + abs(previous)
+        ):
+            converged = True
+            break
+        previous = log_likelihood
+
+    return (
+        log_likelihood,
+        weights,
+        mu,
+        slopes,
+        rates,
+        responsibilities,
+        iteration + 1,
+        converged,
+    )
+
+
 def _initial_labels(
     shells: np.ndarray,
     components: int,
@@ -255,40 +391,29 @@ def _fit_once(
         row_sums = np.sum(responsibilities, axis=1, keepdims=True)
         responsibilities /= np.maximum(row_sums, np.finfo(float).tiny)
     log_ranks = np.log(np.asarray(ranks, dtype=float))
-    previous = -np.inf
-    converged = False
-    log_likelihood = -np.inf
     iteration_limit = config.max_iter if max_iter is None else int(max_iter)
     convergence_tolerance = config.tolerance if tolerance is None else float(tolerance)
     cached = workspace or _gamma_workspace(shells, shapes)
-    for iteration in range(iteration_limit):
-        effective = np.maximum(
-            np.sum(responsibilities, axis=0), np.finfo(float).tiny
-        )
-        weights = effective / shells.shape[0]
-        weighted_shells = responsibilities.T @ shells
-        mu, slopes, rates = _fit_rate_profiles(
-            weighted_shells,
-            effective,
-            shapes=shapes,
-            log_ranks=log_ranks,
-            config=config,
-        )
-        responsibilities, log_norm = _responsibilities(
-            shells,
-            shapes=shapes,
-            weights=weights,
-            rates=rates,
-            workspace=cached,
-        )
-        log_likelihood = float(np.sum(log_norm))
-        if np.isfinite(previous) and abs(log_likelihood - previous) <= convergence_tolerance * (
-            1.0 + abs(previous)
-        ):
-            converged = True
-            break
-        previous = log_likelihood
-
+    (
+        log_likelihood,
+        weights,
+        mu,
+        slopes,
+        rates,
+        responsibilities,
+        iterations,
+        converged,
+    ) = _fit_once_compiled(
+        np.asarray(cached.shells, dtype=np.float64),
+        np.asarray(cached.data_term, dtype=np.float64),
+        np.asarray(shapes, dtype=np.float64),
+        log_ranks,
+        np.asarray(responsibilities, dtype=np.float64),
+        iteration_limit,
+        convergence_tolerance,
+        config.min_rate,
+        config.max_rate,
+    )
     order = np.argsort(rates[:, 0], kind="stable")[::-1]
     return _ConstrainedGammaFit(
         log_likelihood=log_likelihood,
@@ -297,7 +422,7 @@ def _fit_once(
         slopes=slopes[order],
         rates=rates[order],
         responsibilities=responsibilities[:, order],
-        iterations=iteration + 1,
+        iterations=iterations,
         converged=converged,
     )
 

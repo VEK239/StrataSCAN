@@ -92,7 +92,7 @@ def test_optimization_estimator_is_deterministic_and_keeps_noise() -> None:
     first = OptimizationStrataSCAN(backend="kd_tree", n_jobs=1).fit(X)
     second = OptimizationStrataSCAN(backend="kd_tree", n_jobs=1).fit(X)
     assert np.array_equal(first.labels_, second.labels_)
-    assert first.profile_["algorithm_version"] == "0.2.2"
+    assert first.profile_["algorithm_version"] == "0.2.3"
     assert first.profile_["mdl_gamma_criterion"] == "icl"
     assert first.profile_["mdl_gamma_fit_samples"] == X.shape[0]
     assert (
@@ -158,6 +158,31 @@ def test_adaptive_component_search_expands_only_near_the_boundary() -> None:
     assert _search_needs_expansion(7, 8, 16, 1)
     assert not _search_needs_expansion(6, 8, 16, 1)
     assert not _search_needs_expansion(16, 16, 16, 1)
+
+
+def test_duplicate_profile_multiplicity_only_counts_selected_bases() -> None:
+    from stratascan.optimization import _maximum_duplicate_profile_multiplicity
+
+    mu = np.array([3.0, 2.0, 2.0, 2.0, 1.0])
+    slopes = np.array([0.2, -0.1, -0.1, -0.1, 0.2])
+    assert (
+        _maximum_duplicate_profile_multiplicity(
+            mu,
+            slopes,
+            np.array([1, 2, 3, 4]),
+            tolerance=1e-8,
+        )
+        == 3
+    )
+    assert (
+        _maximum_duplicate_profile_multiplicity(
+            mu,
+            slopes,
+            np.array([0, 1, 4]),
+            tolerance=1e-8,
+        )
+        == 1
+    )
 
 
 def test_gamma_rate_mixture_background_log_density_is_finite() -> None:

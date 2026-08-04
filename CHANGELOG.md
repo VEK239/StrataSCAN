@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.3
+
+- Compiled the constrained multiscale-Gamma EM loop with Numba and removed
+  repeated per-iteration matrix allocations.
+- Changed the ordinary candidate search to one split-warm initialization with
+  tolerance `1e-4`, while retaining guarded tighter confirmation for ambiguous
+  high-order fits.
+- Added duplicate-signal-profile detection and a local three-order confirmation
+  that prevents deterministic over-fragmentation on imbalanced data.
+- Completed 175 of 175 StrataSCAN robustness jobs. The paired median runtime
+  ratio against the conservative implementation is 0.0442 (22.6x faster), with
+  a median pairwise-F1 change of +0.0007.
+- Promoted Numba to a required runtime dependency and removed the unreachable
+  uncompiled solver and optional-Numba fallbacks.
+- Added a single release-campaign launcher, exact job selection for clean
+  partial evaluations, frozen worker-count provenance, and source-drift checks
+  that prevent unsafe in-place benchmark resumption.
+
 ## 0.2.2
 
 - Preserved the frozen clustering outputs and public 0.2.1 algorithm defaults

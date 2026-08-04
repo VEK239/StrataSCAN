@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stratascan"
-version = "0.2.2"
+version = "0.2.3"
 description = "Semantic-MDL Gamma-stratified clustering for variable-density data"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,14 +20,15 @@ classifiers = [
 ]
 dependencies = [
   "numpy>=2.0",
+  "numba>=0.61",
   "scipy>=1.13",
   "scikit-learn>=1.5",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pandas>=2", "build>=1"]
-perf = ["faiss-cpu>=1.8", "numba>=0.61"]
-benchmark = ["pandas>=2", "psutil>=5.9", "numba>=0.61"]
+perf = ["faiss-cpu>=1.8"]
+benchmark = ["pandas>=2", "psutil>=5.9", "igraph>=0.11", "leidenalg>=0.10"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,6 +1,6 @@
 # StrataSCAN
 
-StrataSCAN 0.2.2 is a variable-density clustering algorithm based on a
+StrataSCAN 0.2.3 is a variable-density clustering algorithm based on a
 full-data multiscale Gamma model and a unified description-length clustering
 objective. It adaptively selects Gamma density bases, separates semantic signal
 strata from one aggregated background state, optimizes supported core radii,
@@ -32,16 +32,17 @@ usual `fit`, `fit_predict`, `labels_`, and `n_clusters_` conventions. A
 prebuilt graph can be supplied with `fit_from_graph` or
 `fit_predict_from_graph`.
 
-## 0.2.2 method
+## 0.2.3 method
 
 1. Build a 32-neighbour graph. The default uses exact KD-tree search in 2D,
    FAISS HNSW above 2D when FAISS is installed, and brute-force search as the
    dependency-free fallback.
 2. Fit full-data local-Poisson Gamma shell profiles at neighbour ranks 4, 8,
-   16, and 32.
+   16, and 32 with the compiled constrained-Gamma EM solver.
 3. Select the number of density bases with semantic ICL. Search starts at eight
    bases and expands in blocks of four when the optimum is near the boundary,
-   up to a hard diagnostic bound of 24.
+   up to a hard diagnostic bound of 24. Degenerate duplicate signal profiles
+   trigger a tighter local confirmation over the three neighbouring orders.
 4. Use the largest fitted log-rate gap to retain a dense signal prefix and
    aggregate all remaining Gamma bases into one semantic background state.
 5. Optimize each signal stratum over observed fourth-neighbour radii using
@@ -61,10 +62,10 @@ historical reproduction.
 
 ## Release evidence
 
-The 0.2.2 release decision and known limitations are recorded in
-[`results/published/v0.2.2/RESULTS.md`](results/published/v0.2.2/RESULTS.md).
+The 0.2.3 release decision and known limitations are recorded in
+[`results/published/v0.2.3/RESULTS.md`](results/published/v0.2.3/RESULTS.md).
 Its machine-readable defaults are frozen in
-[`benchmarks/protocol.v0.2.2-release.json`](benchmarks/protocol.v0.2.2-release.json).
+[`benchmarks/protocol.v0.2.3-release.json`](benchmarks/protocol.v0.2.3-release.json).
 The frozen 0.1.2 evaluation remains in
 [`results/published/v0.1.2/RESULTS.md`](results/published/v0.1.2/RESULTS.md).
 
@@ -82,8 +83,33 @@ python -m pytest
 python -m build
 ```
 
-Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.2 default. Use
+Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.3 default. Use
 `StrataSCAN-PredictiveMultiscale` when reproducing the 0.1.2 estimator.
+
+The complete synthetic release campaign now has one entry point:
+
+```bash
+python -m benchmarks.run_campaign --campaign benchmarks/campaign.v0.2.3-release.json --list
+python -m benchmarks.run_campaign --campaign benchmarks/campaign.v0.2.3-release.json
+```
+
+The frozen release campaign uses one worker so runtime and peak-memory results
+remain comparable. For faster quality-only reevaluation, run four jobs in
+parallel into a fresh output root; do not use that run for timing or memory
+claims:
+
+```bash
+python -m benchmarks.run_campaign --campaign benchmarks/campaign.v0.2.3-release.json --max-workers 4 --output-root results/runs/v0.2.3-quality-parallel
+```
+
+Each phase freezes its source checksums and worker count. `--resume` is allowed
+only when those inputs are unchanged. For a clean partial reevaluation, list
+the expanded jobs and pass exact IDs into a new output directory:
+
+```bash
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.3-seven-family-robustness.json --suite synthetic --list-jobs
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.3-seven-family-robustness.json --suite synthetic --job-ids-from selected-jobs.txt --output-dir results/runs/selected-v0.2.3
+```
 
 ### Samusik real-data benchmark
 
