@@ -1,4 +1,4 @@
-dataset_id,StrataSCAN 0.1.2,MDL-StrataSCAN,delta
+dataset_id,Reference configuration,MDL-StrataSCAN,delta
 UBC1322__unsupervised_field,1.0,0.0,-1.0
 UBC1268__unsupervised_field,1.0,0.4285714285714285,-0.5714285714285715
 UBC1334__unsupervised_field,1.0,0.6666666666666666,-0.33333333333333337

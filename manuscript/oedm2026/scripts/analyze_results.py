@@ -27,7 +27,7 @@ PILOT_GAIA = REPO / "results/runs/optimization_dev10_real_pilot_gaia24/results.c
 LOCKED_SYNTH = REPO / "results/runs/optimization_dev10_locked_n5000_seeds197_251_k1/metrics.csv"
 
 DEV = "MDL-StrataSCAN"
-PREDECESSOR = "StrataSCAN 0.1.2"
+PREDECESSOR = "Reference configuration"
 DISPLAY = {
     "StrataSCAN-Optimization": DEV,
     "StrataSCAN": PREDECESSOR,
@@ -572,7 +572,7 @@ def plot_secondary_diagnostics(
         rotation=28,
         ha="right",
     )
-    ax.set_ylabel(r"Per-seed paired $\Delta$ (MDL $-$ 0.1.2)")
+    ax.set_ylabel(r"Per-seed paired $\Delta$ (MDL $-$ reference)")
     ax.set_title("(c) Both locked seeds are visible", loc="left", fontweight="bold")
     ax.legend(ncol=2, loc="upper left", frameon=False, fontsize=6.3)
     sns.despine(ax=ax)
@@ -599,7 +599,7 @@ def plot_secondary_diagnostics(
     ax.set_yscale("log")
     ax.set_xlabel("Observations per evaluated dataset")
     ax.set_ylabel("End-to-end runtime (s)")
-    ax.set_title("(d) Fixed-range snapshot: direct pilots", loc="left", fontweight="bold")
+    ax.set_title("(d) Reference configuration: direct pilots", loc="left", fontweight="bold")
     ax.legend(frameon=False, loc="upper left", fontsize=6.3)
     sns.despine(ax=ax)
 
@@ -618,7 +618,7 @@ def write_synthetic_tex(table: pd.DataFrame) -> None:
     }
     lines = [
         r"\begin{tabular}{lrrrr}", r"\toprule",
-        r"Family & 0.1.2 macro & MDL macro & $\Delta$ macro & $\Delta$ pairwise \\",
+        r"Family & Reference macro & MDL macro & $\Delta$ macro & $\Delta$ pairwise \\",
         r"\midrule",
     ]
     for row in table.sort_values("case_id").itertuples(index=False):
@@ -717,7 +717,7 @@ def main() -> None:
         },
         "protocol_note": (
             "Legacy baselines are collapsed by dataset using the median over declared stochastic "
-            "seeds; failed jobs contribute zero. MDL-StrataSCAN and its 0.1.2 predecessor use the "
+            "seeds; failed jobs contribute zero. MDL-StrataSCAN and the reference configuration use the "
             "direct seed-42 pilot runs."
         ),
     }
