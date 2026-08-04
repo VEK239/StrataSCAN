@@ -147,7 +147,7 @@
     "tied": 10,
     "wilcoxon_p": 0.6233436223982587
   },
-  "protocol_note": "Legacy baselines are collapsed by dataset using the median over declared stochastic seeds; failed jobs contribute zero. MDL-StrataSCAN and its 0.1.2 predecessor use the direct seed-42 pilot runs.",
+  "protocol_note": "Legacy baselines are collapsed by dataset using the median over declared stochastic seeds; failed jobs contribute zero. MDL-StrataSCAN and the reference configuration use the direct seed-42 pilot runs.",
   "source_rows": {
     "biological": 104,
     "gaia": 240,

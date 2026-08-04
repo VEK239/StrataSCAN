@@ -25,8 +25,8 @@ PREDECESSOR_SCALING = (
 )
 
 DEV = "MDL-StrataSCAN"
-OLD = "StrataSCAN 0.1.2"
-LEGACY = "StrataSCAN 0.1.0"
+OLD = "Reference configuration"
+LEGACY = "StrataSCAN reference"
 DISPLAY = {
     "StrataSCAN-Optimization": DEV,
     "StrataSCAN": OLD,
@@ -205,13 +205,13 @@ def biological_outputs() -> None:
     ax1 = fig.add_subplot(gs[0, 1])
     sns.heatmap(delta, ax=ax1, vmin=-0.3, vmax=0.3, center=0, cmap="vlag", annot=True, fmt="+.2f",
                 annot_kws={"fontsize": 5.5}, yticklabels=False,
-                cbar_kws={"label": "MDL $-$ 0.1.2", "shrink": 0.72})
+                cbar_kws={"label": "MDL $-$ reference", "shrink": 0.72})
     ax1.set(xlabel="", ylabel="")
     ax1.set_title("(b) Paired effects", loc="left", fontweight="bold")
     ax1.set_xticklabels(ax1.get_xticklabels(), rotation=48, ha="right")
 
     ratios = detail.set_index("dataset")[["old_cluster_ratio_log2", "dev_cluster_ratio_log2"]]
-    ratios.columns = ["0.1.2", "MDL"]
+    ratios.columns = ["Reference", "MDL"]
     ax2 = fig.add_subplot(gs[0, 2])
     sns.heatmap(ratios, ax=ax2, vmin=-4, vmax=6, center=0, cmap="coolwarm", annot=True, fmt="+.1f",
                 annot_kws={"fontsize": 5.6}, yticklabels=False,
@@ -345,7 +345,7 @@ def scalability_outputs() -> None:
     evidence = pd.DataFrame(
         [
             {
-                "snapshot": "Fixed-range MDL",
+                "snapshot": "Reference MDL",
                 "scope": "14 locked synthetic pairs",
                 "n": 5_000,
                 "runtime_seconds": float(locked_current["runtime_seconds"].median()),
@@ -353,7 +353,7 @@ def scalability_outputs() -> None:
                 "claim_boundary": "evaluated snapshot; paired-process engineering time",
             },
             {
-                "snapshot": "Fixed-range MDL",
+                "snapshot": "Reference MDL",
                 "scope": "7 synthetic families",
                 "n": 20_000,
                 "runtime_seconds": float(runtime_20k_current["runtime_seconds"].median()),
@@ -361,7 +361,7 @@ def scalability_outputs() -> None:
                 "claim_boundary": "evaluated snapshot; one seed",
             },
             {
-                "snapshot": "Fixed-range MDL",
+                "snapshot": "Reference MDL",
                 "scope": str(largest_biological["dataset_id"]).capitalize(),
                 "n": int(largest_biological["n"]),
                 "runtime_seconds": float(largest_biological["runtime_seconds"]),
@@ -369,7 +369,7 @@ def scalability_outputs() -> None:
                 "claim_boundary": "largest directly evaluated snapshot job",
             },
             {
-                "snapshot": "Earlier dev9",
+                "snapshot": "Prototype",
                 "scope": "Moons smoke test",
                 "n": int(dev9_million["n"]),
                 "runtime_seconds": float(dev9_million["runtime_seconds"]),
@@ -377,7 +377,7 @@ def scalability_outputs() -> None:
                 "claim_boundary": "different algorithm; sparse-lineage evidence only",
             },
             {
-                "snapshot": "Predecessor 0.1.2",
+                "snapshot": "Reference configuration",
                 "scope": "7-family median",
                 "n": int(predecessor_5m["n"]),
                 "runtime_seconds": float(predecessor_5m["new_median_seconds"]),

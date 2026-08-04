@@ -31,6 +31,12 @@ renders.
 
 The evidence is deliberately separated by evaluation stage:
 
+- the new 0.2.3 release robustness grid: seven families, five sizes, and five
+  seeds (175 StrataSCAN jobs), with all jobs completed, a 22.6x median paired
+  speedup against the conservative solver, and retained negative cells;
+- completed serial 0.2.3 multidensity scaling measurements through 2,000,000
+  points; the remaining five-million-point campaign cells are explicitly
+  incomplete and are not reported as endpoints;
 - the original 315-job synthetic reference matrix: seven families, five
   pre-freeze seeds, nine methods, `n = 5,000`, with quality, segmentation,
   runtime, and process-memory measurements;
@@ -44,11 +50,13 @@ The evidence is deliberately separated by evaluation stage:
 - the prespecified 24-field Gaia DR3 pilot;
 - conventional graph/density baselines where protocol coverage permits.
 
-The scalability evidence is deliberately separated by algorithm generation.
-The evaluated fixed-range snapshot has direct monitored runs through the
+The scalability evidence is deliberately separated by algorithm generation and
+protocol. The 0.2.3 release has completed direct serial multidensity runs
+through 2,000,000 points; its other scaling cells remain in progress. The
+historical fixed-range snapshot has direct monitored runs through the
 396,460-cell Mosmann dataset. The one-million-point dev9 smoke test and the
 five-million-point 0.1.2 matrix are retained as lineage evidence, not attributed
-to the submitted solver. `tables/scalability_evidence_boundaries.csv` records
+to the submitted solver. The historical scalability evidence table records
 this distinction explicitly.
 
 The incomplete 359-field Gaia sweep is not included in any result, table, test,
@@ -82,5 +90,5 @@ artifact. The manuscript distinguishes strong biological recovery evidence from
 segmentation/background limitations and the mixed Gaia pilot rather than making
 a universal-superiority claim.
 
-The checked PDF is nine US-Letter pages including references. Its SHA-256
-digest is `fa85c74693abfe82b92f1bacf73ff81d983e0449c3da5a898d382a3bf4e7c19f`.
+The checked 0.2.3 PDF is ten US-Letter pages including references. Its SHA-256
+digest is `95fd4970b9925677081403ceecd0e26cea4fbcb5afed9077bb7c68b370322a15`.

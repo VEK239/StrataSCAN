@@ -158,3 +158,39 @@ the locked revision still has only two unseen seeds per family.
 - Offline source and wheel builds completed for version 0.2.2.
 - The exact final PDF is nine US-Letter pages with result floats before the
   discussion and references.
+
+## Round 5 - 0.2.3 release update and review
+
+The workshop manuscript was updated for the compiled constrained-Gamma solver
+and guarded local confirmation introduced in 0.2.3. The review found that the
+earlier draft would have materially overstated provenance if its fixed 1--8
+component description and historical real-data outputs were silently treated as
+the released 0.2.3 method.
+
+Corrections in this round:
+
+- The method and protocol sections now describe the released adaptive 8--24
+  component search, one split-warm ordinary fit, and the stricter local
+  confirmation conditions.
+- A new results subsection reports the completed 175-cell seven-family
+  robustness grid, including all recovered conservative timeouts, paired speed
+  and pairwise-F1 summaries, and the four retained material regressions.
+- A new serial scaling table reports only the completed 0.5M, 1M, and 2M
+  multidensity jobs. The unfinished 5M and remaining-family cells, and all
+  unfinished campaign phases, are explicitly excluded from conclusions.
+- The biological, Gaia, and older locked-synthetic analyses are now labelled
+  historical rather than evidence for 0.2.3, because they were not rerun under
+  the release profile.
+
+Remaining release-specific limitations are visible in the paper: quality can
+still change because local optima differ from the conservative solver; four
+non-imbalanced cells lose more than 0.05 pairwise F1; and the completed scaling
+evidence currently covers a single family and seed. The review recommendation
+therefore remains scoped: the new data support a speed-and-robustness release,
+not universal quality or real-data superiority.
+
+### Round 5 verification
+
+- Tectonic compilation completed with no unresolved references.
+- The final ten-page PDF was rasterized at 150 dpi and every page was visually
+  inspected; no clipping, overlap, or broken table/figure layout was found.

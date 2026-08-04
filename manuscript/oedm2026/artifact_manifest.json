@@ -4,18 +4,18 @@
   "evaluated_method": {
     "display_name": "MDL-StrataSCAN",
     "historical_result_id": "StrataSCAN-Optimization",
-    "snapshot": "0.2.0-dev10",
-    "gamma_component_range": [1, 8],
-    "adaptive_component_search": false,
+    "snapshot": "0.2.3",
+    "gamma_component_range": [1, 24],
+    "adaptive_component_search": true,
     "shell_ranks": [4, 8, 16, 32],
     "core_rank": 4,
     "connectivity_rank": 4
   },
   "release_context": {
-    "public_version": "0.2.2",
+    "public_version": "0.2.3",
     "public_component_range": [1, 24],
     "public_adaptive_component_search": true,
-    "relationship": "The public release preserves the 0.2.1 algorithm defaults; manuscript results use the frozen fixed-range snapshot above."
+    "relationship": "The manuscript reports the 0.2.3 release robustness and completed serial scaling evidence separately from historical fixed-range synthetic, biological, and Gaia results."
   },
   "declared_endpoints": {
     "synthetic": "macro_target_f1",
@@ -30,7 +30,7 @@
     "biological_study_leave_one_out"
   ],
   "sha256": {
-    "manuscript/oedm2026/MDL-StrataSCAN_OEDM2026_draft.pdf": "fa85c74693abfe82b92f1bacf73ff81d983e0449c3da5a898d382a3bf4e7c19f",
+    "manuscript/oedm2026/MDL-StrataSCAN_OEDM2026_draft.pdf": "95fd4970b9925677081403ceecd0e26cea4fbcb5afed9077bb7c68b370322a15",
     "results/runs/publication_full_7synthetic_20260722/results.csv": "8c4ebadc9c1bde8f2e0b0ce69dd68d0daa62c5d5a3432b76fefd3fe317e3fa68",
     "results/runs/samusik_01/results.csv": "463931d1250ce4eb0e4505f231473d285288882cac4aa2bef6206365e9ac545e",
     "results/runs/samusik_all_samples_02_10/results.csv": "28839ba4921b63318a45fcce3033cbe478475b0c2851a0f5e5d00546bc4e1bf7",
@@ -44,12 +44,15 @@
     "benchmarks/protocol.optimization-v0.2.0-dev10.json": "8d81d8c76c6936dd84a1c54153251304da53d60d9914430cd9ea77f1096614cc",
     "benchmarks/protocol.optimization-v0.2.0-dev10-real-pilot.json": "8d975776ada0bda94a5a22ad4c26a45423fb71be957af067763802853362e622",
     "benchmarks/protocol.v0.2.1-release.json": "bee41c84b8d609ca3d8cbaf6a7dd0bfb68d785948203fbadb3258a0f2148c0ee",
-    "benchmarks/protocol.v0.2.2-release.json": "d4a16647fafea23c11e384fea241d861558c5981687ac6df3e2998c3c7eae279"
+    "benchmarks/protocol.v0.2.2-release.json": "d4a16647fafea23c11e384fea241d861558c5981687ac6df3e2998c3c7eae279",
+    "benchmarks/protocol.v0.2.3-release.json": "0a26b3a0a8bd0248864dc560d27aaf9dec4582d102ff2489f40ba67132585c4c",
+    "benchmarks/protocol.v0.2.3-seven-family-robustness.json": "f10d1488dcfd5930e7df810d7ecfcc3a3ef293c0a2c2daff7b1a6d0f434e0f8a",
+    "benchmarks/protocol.v0.2.3-seven-family-stratascan-scalability-5m.json": "1f7dbd5df7b4a2134d5fbb7f820778b08335821e5831b3be77900bd7cd8c7a77"
   },
   "notes": [
     "Frozen result files retain their historical method identifiers.",
     "Current replay protocols use explicit versioned identifiers so the mutable public StrataSCAN alias cannot select the wrong estimator.",
     "The target-background and target-background-structure harmonic F1, Pareto counts, and study sensitivity summaries were computed after the frozen predictions and are not predeclared endpoints.",
-    "Scalability records are attributed to their exact algorithm generation; only fixed-range MDL rows characterize the submitted snapshot."
+    "Scalability records are attributed to their exact algorithm generation and protocol; the completed 0.2.3 serial multidensity records through two million points are separated from historical rows and incomplete campaign cells."
   ]
 }
