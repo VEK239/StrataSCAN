@@ -437,10 +437,6 @@ def write_table_variants(table: pd.DataFrame, stem: Path, index: bool = True) ->
     stem.with_suffix(".tex").write_text("\n".join(latex), encoding="utf-8")
 
 
-def fmt(value: float, digits: int = 3) -> str:
-    return "—" if pd.isna(value) else f"{value:.{digits}f}"
-
-
 def make_tables(
     frame: pd.DataFrame, summary: pd.DataFrame, targets: pd.DataFrame, tables: Path
 ) -> dict[str, pd.DataFrame]:

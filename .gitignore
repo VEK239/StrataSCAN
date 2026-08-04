@@ -3,6 +3,7 @@
 .tmp/
 .tmp-matplotlib/
 .tmp-mpl/
+.worktrees/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -34,6 +35,8 @@ results/published/*
 !results/published/v0.2.1/**
 !results/published/v0.2.2/
 !results/published/v0.2.2/**
+!results/published/v0.2.3/
+!results/published/v0.2.3/**
 
 # Keep the exact submission render, but not intermediate manuscript review passes.
 manuscript/oedm2026/qa/*

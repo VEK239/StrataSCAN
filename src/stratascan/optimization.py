@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 import math
 from time import perf_counter
 from typing import Literal
 
+from numba import njit
 import numpy as np
 from scipy.optimize import minimize
 from scipy.sparse import coo_matrix
@@ -25,16 +26,6 @@ from .predictive import (
 )
 from .stratification import StratificationResult
 from .types import KNNGraph
-
-try:
-    from numba import njit
-except ImportError:  # pragma: no cover
-    def njit(*_args, **_kwargs):
-        def decorate(function):
-            return function
-
-        return decorate
-
 
 @dataclass(frozen=True, slots=True)
 class GammaMDLConfig:
@@ -73,12 +64,18 @@ class GammaMDLConfig:
         "largest_rate_gap",
     ] = "largest_rate_gap"
     role_rank: int = 4
-    # Adjacent component counts retain a split warm start.  A second,
-    # independent start protects against a bad split without multiplying every
-    # full-data candidate fit by three.
-    n_init: int = 2
+    # Adjacent component counts retain a split warm start. Guarded high-order
+    # and duplicate-profile confirmations add independent tighter fits only
+    # when the fast ordinary search exposes an ambiguity signal.
+    n_init: int = 1
     max_iter: int = 300
-    tolerance: float = 1e-7
+    tolerance: float = 1e-4
+    confirm_ambiguous_model: bool = True
+    confirmation_min_components: int = 12
+    confirmation_n_init: int = 2
+    confirmation_tolerance: float = 1e-5
+    confirmation_min_duplicate_profiles: int = 3
+    confirmation_profile_tolerance: float = 1e-8
     min_rate: float = 1e-14
     max_rate: float = 1e14
     min_background_shape: float = 1e-3
@@ -143,6 +140,14 @@ def _validate_gamma_config(graph: KNNGraph, config: GammaMDLConfig) -> None:
         raise ValueError("role_rank needs three disjoint windows in the k-NN graph")
     if config.n_init < 1 or config.max_iter < 1 or config.tolerance <= 0.0:
         raise ValueError("Gamma solver controls must be positive")
+    if (
+        config.confirmation_min_components < 2
+        or config.confirmation_n_init < 1
+        or config.confirmation_tolerance <= 0.0
+        or config.confirmation_min_duplicate_profiles < 2
+        or config.confirmation_profile_tolerance <= 0.0
+    ):
+        raise ValueError("Gamma confirmation controls must be positive")
     if not 0.0 < config.min_background_shape < config.max_background_shape:
         raise ValueError("background shape bounds are invalid")
     if not 0.0 < config.min_background_scale < config.max_background_scale:
@@ -964,6 +969,34 @@ def _search_needs_expansion(
     )
 
 
+def _maximum_duplicate_profile_multiplicity(
+    mu: np.ndarray,
+    slopes: np.ndarray,
+    components: np.ndarray,
+    *,
+    tolerance: float,
+) -> int:
+    """Count nearly identical fitted profiles among semantic signal bases."""
+
+    selected = np.asarray(components, dtype=np.int64)
+    if selected.size == 0:
+        return 0
+    profiles = np.column_stack(
+        (
+            np.asarray(mu, dtype=np.float64)[selected],
+            np.asarray(slopes, dtype=np.float64)[selected],
+        )
+    )
+    return max(
+        int(
+            np.sum(
+                np.max(np.abs(profiles - profile), axis=1) <= tolerance
+            )
+        )
+        for profile in profiles
+    )
+
+
 def _fit_gamma_candidate(
     shells: np.ndarray,
     *,
@@ -1349,6 +1382,100 @@ def _estimate_gamma_basis_stratification(
 
     selected = fits[selected_index]
     supported_basis = supported_by_candidate[selected_index]
+    duplicate_profile_multiplicity = _maximum_duplicate_profile_multiplicity(
+        selected.mu,
+        selected.slopes,
+        supported_basis,
+        tolerance=config.confirmation_profile_tolerance,
+    )
+    if (
+        config.confirm_ambiguous_model
+        and selected_components >= config.confirmation_min_components
+        and duplicate_profile_multiplicity
+        >= config.confirmation_min_duplicate_profiles
+    ):
+        # Split-warm EM can preserve several exactly symmetric dense children
+        # when the fast tolerance is reached before their responsibilities
+        # diverge.  Confirm only the three local model orders from an
+        # independent cold start; this breaks the symmetry without repeating
+        # the full adaptive search for ordinary datasets.
+        initial_fit_seconds = perf_counter() - fit_started
+        local_min = max(config.min_components, selected_components - 1)
+        local_max = min(config.hard_max_components, selected_components + 1)
+        confirmed = _estimate_gamma_basis_stratification(
+            graph,
+            signatures=signatures,
+            shells=shells,
+            shapes=shapes,
+            signature_seconds=signature_seconds,
+            config=replace(
+                config,
+                min_components=local_min,
+                max_components=local_max,
+                hard_max_components=local_max,
+                adaptive_components=False,
+                n_init=1,
+                tolerance=config.confirmation_tolerance,
+                confirm_ambiguous_model=False,
+            ),
+        )
+        confirmed.timings["full_data_gamma_mdl"] += initial_fit_seconds
+        confirmed.diagnostics["mdl_gamma_ambiguity_confirmation"] = True
+        confirmed.diagnostics["mdl_gamma_initial_selected_components"] = int(
+            selected_components
+        )
+        confirmed.diagnostics[
+            "mdl_gamma_initial_duplicate_profile_multiplicity"
+        ] = int(duplicate_profile_multiplicity)
+        confirmed.diagnostics["mdl_gamma_confirmation_component_range"] = [
+            int(local_min),
+            int(local_max),
+        ]
+        confirmed.diagnostics["mdl_gamma_ambiguity_confirmation_reason"] = (
+            "duplicate_signal_profiles"
+        )
+        return confirmed
+    if (
+        config.confirm_ambiguous_model
+        and selected_components >= config.confirmation_min_components
+        and selected_components < component_grid[-1] - config.boundary_margin
+        and (
+            supported_basis.size <= 1
+            or selected_components >= config.hard_max_components - 2
+        )
+    ):
+        # High-order interior optima are the observed cases where a loose start
+        # can settle in a locally good basis decomposition but harm the final
+        # partition.  Confirm the single-signal pattern with a second start;
+        # a near-hard-bound multi-signal model only needs tighter convergence.
+        # Ordinary cases retain the much faster single-pass search.
+        initial_fit_seconds = perf_counter() - fit_started
+        confirmed = _estimate_gamma_basis_stratification(
+            graph,
+            signatures=signatures,
+            shells=shells,
+            shapes=shapes,
+            signature_seconds=signature_seconds,
+            config=replace(
+                config,
+                n_init=(
+                    config.confirmation_n_init if supported_basis.size <= 1 else 1
+                ),
+                tolerance=config.confirmation_tolerance,
+                confirm_ambiguous_model=False,
+            ),
+        )
+        confirmed.timings["full_data_gamma_mdl"] += initial_fit_seconds
+        confirmed.diagnostics["mdl_gamma_ambiguity_confirmation"] = True
+        confirmed.diagnostics["mdl_gamma_initial_selected_components"] = int(
+            selected_components
+        )
+        confirmed.diagnostics["mdl_gamma_ambiguity_confirmation_reason"] = (
+            "single_signal_high_order_interior"
+            if supported_basis.size <= 1
+            else "near_hard_bound_interior"
+        )
+        return confirmed
     supported_set = set(map(int, supported_basis))
     background_basis = np.asarray(
         [
@@ -1448,6 +1575,9 @@ def _estimate_gamma_basis_stratification(
             ),
             "mdl_gamma_adaptive_search": bool(config.adaptive_components),
             "mdl_gamma_split_warm_start": bool(config.split_warm_start),
+            "mdl_gamma_n_init": int(config.n_init),
+            "mdl_gamma_tolerance": float(config.tolerance),
+            "mdl_gamma_guarded_confirmation": bool(config.confirm_ambiguous_model),
             "mdl_gamma_search_caps": search_caps,
             "mdl_gamma_search_initial_max": int(config.max_components),
             "mdl_gamma_search_hard_max": int(config.hard_max_components),
@@ -1884,18 +2014,6 @@ def _adaptive_background_core(
         "events": events,
         "total_gain": float(total_gain),
     }
-
-
-@njit(cache=True)
-def _find(parent: np.ndarray, item: int) -> int:
-    root = item
-    while parent[root] != root:
-        root = parent[root]
-    while parent[item] != item:
-        next_item = parent[item]
-        parent[item] = root
-        item = next_item
-    return root
 
 
 @njit(cache=True)
@@ -2361,7 +2479,7 @@ def optimize_strict_core_from_graph(
 
 
 class OptimizationStrataSCAN(GraphStrataSCAN):
-    """StrataSCAN 0.2.2 semantic-MDL Gamma plus unified StrictCore estimator."""
+    """StrataSCAN 0.2.3 semantic-MDL Gamma plus unified StrictCore estimator."""
 
     def __init__(
         self,
@@ -2409,7 +2527,7 @@ class OptimizationStrataSCAN(GraphStrataSCAN):
         self.n_clusters_ = int(np.unique(result.labels[result.labels >= 0]).size)
         self.stratification_ = stratification
         self.profile_ = {
-            "algorithm_version": "0.2.2",
+            "algorithm_version": "0.2.3",
             "algorithm": "OptimizationStrataSCAN",
             "stratification": "adaptive-semantic-information-criterion-gamma-v2",
             **stratification.diagnostics,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from numba import njit
 import numpy as np
 from scipy.stats import hypergeom
 from scipy.sparse import coo_matrix
@@ -10,15 +11,6 @@ from .core import stratified_knn_dbscan_from_graph
 from .stratification import StratificationResult
 from .types import KNNGraph
 from .uniform_tail import UniformTailConfig, estimate_stratification_uniform_tail
-
-try:
-    from numba import njit
-except ImportError:  # pragma: no cover
-    def njit(*_args, **_kwargs):
-        def decorate(function):
-            return function
-        return decorate
-
 
 @njit(cache=True)
 def _rank_window_component_sizes(

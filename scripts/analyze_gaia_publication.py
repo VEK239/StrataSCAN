@@ -277,39 +277,6 @@ def fig_ranks(field: pd.DataFrame, figures: Path, ranks: pd.DataFrame, info: dic
     save(fig, figures, stem)
 
 
-def fig_specificity(field: pd.DataFrame, figures: Path) -> None:
-    fig, (ax_spurious, ax_precision) = plt.subplots(1, 2, figsize=(7.2, 3.25), constrained_layout=True)
-    groups = [field.loc[field["method"].eq(m), "spurious_background_majority_clusters"].to_numpy(float) + 1 for m in METHODS]
-    boxes = ax_spurious.boxplot(groups, positions=np.arange(len(METHODS)), widths=0.62, patch_artist=True, showfliers=False)
-    for patch, method in zip(boxes["boxes"], METHODS):
-        patch.set_facecolor(COLORS[method])
-        patch.set_edgecolor("black")
-    for median in boxes["medians"]:
-        median.set_color("white")
-        median.set_linewidth(1.1)
-    ax_spurious.set_yscale("log")
-    ax_spurious.set_xticks(np.arange(len(METHODS)), METHODS, rotation=55, ha="right")
-    ax_spurious.set_ylabel("Background-majority clusters + 1 (log scale)")
-    ax_spurious.set_title("Spurious cluster burden")
-    clean(ax_spurious)
-
-    precision = field.groupby("method", observed=True)["best_cluster_precision"].agg(
-        median="median", q25=lambda x: x.quantile(0.25), q05=lambda x: x.quantile(0.05)
-    ).reindex(METHODS)
-    x = np.arange(len(METHODS))
-    ax_precision.scatter(x, precision["median"], color=[COLORS[m] for m in METHODS], marker="o", s=35, edgecolor="black", linewidth=0.5, zorder=3)
-    ax_precision.vlines(x, precision["q05"], precision["median"], color=[COLORS[m] for m in METHODS], linewidth=2)
-    ax_precision.scatter(x, precision["q05"], color=[COLORS[m] for m in METHODS], marker="_", s=45, zorder=3)
-    ax_precision.set_xticks(x, METHODS, rotation=55, ha="right")
-    ax_precision.set_ylim(-0.03, 1.03)
-    ax_precision.set_ylabel("Best matched-cluster precision")
-    ax_precision.set_title("Median and fifth percentile")
-    clean(ax_precision)
-    panel(ax_spurious, "a")
-    panel(ax_precision, "b")
-    save(fig, figures, "fig3-gaia-specificity")
-
-
 def fig_resources(field: pd.DataFrame, figures: Path, stem: str = "fig4-gaia-resources") -> None:
     summary = field.groupby("method", observed=True).agg(
         success_080=("best_cluster_f1", lambda x: (x >= 0.8).mean()),

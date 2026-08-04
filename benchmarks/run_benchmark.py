@@ -230,6 +230,45 @@ def input_paths(protocol: dict[str, Any], protocol_path: Path, suite: str) -> li
     return paths
 
 
+def input_checksums(
+    protocol: dict[str, Any], protocol_path: Path, suite: str
+) -> list[dict[str, Any]]:
+    records = []
+    for path in input_paths(protocol, protocol_path, suite):
+        records.append({
+            "path": str(path.relative_to(REPO)) if path.is_relative_to(REPO) else str(path),
+            "bytes": path.stat().st_size,
+            "sha256": sha256(path),
+        })
+    return records
+
+
+def input_drift(
+    recorded: list[dict[str, Any]], current: list[dict[str, Any]]
+) -> list[str]:
+    """Return paths added, removed, or changed since a manifest was frozen."""
+
+    expected = {item["path"]: (item["bytes"], item["sha256"]) for item in recorded}
+    observed = {item["path"]: (item["bytes"], item["sha256"]) for item in current}
+    return sorted(
+        path
+        for path in expected.keys() | observed.keys()
+        if expected.get(path) != observed.get(path)
+    )
+
+
+def select_jobs(
+    jobs: list[dict[str, Any]], requested_ids: set[str]
+) -> list[dict[str, Any]]:
+    if not requested_ids:
+        return jobs
+    available = {job["job_id"] for job in jobs}
+    unknown = sorted(requested_ids - available)
+    if unknown:
+        raise ValueError(f"unknown benchmark job IDs: {unknown}")
+    return [job for job in jobs if job["job_id"] in requested_ids]
+
+
 def environment() -> dict[str, Any]:
     packages = {}
     for name in (
@@ -262,15 +301,14 @@ def environment() -> dict[str, Any]:
 
 
 def create_manifest(
-    protocol: dict[str, Any], protocol_path: Path, suite: str, jobs: list[dict[str, Any]]
+    protocol: dict[str, Any],
+    protocol_path: Path,
+    suite: str,
+    jobs: list[dict[str, Any]],
+    *,
+    expanded_job_count: int,
+    max_workers: int,
 ) -> dict[str, Any]:
-    checksums = []
-    for path in input_paths(protocol, protocol_path, suite):
-        checksums.append({
-            "path": str(path.relative_to(REPO)) if path.is_relative_to(REPO) else str(path),
-            "bytes": path.stat().st_size,
-            "sha256": sha256(path),
-        })
     return {
         "schema_version": 1,
         "protocol_version": protocol["protocol_version"],
@@ -279,10 +317,15 @@ def create_manifest(
         "suite": suite,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "resources": protocol["resources"],
+        "execution": {
+            "max_workers": int(max_workers),
+            "parallel_resource_measurements": bool(max_workers > 1),
+        },
         "methods": protocol["methods"],
         "comparison": protocol.get("comparison"),
         "environment": environment(),
-        "inputs": checksums,
+        "inputs": input_checksums(protocol, protocol_path, suite),
+        "expanded_job_count": int(expanded_job_count),
         "expected_job_count": len(jobs),
         "jobs": jobs,
     }
@@ -488,6 +531,11 @@ def compare_with_reference(
         reference_path = reference_path / "results.csv"
     if not reference_path.is_file():
         raise FileNotFoundError(f"reference results do not exist: {reference_path}")
+    # Rich estimator diagnostics can legitimately exceed the csv module's
+    # conservative 128 KiB default field limit (for example, long objective
+    # traces from large benchmark jobs).  The comparison reads trusted local
+    # artifacts and must not fail after the expensive matrix has completed.
+    csv.field_size_limit(min(sys.maxsize, 2_147_483_647))
     with reference_path.open(encoding="utf-8", newline="") as handle:
         reference_rows = list(csv.DictReader(handle))
     identity_keys = ("suite", "dataset_id", "method", "seed")
@@ -680,12 +728,28 @@ def main() -> None:
     parser.add_argument("--suite", choices=("all", "synthetic", "cytometry", "gaia"), default="all")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument(
+        "--job-id",
+        action="append",
+        default=[],
+        help="run only this exact expanded job ID; repeat for multiple jobs",
+    )
+    parser.add_argument(
+        "--job-ids-from",
+        type=Path,
+        help="UTF-8 text file containing one exact expanded job ID per line",
+    )
+    parser.add_argument(
         "--max-workers",
         type=int,
         default=1,
         help="number of isolated benchmark jobs to execute concurrently",
     )
     parser.add_argument("--list", action="store_true", help="print the frozen matrix size without executing jobs")
+    parser.add_argument(
+        "--list-jobs",
+        action="store_true",
+        help="print every expanded job as one JSON object without executing",
+    )
     parser.add_argument("--validate-only", action="store_true")
     parser.add_argument("--compare-to", type=Path, help="reference results.csv or its run directory")
     args = parser.parse_args()
@@ -694,7 +758,19 @@ def main() -> None:
 
     protocol_path = args.protocol.resolve()
     protocol = read_protocol(protocol_path)
-    jobs = expand_jobs(protocol, args.suite)
+    expanded_jobs = expand_jobs(protocol, args.suite)
+    requested_ids = set(args.job_id)
+    if args.job_ids_from is not None:
+        requested_ids.update(
+            line.strip()
+            for line in args.job_ids_from.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        )
+    jobs = select_jobs(expanded_jobs, requested_ids)
+    if args.list_jobs:
+        for job in jobs:
+            print(json.dumps(job, sort_keys=True))
+        return
     if args.list:
         counts: dict[str, int] = {}
         for job in jobs:
@@ -718,10 +794,35 @@ def main() -> None:
         current_ids = [job["job_id"] for job in jobs]
         if existing_ids != current_ids:
             raise ValueError("existing manifest does not match the requested protocol matrix")
+        if not args.validate_only:
+            drift = input_drift(
+                manifest.get("inputs", []),
+                input_checksums(protocol, protocol_path, args.suite),
+            )
+            if drift:
+                raise ValueError(
+                    "benchmark inputs changed since the manifest was frozen; "
+                    f"use a new output directory. Changed paths: {drift}"
+                )
+            recorded_workers = int(
+                manifest.get("execution", {}).get("max_workers", 1)
+            )
+            if recorded_workers != args.max_workers:
+                raise ValueError(
+                    "--max-workers differs from the frozen execution mode "
+                    f"({recorded_workers}); use a new output directory"
+                )
     elif args.validate_only:
         raise FileNotFoundError("validate-only requires an existing manifest")
     else:
-        manifest = create_manifest(protocol, protocol_path, args.suite, jobs)
+        manifest = create_manifest(
+            protocol,
+            protocol_path,
+            args.suite,
+            jobs,
+            expanded_job_count=len(expanded_jobs),
+            max_workers=args.max_workers,
+        )
         atomic_json(manifest_path, manifest)
 
     if not args.validate_only:

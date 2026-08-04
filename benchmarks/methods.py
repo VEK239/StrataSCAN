@@ -43,7 +43,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
         return MethodResult(
             labels,
             {
-                "version": "0.2.2",
+                "version": "0.2.3",
                 "geometry_profile": profile,
                 "knn_backend": backend,
                 "k": 32,
@@ -55,8 +55,12 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
                 "initial_component_bound": 8,
                 "hard_component_bound": 24,
                 "component_initialization": (
-                    "split_warm_plus_independent_restarts"
+                    "compiled_split_warm_single_start_with_guarded_confirmation"
                 ),
+                "gamma_tolerance": 1e-4,
+                "ambiguous_model_confirmation_tolerance": 1e-5,
+                "duplicate_profile_confirmation_minimum": 3,
+                "duplicate_profile_confirmation_tolerance": 1e-8,
                 "background_model": (
                     "adaptive_gamma_basis_mixture_with_largest_rate_gap"
                 ),
@@ -109,7 +113,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
         return MethodResult(
             labels,
             {
-                "version": "0.2.2-component-ablation-v1",
+                "version": "0.2.3-component-ablation-v1",
                 "geometry_profile": profile,
                 "knn_backend": backend,
                 "ablation_of": ablated_component,
@@ -148,7 +152,7 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
 
     if method == "StrataSCAN-Optimization":
         # Reproduce the algorithm snapshot evaluated in the OEDM manuscript.
-        # The public 0.2.2 estimator may explore an adaptive component range;
+        # The public 0.2.3 estimator may explore an adaptive component range;
         # the frozen dev10 experiments searched exactly m=1,...,8.
         model = OptimizationStrataSCAN(
             backend=backend,

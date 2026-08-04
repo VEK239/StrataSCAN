@@ -80,15 +80,6 @@ def metric_row(case_id: str, method: str, labels: np.ndarray, dataset, seconds: 
     }
 
 
-def categorical_colors(labels: np.ndarray) -> np.ndarray:
-    colors = np.empty((labels.size, 4), dtype=float)
-    colors[:] = (0.72, 0.72, 0.72, 0.22)
-    palette = plt.get_cmap("tab20")
-    for index, label in enumerate(sorted(np.unique(labels[labels >= 0]).tolist())):
-        colors[labels == label] = palette(index % 20)
-    return colors
-
-
 def draw_panel(ax, coords: np.ndarray, labels: np.ndarray, title: str) -> None:
     noise = labels < 0
     if np.any(noise):
