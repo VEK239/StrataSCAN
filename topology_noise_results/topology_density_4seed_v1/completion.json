@@ -1,0 +1,9 @@
+{
+  "pilot_label": "PILOT / exploratory; not final evidence",
+  "status_counts": {
+    "ok": 560,
+    "skipped_resource_limit": 76,
+    "timeout": 48
+  },
+  "total_jobs": 684
+}

@@ -1,0 +1,98 @@
+{
+  "cells": [
+    {
+      "cell_id": "gaussian_noise_curve_r4",
+      "density_ratio": 4.0,
+      "noise_fractions": [
+        0.5,
+        0.75,
+        0.9,
+        0.95,
+        0.975,
+        0.99
+      ],
+      "topology": "compact_gaussian"
+    },
+    {
+      "cell_id": "anisotropic_ellipses_screen",
+      "density_ratio": 1.0,
+      "noise_fractions": [
+        0.75,
+        0.95,
+        0.99
+      ],
+      "topology": "anisotropic_ellipses"
+    },
+    {
+      "cell_id": "moon_arcs_screen",
+      "density_ratio": 1.0,
+      "noise_fractions": [
+        0.75,
+        0.95,
+        0.99
+      ],
+      "topology": "moon_arcs"
+    },
+    {
+      "cell_id": "rings_screen",
+      "density_ratio": 1.0,
+      "noise_fractions": [
+        0.75,
+        0.95,
+        0.99
+      ],
+      "topology": "rings"
+    },
+    {
+      "cell_id": "gaussian_density_r16",
+      "density_ratio": 16.0,
+      "noise_fractions": [
+        0.95,
+        0.99
+      ],
+      "topology": "compact_gaussian"
+    },
+    {
+      "cell_id": "gaussian_density_r64",
+      "density_ratio": 64.0,
+      "noise_fractions": [
+        0.95,
+        0.99
+      ],
+      "topology": "compact_gaussian"
+    }
+  ],
+  "design": {
+    "background_sampling": "nested prefix by topology and sampling seed",
+    "background_support": "fixed axis-aligned square shared by all topologies",
+    "mass_per_target": 300,
+    "minimum_local_contrast_at_99pct": 50.0,
+    "target_count": 6
+  },
+  "geometry_seed": 3571,
+  "max_workers": 4,
+  "methods": [
+    "StrataSCAN",
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "kNN-DBSCAN",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "kNN+Leiden",
+    "AMD-DBSCAN"
+  ],
+  "resource_policy": {
+    "amd_dbscan": "always_skip",
+    "reason": "AMD-DBSCAN's compatibility path is O(n^2) and is explicitly skipped for every cell in this n=3,600 to 180,000 replicated benchmark."
+  },
+  "sampling_seeds": [
+    23,
+    42,
+    73,
+    151
+  ],
+  "schema_version": 1,
+  "timeout_seconds": 240,
+  "title": "PILOT / replicated topology and density stress benchmark"
+}
