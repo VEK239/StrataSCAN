@@ -1,0 +1,7 @@
+{
+  "source": "manuscript/oedm2026/tables/performance_tables_2026-08-06/05_biological_by_dataset.csv",
+  "datasets": ["levine", "nilsson"],
+  "methods": ["StrataSCAN", "DBSCAN", "HDBSCAN", "OPTICS", "SNN-DBSCAN", "VDBSCAN-2007", "AMD-DBSCAN", "kNN-DBSCAN", "kNN+Leiden"],
+  "failure_policy": "Rows with ok_fraction=0 are written as unavailable; their stored zero placeholders are never interpreted as measured F1 values.",
+  "metrics": "target_f1 / noise_f1 / pairwise_f1"
+}

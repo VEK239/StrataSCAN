@@ -1,0 +1,21 @@
+\begin{table*}[t]
+\centering
+\caption{Performance on the Levine and Nilsson cytometry benchmarks. Each cell reports target-wise F1 / noise F1 / pairwise F1. A dash denotes that the method did not complete under the benchmark resource policy.}
+\label{tab:biology-levine-nilsson}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcc}
+\toprule
+Method & Levine & Nilsson \\
+\midrule
+\textbf{StrataSCAN} & 0.190 / 0.538 / 0.090 & 0.517 / 0.295 / 0.000 \\
+DBSCAN & 0.044 / 0.743 / 0.028 & 0.000 / 0.936 / 0.000 \\
+HDBSCAN & -- & 0.104 / 0.394 / 0.000 \\
+OPTICS & -- & 0.000 / 0.992 / 0.000 \\
+SNN-DBSCAN & 0.009 / 0.753 / 0.000 & 0.059 / 0.980 / 0.004 \\
+VDBSCAN-2007 & -- & 0.019 / 0.128 / 0.000 \\
+AMD-DBSCAN & -- & -- \\
+kNN-DBSCAN & 0.041 / 0.743 / 0.026 & 0.000 / 0.936 / 0.000 \\
+kNN+Leiden & -- & 0.139 / 0.000 / 0.001 \\
+\bottomrule
+\end{tabular}
+\end{table*}
