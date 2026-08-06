@@ -1,0 +1,45 @@
+name: Build OEDM performance figures
+
+on:
+  push:
+    branches:
+      - codex/oedm-v023-manuscript
+    paths:
+      - manuscript/oedm2026/scripts/make_manuscript_figures.py
+      - manuscript/oedm2026/tables/performance_tables_2026-08-06/**
+      - benchmarks/datasets.py
+      - src/stratascan/synthetic.py
+      - topology_noise_benchmark/generators.py
+      - .github/workflows/oedm-performance-figures.yml
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/oedm-v023-manuscript
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and plotting dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install matplotlib pandas scikit-learn
+      - name: Generate figures and tables
+        env:
+          PYTHONPATH: src:.
+        run: python manuscript/oedm2026/scripts/make_manuscript_figures.py
+      - name: Commit rendered artifacts
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add manuscript/oedm2026/figures/performance_2026-08-06
+          git diff --cached --quiet && exit 0
+          git commit -m "Render reproducible OEDM performance figures"
+          git push

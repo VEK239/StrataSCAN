@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering
+\caption{Granularity on six 99\% diffuse-background benchmarks. A ratio of 1 is exact; values above 1 indicate over-segmentation. Summaries use completed runs only.}
+\label{tab:noise99-granularity}
+\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+Method & Coverage & Median ratio & Range & Median $|\log_2 r|$ \\
+\midrule
+\textbf{StrataSCAN} & 6/6 & 1.94x & 1.25x--2.42x & 0.95 \\
+DBSCAN & 6/6 & 1,866.9x & 1,862.2x--1,871.0x & 10.87 \\
+HDBSCAN & 0/6 & -- & -- & -- \\
+OPTICS & 0/6 & -- & -- & -- \\
+SNN-DBSCAN & 6/6 & 792.4x & 787.9x--794.7x & 9.63 \\
+VDBSCAN-2007 & 6/6 & 57.4x & 53.9x--65.3x & 5.84 \\
+AMD-DBSCAN & 0/6 & -- & -- & -- \\
+kNN-DBSCAN & 6/6 & 1,774.9x & 1,771.9x--1,776.4x & 10.79 \\
+kNN+Leiden & 6/6 & 9.27x & 9.17x--9.58x & 3.21 \\
+\bottomrule
+\end{tabular}
+\end{table}

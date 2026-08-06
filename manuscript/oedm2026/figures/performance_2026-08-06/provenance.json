@@ -1,0 +1,12 @@
+{
+  "metric_sources": [
+    "manuscript/oedm2026/tables/performance_tables_2026-08-06/02_noise_aware_6datasets_summary.csv",
+    "manuscript/oedm2026/tables/performance_tables_2026-08-06/03_noise_fraction_summary_long.csv",
+    "manuscript/oedm2026/tables/performance_tables_2026-08-06/04_scalability_available_to_5m_summary.csv"
+  ],
+  "gallery_sources": [
+    "benchmarks.datasets.load_synthetic",
+    "topology_noise_benchmark.generators.generate"
+  ],
+  "policy": "No image generation, no heatmaps, no failure-to-zero imputation."
+}
