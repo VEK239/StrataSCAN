@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import math
+from types import SimpleNamespace
 
 import numpy as np
+import stratascan.optimization as optimization_module
 
 from stratascan import build_knn_graph
 from stratascan.optimization import (
@@ -12,6 +14,7 @@ from stratascan.optimization import (
     _best_threshold_event_sweep,
     _background_log_density,
     _density_ordered_labels_from_core,
+    _fit_gamma_candidate,
     _information_score,
     _inverse_gamma_rate_background_log_density,
     _lognormal_rate_background_density_and_score,
@@ -25,7 +28,13 @@ from stratascan.types import KNNGraph
 
 
 def _brute_force_threshold(
-    graph, rows: np.ndarray, core_distance: np.ndarray, unary_gain: np.ndarray, rank: int
+    graph,
+    rows: np.ndarray,
+    core_distance: np.ndarray,
+    unary_gain: np.ndarray,
+    rank: int,
+    *,
+    n_reference: int | None = None,
 ) -> tuple[int, float]:
     order = np.argsort(core_distance[rows], kind="stable")
     ordered = rows[order]
@@ -33,6 +42,11 @@ def _brute_force_threshold(
     best_gain = 0.0
     threshold_code = np.log(rows.size)
     for size in range(1, rows.size + 1):
+        if (
+            size < rows.size
+            and core_distance[ordered[size]] == core_distance[ordered[size - 1]]
+        ):
+            continue
         candidate = np.zeros(graph.n_samples, dtype=bool)
         candidate[ordered[:size]] = True
         candidate_rows = ordered[:size]
@@ -46,7 +60,10 @@ def _brute_force_threshold(
             )
         )
         topology_gain = _topology_log_bayes_factor(
-            size, successes, rows.size, rank
+            size,
+            successes,
+            graph.n_samples if n_reference is None else n_reference,
+            rank,
         )
         gain = float(
             np.sum(unary_gain[candidate_rows]) + topology_gain - threshold_code
@@ -73,11 +90,95 @@ def test_event_sweep_matches_brute_force_nested_thresholds() -> None:
     order = np.argsort(core_distance[rows], kind="stable")
     events = _stratum_events(graph, rows, order, rank=4)
     actual = _best_threshold_event_sweep(
-        unary_gain[rows[order]], *events, rows.size, 4
+        unary_gain[rows[order]], core_distance[rows[order]], *events, rows.size, 4
     )
     expected = _brute_force_threshold(graph, rows, core_distance, unary_gain, 4)
     assert actual[0] == expected[0]
     assert np.isclose(actual[1], expected[1], rtol=1e-10, atol=1e-10)
+
+
+def test_event_sweep_only_scores_realizable_thresholds_across_exact_ties() -> None:
+    unary_gain = np.array([3.0, 3.0, 3.0, -20.0])
+    ordering_score = np.array([1.0, 1.0, 1.0, 2.0])
+    event_steps = np.array([1, 2, 2], dtype=np.int64)
+    event_left = np.array([0, 0, 1], dtype=np.int64)
+    event_right = np.array([1, 2, 2], dtype=np.int64)
+
+    best_size, best_gain = _best_threshold_event_sweep(
+        unary_gain,
+        ordering_score,
+        event_steps,
+        event_left,
+        event_right,
+        10,
+        1,
+    )
+
+    assert best_size == 3
+    assert best_gain > 0.0
+    assert best_size not in {1, 2}
+
+
+def test_subset_stratum_uses_local_threshold_code_and_global_reference() -> None:
+    unary_gain = np.full(3, 2.0)
+    ordering_score = np.array([1.0, 2.0, 3.0])
+    event_steps = np.array([1, 2, 2], dtype=np.int64)
+    event_left = np.array([0, 0, 1], dtype=np.int64)
+    event_right = np.array([1, 2, 2], dtype=np.int64)
+
+    best_size, best_gain = _best_threshold_event_sweep(
+        unary_gain,
+        ordering_score,
+        event_steps,
+        event_left,
+        event_right,
+        10,
+        1,
+    )
+    expected = (
+        float(np.sum(unary_gain))
+        + _topology_log_bayes_factor(3, 3, 10, 1)
+        - math.log(3)
+    )
+
+    assert best_size == 3
+    assert np.isclose(best_gain, expected)
+
+
+def test_disabling_split_warm_start_forces_an_independent_candidate_fit(
+    monkeypatch,
+) -> None:
+    calls = {"cold": 0, "split": 0}
+
+    def fake_cold(*args, **kwargs):
+        calls["cold"] += 1
+        return SimpleNamespace(log_likelihood=2.0)
+
+    def fake_split(*args, **kwargs):
+        calls["split"] += 1
+        return SimpleNamespace(log_likelihood=1.0)
+
+    monkeypatch.setattr(optimization_module, "_fit_constrained_gamma", fake_cold)
+    monkeypatch.setattr(optimization_module, "_fit_once", fake_split)
+    previous = SimpleNamespace(responsibilities=np.ones((4, 1)))
+
+    selected = _fit_gamma_candidate(
+        np.ones((4, 2)),
+        shapes=np.ones(2),
+        components=2,
+        config=GammaMDLConfig(
+            split_warm_start=False,
+            n_init=1,
+            max_components=2,
+            hard_max_components=2,
+        ),
+        numerical=None,
+        workspace=None,
+        previous=previous,
+    )
+
+    assert selected.log_likelihood == 2.0
+    assert calls == {"cold": 1, "split": 0}
 
 
 def test_optimization_estimator_is_deterministic_and_keeps_noise() -> None:

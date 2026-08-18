@@ -1,0 +1,134 @@
+{
+  "ancillary_files": [
+    "fig2_synthetic_validation-data.csv",
+    "fig3_execution_envelope-scaling-data.csv",
+    "fig4_biological_validation-data.csv",
+    "figS3_synthetic_metric_matrix-data.csv",
+    "figS4_biological_metric_matrix-data.csv",
+    "figS5_gaia_validation-data.csv",
+    "figS7_noise_factorial-data.csv"
+  ],
+  "discovery_thresholds": {
+    "coverage": 0.1,
+    "purity": 0.9
+  },
+  "evaluation_protocol_version": "target-discovery-v1",
+  "excluded_historical_claim_blocks": [
+    "model specification",
+    "solver predecessor"
+  ],
+  "failure_policy": "failed executions retain missing quality; paired effects use joint successes",
+  "figures": [
+    "fig1_method_pipeline.pdf",
+    "fig1_method_pipeline.png",
+    "fig1_method_pipeline.svg",
+    "fig2_synthetic_validation.pdf",
+    "fig2_synthetic_validation.png",
+    "fig2_synthetic_validation.svg",
+    "fig3_execution_envelope.pdf",
+    "fig3_execution_envelope.png",
+    "fig3_execution_envelope.svg",
+    "fig4_biological_validation.pdf",
+    "fig4_biological_validation.png",
+    "fig4_biological_validation.svg",
+    "figS3_synthetic_metric_matrix.pdf",
+    "figS3_synthetic_metric_matrix.png",
+    "figS3_synthetic_metric_matrix.svg",
+    "figS4_biological_metric_matrix.pdf",
+    "figS4_biological_metric_matrix.png",
+    "figS4_biological_metric_matrix.svg",
+    "figS5_gaia_validation.pdf",
+    "figS5_gaia_validation.png",
+    "figS5_gaia_validation.svg",
+    "figS7_noise_factorial.pdf",
+    "figS7_noise_factorial.png",
+    "figS7_noise_factorial.svg"
+  ],
+  "matching_objective": "pairwise_f1",
+  "matching_strategy": "hungarian",
+  "non_synthetic_background_policy": "background abstention is diagnostic, not true-noise evidence",
+  "placeholders": [],
+  "schema_version": 2,
+  "sources": [
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/synthetic_release.csv",
+      "sha256": "37a52224a55b7d9bc0723a095dba8f1b9fe6cc82dbc240b42b83a46dc23a37c7"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/synthetic_release-provenance.json",
+      "sha256": "4bfea4a691ed7baa8be50f63f5cb38214f198ecc674dbaa1fb2361b1ef7a3c16"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/synthetic_scaling.csv",
+      "sha256": "6037daee6c71ec8e0316f06df8f7a7df49e11a04ad7dca56fc961506c856c3d7"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/synthetic_scaling-provenance.json",
+      "sha256": "755eb5b051786c4bd1ed421c8c2a30e36b7f2b0a922b4257708e03438cbd747e"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/cytometry.csv",
+      "sha256": "bb1e7c144c1f4623f4b6d9409086608f862b2478d0d8004be369a5e7dea9cd94"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/cytometry-provenance.json",
+      "sha256": "758420c828ded5fc104dc5c2c60c3a86bd61d131a8a66ad236234e4e55521123"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/gaia.csv",
+      "sha256": "dd9cab8e00b09e959fc74129a15df121dd4179a07ed6f70dfe551ef79f184078"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/gaia-provenance.json",
+      "sha256": "5bf70f06bc551361505a1e3b1d31e32120fd859712e523651137f12ec06e473f"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/noise_factorial.csv",
+      "sha256": "f64bd7a65169a23f45ed28df6116c0b1cb6961f2d6c1b0f05d4e9a507984cd81"
+    },
+    {
+      "exists": true,
+      "path": "results/published/v0.2.4/target-discovery-v1/noise_factorial-provenance.json",
+      "sha256": "5d3c86f5bf8c9110d388b6d16d69fa436338b3acb931140aaaa35be80e18eddb"
+    },
+    {
+      "exists": true,
+      "path": "benchmarks/evaluation_protocol.v1.json",
+      "sha256": "fae5323e907040ffd66effa92ae3d650752e6e87cebe867a27b01231921213d6"
+    },
+    {
+      "exists": true,
+      "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json",
+      "sha256": "13c3b824ebe4a2da54c32d323326e9f3a03bd51914451d82f8763f644871b410"
+    },
+    {
+      "exists": true,
+      "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-scaling.json",
+      "sha256": "69f549ca82261089f10f1a90f0df6530d614cbf7938acf4b6030d40bac7b9c43"
+    },
+    {
+      "exists": true,
+      "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-noise-sweep.json",
+      "sha256": "0846056238294cb32c06066a948fc1b57c7a2560a22e3b4f78b645c1aeabdd22"
+    },
+    {
+      "exists": true,
+      "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-biological.json",
+      "sha256": "c1fdde548e27804d5442415d79660bfad79879a551b4ed67d5ba400117e9bf97"
+    },
+    {
+      "exists": true,
+      "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-gaia-stratascan.json",
+      "sha256": "6be2dcbc1400c4ab8b06d14d89dd546176e1ced4e1f9faf3bc23a796e606172f"
+    }
+  ]
+}

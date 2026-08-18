@@ -1,58 +1,453 @@
 {
-  "schema_version": 1,
-  "manuscript": "IEEE ICDM OEDM 2026",
+  "artifacts": {
+    "build_inputs": [
+      {
+        "bytes": 1158,
+        "path": "manuscript/oedm2026/FIGURE_CLAIM_MAP.md",
+        "sha256": "f7e4f5a1d47db50fda0e8ef4277fd76988984df290bb662dc6ad65bdedcd360f"
+      },
+      {
+        "bytes": 2214,
+        "path": "manuscript/oedm2026/FINAL_EXPERIMENT_POLICY.md",
+        "sha256": "1cefa0b126ac45493f1071c07c2af9af7451c45a83968e1319c75af4ebea1f7d"
+      },
+      {
+        "bytes": 1333,
+        "path": "manuscript/oedm2026/FINAL_FIGURES.md",
+        "sha256": "c4cb6e6a0cc4c9f8ce7d9363d4c4d604ce6cb7f04c92f02ffc2c93cc25fbdd5f"
+      },
+      {
+        "bytes": 2697,
+        "path": "manuscript/oedm2026/README.md",
+        "sha256": "b67b28fa6e4061369732cc5a35e742dc2f2440e05dd33c03dc67997a3a99b7e3"
+      },
+      {
+        "bytes": 1328,
+        "path": "manuscript/oedm2026/SUPPLEMENT.md",
+        "sha256": "13dfd9ccb769e81b370d8a22d8de2c8aaa0f5f02b9a1054aba519604e7ead2e3"
+      },
+      {
+        "bytes": 39986,
+        "path": "manuscript/oedm2026/manuscript.tex",
+        "sha256": "f5487e317fe65427941caab0c673df989cff07cc1c10e09b04fd32e423bc98c8"
+      },
+      {
+        "bytes": 8257,
+        "path": "manuscript/oedm2026/references.bib",
+        "sha256": "a6c80a92489fa17b44c4500f9d7071353250162ae6f63784eaa3e7ae89720745"
+      },
+      {
+        "bytes": 2912,
+        "path": "manuscript/oedm2026/scripts/build.ps1",
+        "sha256": "5f8911adf30d4226c1a5e4ef1e7efcb9569a4070f6571b81d77e2eb63ad8e6a8"
+      },
+      {
+        "bytes": 9915,
+        "path": "manuscript/oedm2026/scripts/discovery_threshold_sensitivity.py",
+        "sha256": "57796c5a9faa5944a20d092c6fdc1f614ab56ef909e22aaa3eb344a349dc2f20"
+      },
+      {
+        "bytes": 25142,
+        "path": "manuscript/oedm2026/scripts/final_manuscript_figures.py",
+        "sha256": "997fddadedf87ff49d87f19fa66b046834debac0bb7294b6b1ccd53da365070f"
+      },
+      {
+        "bytes": 31458,
+        "path": "manuscript/oedm2026/scripts/final_manuscript_statistics.py",
+        "sha256": "1a0d4c4fda8c19b7d25a5cc1843128d371bb4cee4d75c4f3c1ed81754628075a"
+      },
+      {
+        "bytes": 11454,
+        "path": "manuscript/oedm2026/scripts/generate_artifact_manifest.py",
+        "sha256": "d979999506b0fa9b399cc108f46e365070a2a3d580a75c02676cca7159f21160"
+      },
+      {
+        "bytes": 15070,
+        "path": "manuscript/oedm2026/scripts/synchronize_final_manuscript_statistics.py",
+        "sha256": "7f60173c7855491a2069c667d6f591055a024d14221ff3f8c2c6e6ca749d6f20"
+      },
+      {
+        "bytes": 11981,
+        "path": "scripts/build_revised_results_presentation.py",
+        "sha256": "66b59e1388ee1b26bd8f64106cb6964c471b15c689cc4de6aea74d58bb3d73db"
+      }
+    ],
+    "discovery_threshold_sensitivity": [
+      {
+        "bytes": 16521,
+        "path": "manuscript/oedm2026/tables/discovery_threshold_sensitivity.csv",
+        "sha256": "8e9f56d1de72c2b3e6a0a039f188a297ab2a3924503ac932c3f7dc374ed26e57"
+      },
+      {
+        "bytes": 3473,
+        "path": "manuscript/oedm2026/tables/discovery_threshold_sensitivity.md",
+        "sha256": "e413ea6aaffcff05637e5ec405cd71cb4b21b3591a772c4f7335a488d4f36a34"
+      }
+    ],
+    "evidence_sources_and_audits": [
+      {
+        "bytes": 2043,
+        "path": "results/published/v0.2.4/target-discovery-v1/cytometry-provenance.json",
+        "sha256": "758420c828ded5fc104dc5c2c60c3a86bd61d131a8a66ad236234e4e55521123"
+      },
+      {
+        "bytes": 5536640,
+        "path": "results/published/v0.2.4/target-discovery-v1/cytometry.csv",
+        "sha256": "bb1e7c144c1f4623f4b6d9409086608f862b2478d0d8004be369a5e7dea9cd94"
+      },
+      {
+        "bytes": 3957,
+        "path": "results/published/v0.2.4/target-discovery-v1/gaia-provenance.json",
+        "sha256": "5bf70f06bc551361505a1e3b1d31e32120fd859712e523651137f12ec06e473f"
+      },
+      {
+        "bytes": 16089980,
+        "path": "results/published/v0.2.4/target-discovery-v1/gaia.csv",
+        "sha256": "dd9cab8e00b09e959fc74129a15df121dd4179a07ed6f70dfe551ef79f184078"
+      },
+      {
+        "bytes": 2011,
+        "path": "results/published/v0.2.4/target-discovery-v1/noise_factorial-provenance.json",
+        "sha256": "5d3c86f5bf8c9110d388b6d16d69fa436338b3acb931140aaaa35be80e18eddb"
+      },
+      {
+        "bytes": 748132,
+        "path": "results/published/v0.2.4/target-discovery-v1/noise_factorial.csv",
+        "sha256": "f64bd7a65169a23f45ed28df6116c0b1cb6961f2d6c1b0f05d4e9a507984cd81"
+      },
+      {
+        "bytes": 2075,
+        "path": "results/published/v0.2.4/target-discovery-v1/synthetic_release-provenance.json",
+        "sha256": "4bfea4a691ed7baa8be50f63f5cb38214f198ecc674dbaa1fb2361b1ef7a3c16"
+      },
+      {
+        "bytes": 2953448,
+        "path": "results/published/v0.2.4/target-discovery-v1/synthetic_release.csv",
+        "sha256": "37a52224a55b7d9bc0723a095dba8f1b9fe6cc82dbc240b42b83a46dc23a37c7"
+      },
+      {
+        "bytes": 1870,
+        "path": "results/published/v0.2.4/target-discovery-v1/synthetic_scaling-provenance.json",
+        "sha256": "755eb5b051786c4bd1ed421c8c2a30e36b7f2b0a922b4257708e03438cbd747e"
+      },
+      {
+        "bytes": 36551605,
+        "path": "results/published/v0.2.4/target-discovery-v1/synthetic_scaling.csv",
+        "sha256": "6037daee6c71ec8e0316f06df8f7a7df49e11a04ad7dca56fc961506c856c3d7"
+      }
+    ],
+    "figure_manifest": {
+      "bytes": 5123,
+      "path": "manuscript/oedm2026/final_figures/figure_manifest.json",
+      "sha256": "f00102f73a645ae79711c85d60c6c94598544f8786656e346fdd671438e091b7"
+    },
+    "figure_outputs": [
+      {
+        "bytes": 58415,
+        "path": "manuscript/oedm2026/final_figures/fig1_method_pipeline.pdf",
+        "sha256": "5fe2fb73f403bb76d9ce5ab8edd20d36091eb0b958ece8ce59682b8fb3b72b42"
+      },
+      {
+        "bytes": 123836,
+        "path": "manuscript/oedm2026/final_figures/fig1_method_pipeline.png",
+        "sha256": "02a45adfc96339fb1cec085cbb9999c9d7e67ed76ea0425cb051fc2de304d419"
+      },
+      {
+        "bytes": 10507,
+        "path": "manuscript/oedm2026/final_figures/fig1_method_pipeline.svg",
+        "sha256": "e5d7a8c121677f9b707a3de386778faff798f4e50837d60229b1e4ecb7d34b0c"
+      },
+      {
+        "bytes": 1974,
+        "path": "manuscript/oedm2026/final_figures/fig2_synthetic_validation-data.csv",
+        "sha256": "d9e3ceabe64819a964b2a5c7b6002f4b6cb3b6305f99803c5cd1f95525cd5460"
+      },
+      {
+        "bytes": 75069,
+        "path": "manuscript/oedm2026/final_figures/fig2_synthetic_validation.pdf",
+        "sha256": "77b1fcbf75c43325678fb64361bb7ca278ebc6ce0ea96387d550936855b3f538"
+      },
+      {
+        "bytes": 266510,
+        "path": "manuscript/oedm2026/final_figures/fig2_synthetic_validation.png",
+        "sha256": "1b1843b38460f66264a93bda9d1274725aeae7c9f1874d9f7a5e5acc2bc039f7"
+      },
+      {
+        "bytes": 34157,
+        "path": "manuscript/oedm2026/final_figures/fig2_synthetic_validation.svg",
+        "sha256": "03227f7e80cc43cbce1b723b0499481a32f71faad2a3464bf92b05e32188f15b"
+      },
+      {
+        "bytes": 36551622,
+        "path": "manuscript/oedm2026/final_figures/fig3_execution_envelope-scaling-data.csv",
+        "sha256": "89535e5a5c3b351fea205bf070bf8caf219407c8e9fd4e348f042ddd127ee161"
+      },
+      {
+        "bytes": 52341,
+        "path": "manuscript/oedm2026/final_figures/fig3_execution_envelope.pdf",
+        "sha256": "7793206ed3830c962ed58e023c4160729e9ffbf8ef73d5240be25bd393c16512"
+      },
+      {
+        "bytes": 350683,
+        "path": "manuscript/oedm2026/final_figures/fig3_execution_envelope.png",
+        "sha256": "547e704bae3a202b2ff75bab035fbca3eb4b55b8855751d6cf66ea7a7c52cbc8"
+      },
+      {
+        "bytes": 37610,
+        "path": "manuscript/oedm2026/final_figures/fig3_execution_envelope.svg",
+        "sha256": "25c7f6999a6ac888b5ec69f8b00d8d0ad519455d75154bb32155af637b3ca1f5"
+      },
+      {
+        "bytes": 5536633,
+        "path": "manuscript/oedm2026/final_figures/fig4_biological_validation-data.csv",
+        "sha256": "dc21d9f3ffff3e09a3ae9a3d903e39a7a924a711db0a1118c6fde1a6761b1bd3"
+      },
+      {
+        "bytes": 57825,
+        "path": "manuscript/oedm2026/final_figures/fig4_biological_validation.pdf",
+        "sha256": "03986f40ac42ef48437e30c9857993165603679194d993af194fc70baf468617"
+      },
+      {
+        "bytes": 263635,
+        "path": "manuscript/oedm2026/final_figures/fig4_biological_validation.png",
+        "sha256": "627c62db2fc2b5606ce0e1d2a03f443e88ec745f0fe0d3300558f03cd3f73933"
+      },
+      {
+        "bytes": 39743,
+        "path": "manuscript/oedm2026/final_figures/fig4_biological_validation.svg",
+        "sha256": "9597c649c5e7ed6ab3439c3b7c8045e8e345bd96dde5c3043527dcecfa66940d"
+      },
+      {
+        "bytes": 1816935,
+        "path": "manuscript/oedm2026/final_figures/figS3_synthetic_metric_matrix-data.csv",
+        "sha256": "c640ba21383cfdf5841c76b8853793228ee468705495bec17f0f42fdf55016c0"
+      },
+      {
+        "bytes": 83694,
+        "path": "manuscript/oedm2026/final_figures/figS3_synthetic_metric_matrix.pdf",
+        "sha256": "a4caa0107b3f1b171d3efdd8b95af2dafb6a01de91e728c3fe456d314b8ce408"
+      },
+      {
+        "bytes": 293817,
+        "path": "manuscript/oedm2026/final_figures/figS3_synthetic_metric_matrix.png",
+        "sha256": "85e97c9cb88f26985f14ee86358438fb65e6e79db69f7937780027b842f0ac7d"
+      },
+      {
+        "bytes": 58456,
+        "path": "manuscript/oedm2026/final_figures/figS3_synthetic_metric_matrix.svg",
+        "sha256": "53ea63b4076c7a09ffc43867cfdb25306780bbc27af0377b1ae638557000dbb9"
+      },
+      {
+        "bytes": 5515524,
+        "path": "manuscript/oedm2026/final_figures/figS4_biological_metric_matrix-data.csv",
+        "sha256": "45add813463eb84ac9fa96cfd99af6796cb7a66e73829e44d70dac9abcc2da01"
+      },
+      {
+        "bytes": 75763,
+        "path": "manuscript/oedm2026/final_figures/figS4_biological_metric_matrix.pdf",
+        "sha256": "42971446037f452a7b55947e9a7c551d88c3ad0e7cf5e461903dd2fa0ee4e361"
+      },
+      {
+        "bytes": 227135,
+        "path": "manuscript/oedm2026/final_figures/figS4_biological_metric_matrix.png",
+        "sha256": "d58522b355dbdf9735bc2f851f1ddc2768cfd87f1d82f2d72b5a8e66d4fba9d2"
+      },
+      {
+        "bytes": 44305,
+        "path": "manuscript/oedm2026/final_figures/figS4_biological_metric_matrix.svg",
+        "sha256": "6dfbfadcb965e4f22a3e2057366c33d731ef0549bc55a90ff91e4c6cf4afab77"
+      },
+      {
+        "bytes": 16089869,
+        "path": "manuscript/oedm2026/final_figures/figS5_gaia_validation-data.csv",
+        "sha256": "9e7e2f02013c9dcf90338d0823b7e4a88a3e821773b5c32bf1e4d1ce6f93b827"
+      },
+      {
+        "bytes": 77212,
+        "path": "manuscript/oedm2026/final_figures/figS5_gaia_validation.pdf",
+        "sha256": "ad705465fcb57fb0a6c7ed897b2baf56ab95c4b8a1d76fc0e75da26abffa0244"
+      },
+      {
+        "bytes": 244695,
+        "path": "manuscript/oedm2026/final_figures/figS5_gaia_validation.png",
+        "sha256": "1b4883f630a905d5ad21de1913e2c25b4afd3f9642a8846b2abf9aff0c5860f0"
+      },
+      {
+        "bytes": 40450,
+        "path": "manuscript/oedm2026/final_figures/figS5_gaia_validation.svg",
+        "sha256": "5fc7397d5c626c290c0fc01d53b77ad30b525cd84d78a3245a7778185c42e6fb"
+      },
+      {
+        "bytes": 747611,
+        "path": "manuscript/oedm2026/final_figures/figS7_noise_factorial-data.csv",
+        "sha256": "35095c48bddd4441090561b0c18ffb32c16996b86dcbe20e81112d8d6ec027cc"
+      },
+      {
+        "bytes": 54061,
+        "path": "manuscript/oedm2026/final_figures/figS7_noise_factorial.pdf",
+        "sha256": "52843f5f620c737564f531f39c460f9eb7631c0e0823af0a8ef4715679b93da7"
+      },
+      {
+        "bytes": 590972,
+        "path": "manuscript/oedm2026/final_figures/figS7_noise_factorial.png",
+        "sha256": "639fafd406deba69166814cf254a405aee0608f39f27eae322a04e4b1716575e"
+      },
+      {
+        "bytes": 69282,
+        "path": "manuscript/oedm2026/final_figures/figS7_noise_factorial.svg",
+        "sha256": "393c784070d93181739aae3fa0da2665440f5b6b308a9c4c18d00a79f2f5e31c"
+      }
+    ],
+    "figure_source_support": [],
+    "manuscript_pdf": {
+      "bytes": 229709,
+      "path": "manuscript/oedm2026/StrataSCAN_OEDM2026_draft.pdf",
+      "sha256": "fa0862d5045b1e6c4283516d71d83109217c7d00c86e2cb2bdfb566da5e1b1d1"
+    },
+    "protocols": [
+      {
+        "bytes": 1156,
+        "path": "benchmarks/evaluation_protocol.v1.json",
+        "sha256": "fae5323e907040ffd66effa92ae3d650752e6e87cebe867a27b01231921213d6"
+      },
+      {
+        "bytes": 6610,
+        "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-biological.json",
+        "sha256": "c1fdde548e27804d5442415d79660bfad79879a551b4ed67d5ba400117e9bf97"
+      },
+      {
+        "bytes": 1601,
+        "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-gaia-stratascan.json",
+        "sha256": "6be2dcbc1400c4ab8b06d14d89dd546176e1ced4e1f9faf3bc23a796e606172f"
+      },
+      {
+        "bytes": 2074,
+        "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-noise-sweep.json",
+        "sha256": "0846056238294cb32c06066a948fc1b57c7a2560a22e3b4f78b645c1aeabdd22"
+      },
+      {
+        "bytes": 1962,
+        "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-scaling.json",
+        "sha256": "69f549ca82261089f10f1a90f0df6530d614cbf7938acf4b6030d40bac7b9c43"
+      },
+      {
+        "bytes": 2212,
+        "path": "benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json",
+        "sha256": "13c3b824ebe4a2da54c32d323326e9f3a03bd51914451d82f8763f644871b410"
+      }
+    ],
+    "results_section_audits": [
+      {
+        "bytes": 4368,
+        "path": "outputs/rq1_synthetic/rq1_audit.json",
+        "sha256": "36d5f6d576c38a6bfdce90045a983cbf94ec0c42416c8551c1ddf09969129e3e"
+      },
+      {
+        "bytes": 1499,
+        "path": "outputs/rq2_density_noise/rq2_provenance.json",
+        "sha256": "e757c380ceaaba0362192339ef5d661ad62782a862f889ebba25a96914794601"
+      },
+      {
+        "bytes": 1015,
+        "path": "outputs/rq3_scaling/validation.json",
+        "sha256": "d9b86b0c46c5b9b61f8acf5ead1e5dd68cf48c99f2dc44650c82c46959db7c59"
+      },
+      {
+        "bytes": 5845,
+        "path": "outputs/rq4_cytometry/merge_aware_sensitivity.csv",
+        "sha256": "fffe07d713753006f36b619d724f533ee9d7832412d744df8887eed22ad7199c"
+      },
+      {
+        "bytes": 493,
+        "path": "outputs/rq4_cytometry/merge_aware_sensitivity.json",
+        "sha256": "7ee9b52fa9d7e82653211a2d1dea50c13832eda38cc45ff61d169951e2982c29"
+      },
+      {
+        "bytes": 2168,
+        "path": "outputs/rq4_cytometry/rq4_audit.json",
+        "sha256": "8d9eea8f676b0103c151b05d7cd683d31db7ff637538272b6a2d611f4bd2b72e"
+      }
+    ],
+    "results_section_outputs": [
+      {
+        "bytes": 24655,
+        "path": "manuscript/oedm2026/final_figures/fig2_density_noise.pdf",
+        "sha256": "9859327b1064401af4c6a6b4128c911a0701795534c4a4ef85dd6a7676934faa"
+      },
+      {
+        "bytes": 76755,
+        "path": "manuscript/oedm2026/final_figures/fig2_density_noise.svg",
+        "sha256": "b928ae3acf63e7a3c22c0b2367b7042f00ceea0b0b56be5da63b5ee048ad1e79"
+      },
+      {
+        "bytes": 28428,
+        "path": "manuscript/oedm2026/final_figures/fig3_million_scale.pdf",
+        "sha256": "2f45ed6a2a441b9937bc6a26de2c197c912194afa4952ad9c0380f914a26e4a7"
+      },
+      {
+        "bytes": 35882,
+        "path": "manuscript/oedm2026/final_figures/fig3_million_scale.svg",
+        "sha256": "10c659acee860eea8d5781a7b97085d9b4f61069378d806693b89f0cafda9dda"
+      },
+      {
+        "bytes": 25231,
+        "path": "manuscript/oedm2026/final_figures/fig4_cytometry.pdf",
+        "sha256": "740060bab693591b7ae57779f8b66b5af78b81bb279ddae2d444b75873241900"
+      },
+      {
+        "bytes": 94333,
+        "path": "manuscript/oedm2026/final_figures/fig4_cytometry.svg",
+        "sha256": "518a4de2daaaed9fb4f7d3de5bd7b57ae36970795c1bf404226ae4bb7fa464a8"
+      },
+      {
+        "bytes": 869,
+        "path": "manuscript/oedm2026/tables/table_rq1_synthetic_fresh.tex",
+        "sha256": "8ddc0b31b4156b39f8014ec2a88004e81394fe7aa29edd0c0d0435b7b2f19d7a"
+      },
+      {
+        "bytes": 564,
+        "path": "manuscript/oedm2026/tables/table_rq2_noise99.tex",
+        "sha256": "e026a291961e2e55b5e0635e54996f8cea3999118c83f35698229b803a3a2191"
+      },
+      {
+        "bytes": 855,
+        "path": "manuscript/oedm2026/tables/table_rq3_scaling.tex",
+        "sha256": "665a7c6df2eadfbba2ad381126fa1585ee6d8da69110a58a8e870093dca0b015"
+      }
+    ]
+  },
+  "canonical": true,
   "evaluated_method": {
-    "display_name": "MDL-StrataSCAN",
-    "historical_result_id": "StrataSCAN-Optimization",
-    "snapshot": "0.2.3",
-    "gamma_component_range": [1, 24],
-    "adaptive_component_search": true,
-    "shell_ranks": [4, 8, 16, 32],
+    "component_search": {
+      "adaptive": true,
+      "hard_max": 24,
+      "initial_max": 8
+    },
+    "connectivity_rank": 4,
     "core_rank": 4,
-    "connectivity_rank": 4
+    "display_name": "MDL-StrataSCAN",
+    "shell_ranks": [
+      4,
+      8,
+      16,
+      32
+    ],
+    "snapshot": "0.2.4"
   },
-  "release_context": {
-    "public_version": "0.2.3",
-    "public_component_range": [1, 24],
-    "public_adaptive_component_search": true,
-    "relationship": "The manuscript reports the 0.2.3 release robustness and completed serial scaling evidence separately from historical fixed-range synthetic, biological, and Gaia results."
+  "historical_artifacts": {
+    "canonical": false,
+    "policy": "Historical pilot tables, superseded figures, and earlier protocol generations may remain in the repository for lineage. They are noncanonical unless listed above as a provenance source for the exact Gaia single-target rescore."
   },
-  "declared_endpoints": {
-    "synthetic": "macro_target_f1",
-    "cytometry": "macro_target_f1",
-    "gaia": "best_cluster_f1"
-  },
-  "posthoc_diagnostics": [
-    "target_background_hmean_f1",
-    "target_background_structure_hmean_f1",
-    "three_axis_pareto_counts",
-    "study_weighted_cytometry_summary",
-    "biological_study_leave_one_out"
-  ],
-  "sha256": {
-    "manuscript/oedm2026/MDL-StrataSCAN_OEDM2026_draft.pdf": "95fd4970b9925677081403ceecd0e26cea4fbcb5afed9077bb7c68b370322a15",
-    "results/runs/publication_full_7synthetic_20260722/results.csv": "8c4ebadc9c1bde8f2e0b0ce69dd68d0daa62c5d5a3432b76fefd3fe317e3fa68",
-    "results/runs/samusik_01/results.csv": "463931d1250ce4eb0e4505f231473d285288882cac4aa2bef6206365e9ac545e",
-    "results/runs/samusik_all_samples_02_10/results.csv": "28839ba4921b63318a45fcce3033cbe478475b0c2851a0f5e5d00546bc4e1bf7",
-    "results/runs/optimization_dev10_real_pilot_cytometry/results.csv": "994267a0d331796fd22be435ace836af14301172a7c65a0e00b42f3cbe9b439a",
-    "results/runs/optimization_dev10_real_pilot_gaia24/results.csv": "b604a2c57536826e82e1e840be2f98dca35380d8b922eb3bd255ced4ad838374",
-    "results/runs/optimization_dev10_locked_n5000_seeds197_251_k1/metrics.csv": "5771ffb063a63b43de4f61a59047eb906bbc847d636802d98f3f224a3a8efef5",
-    "results/runs/optimization_dev10_runtime_n20000_seed197/metrics.csv": "d65083413673f78efe3907e4328527c5c61395344b25a2a63ff120839a1bbc73",
-    "results/runs/optimization_v020_dev9_scaling/results.csv": "6bd454b7726a3a7eb26b1d5299417ef301563ca836c79f5fb5676645427be77a",
-    "results/predictive_scaling_5m_20260727/analysis/extended-scaling-summary.csv": "96ace73728bad32b920ec68417361371791da84241432f74c918b7a79b71e248",
-    "benchmarks/protocol.full-legacy-grid-7synthetic.json": "b2812e20a73c01a4d544e2eaa804c6fce520b6a68f305bafdd3baed70ddfffcd",
-    "benchmarks/protocol.optimization-v0.2.0-dev10.json": "8d81d8c76c6936dd84a1c54153251304da53d60d9914430cd9ea77f1096614cc",
-    "benchmarks/protocol.optimization-v0.2.0-dev10-real-pilot.json": "8d975776ada0bda94a5a22ad4c26a45423fb71be957af067763802853362e622",
-    "benchmarks/protocol.v0.2.1-release.json": "bee41c84b8d609ca3d8cbaf6a7dd0bfb68d785948203fbadb3258a0f2148c0ee",
-    "benchmarks/protocol.v0.2.2-release.json": "d4a16647fafea23c11e384fea241d861558c5981687ac6df3e2998c3c7eae279",
-    "benchmarks/protocol.v0.2.3-release.json": "0a26b3a0a8bd0248864dc560d27aaf9dec4582d102ff2489f40ba67132585c4c",
-    "benchmarks/protocol.v0.2.3-seven-family-robustness.json": "f10d1488dcfd5930e7df810d7ecfcc3a3ef293c0a2c2daff7b1a6d0f434e0f8a",
-    "benchmarks/protocol.v0.2.3-seven-family-stratascan-scalability-5m.json": "1f7dbd5df7b4a2134d5fbb7f820778b08335821e5831b3be77900bd7cd8c7a77"
-  },
-  "notes": [
-    "Frozen result files retain their historical method identifiers.",
-    "Current replay protocols use explicit versioned identifiers so the mutable public StrataSCAN alias cannot select the wrong estimator.",
-    "The target-background and target-background-structure harmonic F1, Pareto counts, and study sensitivity summaries were computed after the frozen predictions and are not predeclared endpoints.",
-    "Scalability records are attributed to their exact algorithm generation and protocol; the completed 0.2.3 serial multidensity records through two million points are separated from historical rows and incomplete campaign cells."
-  ]
+  "manuscript": "IEEE ICDM OEDM 2026",
+  "schema_version": 2,
+  "validation": {
+    "evidence_files_hashed": 10,
+    "figure_outputs_hashed": 31,
+    "figure_placeholders": 0,
+    "figure_sources_verified": 16,
+    "protocols_hashed": 6,
+    "results_section_audits_hashed": 6,
+    "results_section_outputs_hashed": 9,
+    "sensitivity_outputs_hashed": 2
+  }
 }

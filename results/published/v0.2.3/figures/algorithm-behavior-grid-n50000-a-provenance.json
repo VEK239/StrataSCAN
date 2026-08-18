@@ -1,0 +1,36 @@
+{
+  "annotations": "pairwise F1 and cluster count from this full recomputation; runtime retained only in the accompanying provenance CSV",
+  "benchmark_results": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\published\\v0.2.3\\final_synthetic_robustness.csv",
+  "case_ids": [
+    "multidensity_2d",
+    "ultrasparse_16d",
+    "overlapping_density_16d",
+    "moons_2d",
+    "rings_2d",
+    "overlap_8d",
+    "imbalanced_16d"
+  ],
+  "clustering_input": "full native-dimensional dataset",
+  "display_points_per_dataset": 10000,
+  "display_sampling": "deterministic uniform sample used only for plotting",
+  "formats": [
+    "PDF",
+    "SVG",
+    "PNG 600 dpi"
+  ],
+  "frozen_benchmark_comparison": "retained in the accompanying CSV; this figure does not mix frozen metrics with newly recomputed labels",
+  "max_absolute_pairwise_f1_delta": 1.1102230246251565e-16,
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "StrataSCAN"
+  ],
+  "n": 50000,
+  "projection": "original coordinates for 2D; deterministic PCA for dimensions > 2",
+  "protocol": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\benchmarks\\protocol.v0.2.3-final-figures-stratascan-robustness.json",
+  "seed": 42,
+  "tier": "quality"
+}

@@ -1,0 +1,39 @@
+{
+  "claim_scope": {
+    "density": "StrataSCAN capability only; no all-method comparison",
+    "excluded": [
+      "Gaia",
+      "abandoned optimization study",
+      "locally overlapping 99% moons from main Results"
+    ],
+    "rare_dense": "complete nine-method paired comparison"
+  },
+  "density_audit": {
+    "attempted": 27,
+    "maximum_case_median_target_f1": 0.9288659500766168,
+    "maximum_unmatched_clusters": 34,
+    "median_predicted_clusters": 18.0,
+    "median_unmatched_clusters": 12.0,
+    "minimum_case_median_target_f1": 0.8289153855676484,
+    "minimum_cell_target_discovery_rate": 1.0,
+    "minimum_cell_target_f1": 0.7130570476166002,
+    "successful": 27
+  },
+  "noise_audit": {
+    "amd_failures": 2,
+    "attempted": 270,
+    "stratascan_99_noise_f1": 0.9995624074323414,
+    "stratascan_99_target_f1": 0.9794670444837458,
+    "stratascan_attempted": 30,
+    "stratascan_maximum_level_median_target_f1": 0.9811590059747024,
+    "stratascan_minimum_cell_discovery_rate": 1.0,
+    "stratascan_minimum_level_median_target_f1": 0.8521910467611825,
+    "stratascan_successful": 30,
+    "successful": 268
+  },
+  "schema_version": 1,
+  "sources": {
+    "results\\runs\\v0.2.4-density-contrast-stratascan-full\\results.csv": "3f5e3ca1a2fef194183dd72c14bad5cd5131d82956dd6b0e3a7f730aced06aa2",
+    "results\\runs\\v0.2.4-rare-dense-noise-all-methods-lean\\results.csv": "2b4c7f3379981d04201a18754611f3e69418c8c89e0ea894c25b37783b3b2f27"
+  }
+}

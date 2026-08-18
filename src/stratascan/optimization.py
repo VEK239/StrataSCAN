@@ -1007,11 +1007,15 @@ def _fit_gamma_candidate(
     workspace: object,
     previous: object | None,
 ) -> object:
-    """Fit one Gamma basis size with both split-warm and independent starts."""
+    """Fit one Gamma basis size with the configured split-warm/cold starts."""
 
     starts = config.n_init
     fits = []
-    if previous is not None and previous.responsibilities.shape[1] + 1 == components:
+    if (
+        config.split_warm_start
+        and previous is not None
+        and previous.responsibilities.shape[1] + 1 == components
+    ):
         initial = _split_responsibilities(
             previous.responsibilities, shells, components
         )
@@ -1218,6 +1222,7 @@ def _topology_supported_gamma_components(
         )
         best_size, best_gain = _best_threshold_event_sweep(
             unary_gain[rows[order]],
+            core_distance[rows[order]],
             event_steps,
             event_left,
             event_right,
@@ -1415,6 +1420,7 @@ def _estimate_gamma_basis_stratification(
                 hard_max_components=local_max,
                 adaptive_components=False,
                 n_init=1,
+                split_warm_start=False,
                 tolerance=config.confirmation_tolerance,
                 confirm_ambiguous_model=False,
             ),
@@ -1458,6 +1464,7 @@ def _estimate_gamma_basis_stratification(
             signature_seconds=signature_seconds,
             config=replace(
                 config,
+                split_warm_start=False,
                 n_init=(
                     config.confirmation_n_init if supported_basis.size <= 1 else 1
                 ),
@@ -2074,17 +2081,29 @@ def _component_gain_scalar(
 @njit(cache=True)
 def _best_threshold_event_sweep(
     unary_gain: np.ndarray,
+    ordering_score: np.ndarray,
     event_steps: np.ndarray,
     event_left: np.ndarray,
     event_right: np.ndarray,
     n_reference: int,
     rank: int,
 ) -> tuple[int, float]:
-    """Optimize one stratum exactly over its nested core-distance prefixes."""
+    """Optimize exactly over the distinct thresholds of one ordered stratum.
+
+    A numeric threshold includes every row whose ordering score is at most the
+    threshold. Consequently, a prefix that ends inside an exact tie is not a
+    realizable threshold candidate and is deliberately not scored. Stable
+    ordering still makes event activation deterministic within each tie group.
+
+    The threshold search code is local, ``log(|V_s|)``, while the topology null
+    and retained-component root code use the supplied global reference size.
+    """
 
     n = unary_gain.size
     if n == 0:
         return 0, 0.0
+    if ordering_score.size != n:
+        raise ValueError("ordering scores must align with unary gains")
     successes = 0
     unary = 0.0
     best_gain = 0.0
@@ -2097,6 +2116,10 @@ def _best_threshold_event_sweep(
         while event < event_steps.size and event_steps[event] == step:
             successes += 1
             event += 1
+
+        # An inclusive numeric threshold cannot separate identical scores.
+        if step + 1 < n and ordering_score[step + 1] == ordering_score[step]:
+            continue
 
         topology_gain = _topology_log_bayes_factor(
             step + 1, successes, n_reference, rank
@@ -2359,6 +2382,7 @@ def optimize_strict_core_from_graph(
         reference_size = graph.n_samples
         best_size, best_gain = _best_threshold_event_sweep(
             group_unary_gain[ordered_rows],
+            ordering_score[ordered_rows],
             event_steps,
             event_left,
             event_right,

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.4
+
+- Made the exact core-distance sweep score only complete groups of tied
+  observed thresholds, so the optimized prefix and inclusive threshold
+  materialization are identical.
+- Made guarded Gamma confirmations use independent cold starts at every
+  confirmed order; ordinary candidate searches retain split-warm continuation.
+- Replaced many-to-one target scoring with a versioned one-to-one Hungarian
+  evaluation contract reporting target F1, purity, coverage, discovery, and
+  candidate burden separately.
+- Separated known synthetic-noise evidence from biological and Gaia
+  reference-background abstention diagnostics.
+- Added lossless prediction/contingency artifacts, checksum-validated resume,
+  and a fail-closed submission evidence freeze.
+
 ## 0.2.3
 
 - Compiled the constrained multiscale-Gamma EM loop with Numba and removed

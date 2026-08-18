@@ -8,6 +8,7 @@ production implementation. Library implementations are used for DBSCAN,
 HDBSCAN, and OPTICS. kNN-DBSCAN follows the corrected paper semantics from the
 v0.3.2 benchmark. SNN-DBSCAN and VDBSCAN-2007 are controlled reimplementations.
 AMD-DBSCAN is an official-compatible, deliberately dense compatibility path.
+X-shift is a controlled Python port of the VorteX gradient-assignment path.
 """
 
 from dataclasses import dataclass
@@ -334,6 +335,260 @@ def run_knn_leiden(X: np.ndarray, profile: str, *, seed: int = 42) -> BaselineRe
     )
 
 
+def _xshift_angular_distances(chord_distances: np.ndarray) -> np.ndarray:
+    """Convert Euclidean chord distances on the unit sphere to angles."""
+    return 2.0 * np.arcsin(np.clip(chord_distances * 0.5, 0.0, 1.0))
+
+
+def _xshift_unit_vectors(X: np.ndarray) -> np.ndarray:
+    unit = np.asarray(X, dtype=np.float64).copy()
+    norms = np.linalg.norm(unit, axis=1)
+    nonzero = norms > np.finfo(np.float64).eps
+    unit[nonzero] /= norms[nonzero, None]
+    return unit
+
+
+def _xshift_density_valley_root_links(
+    unit: np.ndarray,
+    roots: np.ndarray,
+    density: np.ndarray,
+    *,
+    density_k: int,
+    candidate_neighbors: int,
+) -> np.ndarray:
+    """Link modes when no density valley separates them.
+
+    VorteX tests every pair of modes and retains pairs whose midpoint has those
+    two modes as its nearest modes (called a Gabriel-neighborhood check in the
+    source).  Testing every pair becomes quadratic in the number of modes, so
+    this controlled port applies the identical midpoint and valley tests to a
+    fixed root-kNN candidate graph.  The approximation is recorded in result
+    metadata and never presented as an execution of the official Java binary.
+    """
+    from scipy.spatial import cKDTree
+
+    n_roots = int(roots.size)
+    root_links = np.full(n_roots, -1, dtype=np.int64)
+    if n_roots < 2:
+        return root_links
+
+    root_unit = unit[roots]
+    root_tree = cKDTree(root_unit)
+    data_tree = cKDTree(unit)
+    width = min(n_roots, max(2, int(candidate_neighbors) + 1))
+    _, root_neighbours = root_tree.query(root_unit, k=width, workers=1)
+    if root_neighbours.ndim == 1:
+        root_neighbours = root_neighbours[:, None]
+
+    candidates: list[tuple[int, int, float]] = []
+    seen: set[tuple[int, int]] = set()
+    for left in range(n_roots):
+        for right_value in root_neighbours[left, 1:]:
+            right = int(right_value)
+            pair = (min(left, right), max(left, right))
+            if pair in seen:
+                continue
+            seen.add(pair)
+            midpoint = root_unit[left] + root_unit[right]
+            norm = float(np.linalg.norm(midpoint))
+            if norm <= np.finfo(np.float64).eps:
+                continue
+            midpoint /= norm
+            _, nearest = root_tree.query(midpoint, k=2, workers=1)
+            if set(np.atleast_1d(nearest).astype(int).tolist()) != {left, right}:
+                continue
+            similarity = float(np.dot(root_unit[left], root_unit[right]))
+            candidates.append((left, right, similarity))
+
+    # The official implementation samples 5%, 10%, ..., 95% of the angular
+    # line segment.  Query all samples for a pair together to keep the port
+    # sparse and deterministic.
+    fractions = np.arange(0.05, 1.0, 0.05, dtype=np.float64)
+    best_similarity = np.full(n_roots, -np.inf, dtype=np.float64)
+    for left, right, similarity in candidates:
+        left_id = int(roots[left])
+        right_id = int(roots[right])
+        if density[left_id] == density[right_id]:
+            continue
+        lower, higher = (
+            (left, right) if density[left_id] < density[right_id] else (right, left)
+        )
+        samples = (
+            fractions[:, None] * root_unit[lower]
+            + (1.0 - fractions[:, None]) * root_unit[higher]
+        )
+        norms = np.linalg.norm(samples, axis=1)
+        samples /= np.maximum(norms[:, None], np.finfo(np.float64).eps)
+        # Interpolated samples are not rows in the dataset, so all K queried
+        # neighbours contribute. At an observed row, the official K includes
+        # the row itself and therefore corresponds to K - 1 self-free edges.
+        distances, _ = data_tree.query(samples, k=density_k, workers=1)
+        if distances.ndim == 1:
+            distances = distances[:, None]
+        sample_density = -np.sum(_xshift_angular_distances(distances), axis=1)
+        if np.any(sample_density < density[int(roots[lower])]):
+            continue
+        if similarity > best_similarity[lower]:
+            best_similarity[lower] = similarity
+            root_links[lower] = higher
+    return root_links
+
+
+def _xshift_merge_by_diagonal_mahalanobis(
+    X: np.ndarray, labels: np.ndarray, *, threshold: float
+) -> tuple[np.ndarray, int]:
+    """Greedy cluster merging used by the official VorteX implementation."""
+    unique = np.unique(labels)
+    members = {int(label): np.flatnonzero(labels == label) for label in unique}
+    next_label = int(unique.size)
+    merge_count = 0
+
+    def statistics(indices: np.ndarray) -> tuple[np.ndarray, np.ndarray] | None:
+        if indices.size < 2:
+            return None
+        values = np.asarray(X[indices], dtype=np.float64)
+        mean = np.mean(values, axis=0)
+        sd = np.std(values, axis=0, ddof=1) / 1.03
+        return mean, sd
+
+    stats = {label: statistics(indices) for label, indices in members.items()}
+    while len(members) > 1:
+        labels_now = sorted(members)
+        best_pair: tuple[int, int] | None = None
+        best_distance = float(threshold)
+        for offset, left in enumerate(labels_now):
+            left_stats = stats[left]
+            if left_stats is None:
+                continue
+            mean_left, sd_left = left_stats
+            for right in labels_now[offset + 1 :]:
+                right_stats = stats[right]
+                if right_stats is None:
+                    continue
+                mean_right, sd_right = right_stats
+                scale = (sd_left + sd_right) * 0.5
+                if np.any(~np.isfinite(scale)) or np.any(scale <= 0.0):
+                    continue
+                distance = float(np.linalg.norm((mean_left - mean_right) / scale))
+                if distance < best_distance:
+                    best_distance = distance
+                    best_pair = (left, right)
+        if best_pair is None:
+            break
+        left, right = best_pair
+        combined = np.concatenate([members.pop(left), members.pop(right)])
+        stats.pop(left)
+        stats.pop(right)
+        members[next_label] = combined
+        stats[next_label] = statistics(combined)
+        next_label += 1
+        merge_count += 1
+
+    merged = np.empty(labels.size, dtype=np.int64)
+    ordered = sorted(members.items(), key=lambda item: int(np.min(item[1])))
+    for new_label, (_, indices) in enumerate(ordered):
+        merged[indices] = new_label
+    return merged, merge_count
+
+
+def run_xshift(X: np.ndarray, profile: str) -> BaselineResult:
+    """Controlled Python port of the VorteX X-shift clustering path.
+
+    The default K=62 is the label-free elbow selected for the Nilsson data in
+    the published X-shift/TopS analysis.  This baseline is included to answer a
+    focused Nilsson rare-population comparison; it is not the official VorteX
+    binary and its K must not be described as a universal default.
+    """
+    n, dimension = X.shape
+    if n < 3:
+        return BaselineResult(
+            np.arange(n, dtype=np.int64),
+            {
+                "implementation": "controlled_python_port",
+                "density_k_including_self": int(n),
+                "n_size_including_self": int(n),
+            },
+        )
+
+    density_k = min(62, n)
+    density_neighbors = max(1, density_k - 1)
+    n_size = max(
+        int(np.ceil(0.5 * (dimension + 1))),
+        -int(np.ceil(np.log(0.01 / n) / np.log(2.0))),
+    )
+    n_size = min(n, max(2, n_size))
+    ascent_neighbors = n_size - 1
+    graph_width = max(density_neighbors, ascent_neighbors)
+
+    unit = _xshift_unit_vectors(X)
+    knn_backend = "kd_tree" if profile == "low_dim" else "faiss_flat"
+    graph, _ = build_knn_graph(
+        unit.astype(np.float32), k=graph_width, backend=knn_backend, n_jobs=1
+    )
+    angular = _xshift_angular_distances(graph.distances)
+    density = -np.sum(angular[:, :density_neighbors], axis=1)
+
+    parents = np.full(n, -1, dtype=np.int64)
+    for row in range(n):
+        neighbours = graph.indices[row, :ascent_neighbors]
+        higher = density[neighbours] > density[row]
+        if np.any(higher):
+            # kNN rows are distance sorted, matching the official nearest
+            # higher-density-parent rule.
+            parents[row] = int(neighbours[int(np.argmax(higher))])
+
+    roots = np.flatnonzero(parents < 0).astype(np.int64)
+    initial_roots = int(roots.size)
+    root_links = _xshift_density_valley_root_links(
+        unit,
+        roots,
+        density,
+        density_k=density_k,
+        candidate_neighbors=32,
+    )
+    for root_index, linked_root_index in enumerate(root_links):
+        if linked_root_index >= 0:
+            parents[int(roots[root_index])] = int(roots[int(linked_root_index)])
+
+    root_to_label: dict[int, int] = {}
+    labels = np.empty(n, dtype=np.int64)
+    for row in range(n):
+        path: list[int] = []
+        current = row
+        while parents[current] >= 0:
+            path.append(current)
+            current = int(parents[current])
+        label = root_to_label.setdefault(current, len(root_to_label))
+        labels[row] = label
+        for node in path:
+            parents[node] = current
+
+    pre_mahalanobis_clusters = len(root_to_label)
+    labels, mahalanobis_merges = _xshift_merge_by_diagonal_mahalanobis(
+        np.asarray(X), labels, threshold=2.0
+    )
+    return BaselineResult(
+        labels,
+        {
+            "implementation": "controlled_python_port",
+            "official_algorithm": "VorteX X-shift gradient assignment",
+            "official_source_commit": "75ab0746f3184c3c1bb48180494aa0a753f077e7",
+            "knn_backend": knn_backend,
+            "distance": "angular",
+            "density": "negative_sum_angular_distances_to_k_nearest",
+            "density_k_including_self": density_k,
+            "density_k_selection": "published_nilsson_label_free_elbow",
+            "n_size_including_self": n_size,
+            "root_merge": "root_knn32_gabriel_midpoint_density_valley_5pct_steps",
+            "root_merge_approximation": "candidate_pairs_restricted_to_root_knn32",
+            "mahalanobis_merge_threshold": 2.0,
+            "initial_roots": initial_roots,
+            "pre_mahalanobis_clusters": pre_mahalanobis_clusters,
+            "mahalanobis_merges": mahalanobis_merges,
+        },
+    )
+
+
 def dispatch_baseline(method: str, X: np.ndarray, profile: str, *, seed: int = 42) -> BaselineResult:
     if profile not in {"low_dim", "high_dim"}:
         raise ValueError("baseline profile must be 'low_dim' or 'high_dim'")
@@ -353,4 +608,6 @@ def dispatch_baseline(method: str, X: np.ndarray, profile: str, *, seed: int = 4
         return run_knn_dbscan(X, profile)
     if method == "kNN+Leiden":
         return run_knn_leiden(X, profile, seed=seed)
+    if method == "X-shift":
+        return run_xshift(X, profile)
     raise ValueError(f"unknown baseline method: {method}")

@@ -1,6 +1,6 @@
 # StrataSCAN
 
-StrataSCAN 0.2.3 is a variable-density clustering algorithm based on a
+StrataSCAN 0.2.4 is a variable-density clustering algorithm based on a
 full-data multiscale Gamma model and a unified description-length clustering
 objective. It adaptively selects Gamma density bases, separates semantic signal
 strata from one aggregated background state, optimizes supported core radii,
@@ -32,7 +32,7 @@ usual `fit`, `fit_predict`, `labels_`, and `n_clusters_` conventions. A
 prebuilt graph can be supplied with `fit_from_graph` or
 `fit_predict_from_graph`.
 
-## 0.2.3 method
+## 0.2.4 method
 
 1. Build a 32-neighbour graph. The default uses exact KD-tree search in 2D,
    FAISS HNSW above 2D when FAISS is installed, and brute-force search as the
@@ -62,10 +62,15 @@ historical reproduction.
 
 ## Release evidence
 
-The 0.2.3 release decision and known limitations are recorded in
+The 0.2.4 submission evidence uses the versioned target-discovery evaluation
+contract in
+[`benchmarks/evaluation_protocol.v1.json`](benchmarks/evaluation_protocol.v1.json).
+The optimizer-impact and comparator-attribution boundaries are recorded in
+[`docs/V0.2.4_OPTIMIZER_IMPACT_AUDIT.md`](docs/V0.2.4_OPTIMIZER_IMPACT_AUDIT.md)
+and
+[`docs/V0.2.4_BASELINE_INTEGRITY_AUDIT.md`](docs/V0.2.4_BASELINE_INTEGRITY_AUDIT.md).
+The 0.2.3 release evidence remains available in
 [`results/published/v0.2.3/RESULTS.md`](results/published/v0.2.3/RESULTS.md).
-Its machine-readable defaults are frozen in
-[`benchmarks/protocol.v0.2.3-release.json`](benchmarks/protocol.v0.2.3-release.json).
 The frozen 0.1.2 evaluation remains in
 [`results/published/v0.1.2/RESULTS.md`](results/published/v0.1.2/RESULTS.md).
 
@@ -83,14 +88,15 @@ python -m pytest
 python -m build
 ```
 
-Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.3 default. Use
+Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.4 default. Use
 `StrataSCAN-PredictiveMultiscale` when reproducing the 0.1.2 estimator.
 
-The complete synthetic release campaign now has one entry point:
+The canonical synthetic target-discovery campaign is defined by one frozen
+protocol:
 
 ```bash
-python -m benchmarks.run_campaign --campaign benchmarks/campaign.v0.2.3-release.json --list
-python -m benchmarks.run_campaign --campaign benchmarks/campaign.v0.2.3-release.json
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --list-jobs
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --output-dir results/runs/v0.2.4-target-discovery-v1-synthetic
 ```
 
 The frozen release campaign uses one worker so runtime and peak-memory results
@@ -99,7 +105,7 @@ parallel into a fresh output root; do not use that run for timing or memory
 claims:
 
 ```bash
-python -m benchmarks.run_campaign --campaign benchmarks/campaign.v0.2.3-release.json --max-workers 4 --output-root results/runs/v0.2.3-quality-parallel
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --max-workers 4 --output-dir results/runs/v0.2.4-target-discovery-v1-synthetic-parallel
 ```
 
 Each phase freezes its source checksums and worker count. `--resume` is allowed
@@ -107,8 +113,8 @@ only when those inputs are unchanged. For a clean partial reevaluation, list
 the expanded jobs and pass exact IDs into a new output directory:
 
 ```bash
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.3-seven-family-robustness.json --suite synthetic --list-jobs
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.3-seven-family-robustness.json --suite synthetic --job-ids-from selected-jobs.txt --output-dir results/runs/selected-v0.2.3
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --list-jobs
+python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --job-ids-from selected-jobs.txt --output-dir results/runs/selected-v0.2.4
 ```
 
 ### Samusik real-data benchmark

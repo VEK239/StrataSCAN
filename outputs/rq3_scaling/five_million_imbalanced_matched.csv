@@ -1,0 +1,10 @@
+method,status,runtime_seconds,process_peak_rss_mb,macro_target_f1,target_discovery_rate,quality_available,source_campaign
+StrataSCAN,ok,1838.5316773000013,7803.97265625,0.949014945535581,1.0,True,v0.2.4-target-discovery-v1-scaling
+DBSCAN,skipped_prior_failure,,,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+HDBSCAN,skipped_prior_failure,,,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+OPTICS,skipped_prior_failure,,,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+SNN-DBSCAN,ok,2171.7325542999897,3526.78515625,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+VDBSCAN-2007,skipped_prior_failure,,,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+AMD-DBSCAN,skipped_prior_failure,,,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+kNN-DBSCAN,ok,2063.589940200007,1738.171875,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1
+kNN+Leiden,memory_limit,,8221.73828125,,,False,v0.2.3-seven-family-baselines-scalability-5m-gated-v1

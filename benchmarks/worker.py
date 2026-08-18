@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -21,10 +22,11 @@ for variable in (
     os.environ[variable] = "1"
 
 import psutil
+import numpy as np
 from threadpoolctl import threadpool_limits
 
 from benchmarks.datasets import load_dataset
-from benchmarks.evaluation import evaluate
+from benchmarks.evaluation import evaluate, evaluation_state
 from benchmarks.methods import run_method
 from stratascan import __version__
 
@@ -70,7 +72,43 @@ def atomic_json(path: Path, value: dict[str, Any]) -> None:
     os.replace(temporary, path)
 
 
-def execute(job: dict[str, Any], repo: Path) -> dict[str, Any]:
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while block := handle.read(2**20):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def atomic_evaluation_state(
+    path: Path, dataset: Any, labels: np.ndarray, reference: str
+) -> dict[str, Any]:
+    """Persist lossless labels plus a redundant contingency audit table."""
+    arrays = evaluation_state(dataset, labels)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        "w+b", dir=path.parent, prefix=path.name, suffix=".tmp.npz", delete=False
+    ) as handle:
+        np.savez_compressed(handle, **arrays)
+        temporary = Path(handle.name)
+    os.replace(temporary, path)
+    return {
+        "schema_version": 1,
+        "kind": "lossless_evaluation_state",
+        "format": "numpy_npz_compressed",
+        "path": reference,
+        "bytes": path.stat().st_size,
+        "sha256": _sha256(path),
+        "arrays": sorted(arrays),
+    }
+
+
+def execute(
+    job: dict[str, Any],
+    repo: Path,
+    evaluation_state_path: Path | None = None,
+    evaluation_state_reference: str | None = None,
+) -> dict[str, Any]:
     loaded_at = perf_counter()
     dataset = load_dataset(job, repo)
     load_seconds = perf_counter() - loaded_at
@@ -85,9 +123,16 @@ def execute(job: dict[str, Any], repo: Path) -> dict[str, Any]:
         started = perf_counter()
         method = run_method(job["method"], dataset.X, int(job["seed"]))
         runtime_seconds = perf_counter() - started
-    metrics = evaluate(dataset, method.labels, job["suite"])
-    return {
-        "schema_version": 1,
+    metrics = evaluate(dataset, method.labels, job["suite"], job.get("evaluation"))
+    evaluation_artifact = None
+    if evaluation_state_path is not None:
+        if not evaluation_state_reference:
+            raise ValueError("evaluation_state_reference is required when persisting state")
+        evaluation_artifact = atomic_evaluation_state(
+            evaluation_state_path, dataset, method.labels, evaluation_state_reference
+        )
+    result = {
+        "schema_version": 2,
         "job_id": job["job_id"],
         "status": "ok",
         "suite": job["suite"],
@@ -106,6 +151,9 @@ def execute(job: dict[str, Any], repo: Path) -> dict[str, Any]:
         "profile": method.profile,
         "metrics": metrics,
     }
+    if evaluation_artifact is not None:
+        result["evaluation_artifact"] = evaluation_artifact
+    return result
 
 
 def main() -> None:
@@ -113,13 +161,20 @@ def main() -> None:
     parser.add_argument("--job", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--evaluation-state-output", type=Path)
+    parser.add_argument("--evaluation-state-reference")
     args = parser.parse_args()
     job = json.loads(args.job.read_text(encoding="utf-8"))
     try:
-        result = execute(job, args.repo.resolve())
+        result = execute(
+            job,
+            args.repo.resolve(),
+            args.evaluation_state_output.resolve() if args.evaluation_state_output else None,
+            args.evaluation_state_reference,
+        )
     except Exception as error:
         result = {
-            "schema_version": 1,
+            "schema_version": 2,
             "job_id": job.get("job_id"),
             "status": "error",
             "suite": job.get("suite"),

@@ -1,0 +1,22 @@
+\begin{table}[t]
+\caption{Million-scale completion and successful-run runtime.}
+\label{tab:million-scale}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.7pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Method & 1M & 2M & 5M & 2M time (s)\\
+\midrule
+\textbf{StrataSCAN} & \textbf{7/7} & \textbf{7/7} & \textbf{5/7} & 490\\
+DBSCAN & 6/7 & 3/7 & P$^{*}$ & 58\\
+HDBSCAN & 0/7 & 0/7 & P$^{*}$ & --\\
+OPTICS & 0/7 & 0/7 & P$^{*}$ & --\\
+SNN-DBSCAN & 7/7 & 6/7 & 1/1$^{*}$ & 355\\
+VDBSCAN-2007 & 4/7 & 3/7 & P$^{*}$ & 75\\
+$k$NN-DBSCAN & 7/7 & 7/7 & 1/1$^{*}$ & 331\\
+$k$NN+Leiden & 5/7 & 1/7 & M$^{*}$ & 1042\\
+\bottomrule
+\multicolumn{5}{p{0.95\columnwidth}}{\scriptsize Done/recorded families. $^{*}$The baseline 5M ladder is incomplete; M is memory limit and P is a gated skip. Times are medians over successes.}
+\end{tabular}
+\end{table}

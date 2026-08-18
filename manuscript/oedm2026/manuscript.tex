@@ -15,9 +15,8 @@
 \renewcommand{\dblfloatpagefraction}{0.85}
 \setcounter{dbltopnumber}{2}
 
-\graphicspath{{figures/}}
-\newcommand{\method}{MDL-StrataSCAN}
-\newcommand{\oldmethod}{reference configuration}
+\graphicspath{{final_figures/}{figures/}}
+\newcommand{\method}{StrataSCAN}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\ind}{\mathbb{I}}
 \newcommand{\given}{\,\middle|\,}
@@ -31,7 +30,13 @@
 \maketitle
 
 \begin{abstract}
-Clustering with several density levels and a dominant background is difficult because one radius may erase sparse clusters or connect dense clusters through background bridges. We present \method{} 0.2.3, a label-free sparse-graph method combining a multiscale Gamma mixture, exact within-stratum core-distance event sweeps, a coded background scan, and density-ordered non-merging growth. The constrained Gamma solver is compiled and ambiguous high-order fits are confirmed locally. On a 175-cell, seven-family robustness grid, all jobs complete; across 165 paired reference jobs, median runtime is 22.6$\times$ faster with median pairwise-F1 change $+0.0007$. Serial direct scaling reaches 2,000,000 multidensity points in 1,034.2~s at 4,612.8~MiB peak RSS. Separate biological and Gaia pilots are reported as paired reference comparisons. The evidence supports efficient implementation and robustness, not universal dominance.
+Clustering with several density levels and a dominant background is difficult because one radius may erase sparse clusters or connect dense clusters through background bridges. We present \method{} 0.2.4, a label-free sparse-graph method combining a multiscale Gamma mixture, exact within-stratum core-distance event sweeps, a coded background scan, and density-ordered non-merging growth. Evaluation uses Hungarian one-to-one target matching and retains failed-execution denominators. On 21 fresh synthetic cells, StrataSCAN completed every cell and achieved the highest mean target F1 (0.828) and discovery rate (0.827) among full-matrix completers. It discovered every target across 16--256-fold density contrasts and through 99\% low-density background, where target F1 was 0.979 and background F1 was 0.9996. StrataSCAN completed all seven families at one and two million observations and five at five million, and on 13 cytometry datasets it had the highest median target F1 among methods completing the full panel.
+% FINAL-STATS: abstract
+% After evidence freeze, add at most one synthetic effect sentence and one
+% execution-envelope sentence from tables/final_statistical_summary.json; retain denominators.
+% FINAL-STATS-BEGIN: abstract
+On the fresh-seed block, joint-success StrataSCAN-minus-baseline mean one-to-one target-F1 effects ranged from +0.052 (HDBSCAN) to +0.741 (SNN-DBSCAN). The separate StrataSCAN-only execution envelope completed 26/28 prespecified cells.
+% FINAL-STATS-END: abstract
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -39,39 +44,39 @@ variable-density clustering, minimum description length, $k$-nearest-neighbor gr
 \end{IEEEkeywords}
 
 \section{Introduction}
-Density-based clustering is attractive when cluster count, shape, and background mass are unknown. DBSCAN formalized this setting through a neighborhood radius and a minimum number of neighbors~\cite{ester1996dbscan}; OPTICS and HDBSCAN reduce dependence on a single radius by representing a hierarchy of density levels~\cite{ankerst1999optics,campello2013hdbscan}. Nevertheless, extracting one flat, noise-aware partition from strongly heterogeneous data still requires consequential choices. A radius appropriate for a compact cell population or stellar cluster may exclude a diffuse population, whereas a radius appropriate for the diffuse structure may create background bridges. Graph community methods address connectivity but generally assign every vertex, which is undesirable when ``unassigned'' is a meaningful outcome.
+Modern scientific datasets routinely contain millions of observations, clusters at different density levels, rare populations, and a dominant background. We seek a flat clustering with unknown cluster count that preserves locally supported populations, leaves unsupported observations unassigned, and remains practical at this scale.
 
-The practical difficulty is not merely parameter count. It is that common parameters are expressed in incomparable units: a distance quantile, a minimum component size, a posterior cutoff, a significance level, and a border multiplier may all influence the same final decision. Tuning these values on evaluation labels makes an unsupervised method partly supervised; fixing them globally makes performance brittle. The minimum-description-length (MDL) principle instead asks whether a candidate structure compresses the observations enough to pay for describing that structure~\cite{rissanen1978mdl}. This is particularly natural for density clustering: local density supplies pointwise evidence, within-component graph edges supply topology evidence, and model, threshold, and component identities have explicit code costs.
+The central difficulty is scale selection. DBSCAN uses one neighborhood radius~\cite{ester1996dbscan}, so a value suitable for a compact cluster can erase a diffuse one, while a larger value can create background bridges. Hierarchical and multi-density methods relax the single-radius assumption~\cite{ankerst1999optics,campello2013hdbscan,liu2007vdbscan,wang2022amd}, but a flat result still requires selecting an extraction level or searching over candidate parameter sets. On million-point data, repeated full-data searches are expensive and are often restricted to coarse grids or subsamples; either restriction can alter neighborhoods, rare populations, and the final partition. Graph community methods scale more naturally but usually assign every observation, whereas an explicit background/noise outcome is essential in our setting.
 
-We develop \method, a sparse-graph algorithm that operationalizes this idea. The method retains a fixed $k$NN representation and multiscale shell-volume model, but replaces dense-core and sparse-tail quantiles with conditional description-length optimizations. It is deliberately \emph{not} described as a globally optimal clustering solver: mixture complexity, stratum roles, core thresholds, and extraction are optimized in successive blocks. Within a fitted block, however, each stratum threshold is selected exactly over every observed core-distance event, not over a hand-written grid. The all-background solution is feasible, no minimum output-cluster size is imposed, and non-core vertices may remain noise.
+We develop \method, a label-free algorithm on a bounded-degree $k$NN graph. A multiscale Gamma model converts neighbor-shell volumes into ordered density strata and separates a model-derived background group. Within each supported stratum, candidate core structures are compared on a common description-length scale rather than selected by an externally tuned global radius. A separate scan can recover supported components from the background group, while density-ordered growth allows lower-density clusters to expand without merging identities already established at higher density. The construction is blockwise rather than a globally optimal joint program, and the all-background solution remains feasible.
 
-This paper makes four contributions:
+This paper makes three contributions:
 \begin{itemize}
-  \item a multiscale Gamma/ICL model that converts $k$NN shell volumes into ordered density strata and a posterior background probability without labels;
-  \item an explicit description-gain objective combining Gamma log odds, held-out graph topology, threshold codes, and component root codes, with an exact event sweep for each fitted stratum;
-  \item a unified extraction procedure that can recover coherent components from the inferred background, prevents low-density bridges from merging denser clusters, and attaches border vertices only inside a neighboring core radius; and
-  \item a compiled, guarded Gamma-model search that preserves the conditional objective while using a fast split-warm fit and tighter local confirmation only for ambiguous high-order profiles; and
-  \item a layered evaluation that separates robustness and scaling measurements from paired reference comparisons on synthetic, biological, and Gaia data, while reporting failures and metric sensitivity rather than hiding them behind an aggregate rank.
+  \item a multiscale Gamma/ICL model that maps $k$NN geometry to ordered density strata and an explicit model-derived background class;
+  \item a sparse, label-free extraction algorithm that selects supported cluster structure, can abstain, and preserves established identities across density levels; and
+  \item evidence that \method{} recovers clusters across 16--256-fold density contrasts, preserves rare dense targets through 99\% background, and executes on datasets containing up to five million observations.
 \end{itemize}
+
+The comparison panel follows the same task definition: it covers fixed-scale, hierarchical, shared-neighbor, multi-density, sparse-$k$NN, and graph-community families, but includes only configurations that can be run non-interactively under one frozen, label-free protocol. The implementation-level inclusion and exclusion criteria are stated in the experimental design.
 
 Fig.~\ref{fig:pipeline} summarizes the computational path. Every production object is an array or bounded-degree sparse graph; dense pairwise distances are never materialized.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{fig0_method_pipeline.pdf}
-  \caption{\method{} pipeline with claim boundaries. Color and stage labels distinguish fixed representation, conditional models, the exact within-block event sweep, the heuristic background scan, and the non-merging invariant. Labels are used only by the evaluator.}
+  \includegraphics[width=\textwidth]{fig1_method_pipeline.pdf}
+  \caption{\method{} pipeline and claim boundaries. The stages distinguish sparse geometry, adaptive density modeling, the exact within-stratum event sweep, the coded background search, and non-merging extraction. Annotations are used only during evaluation. The diagram states design properties and makes no empirical speed or accuracy claim.}
   \label{fig:pipeline}
 \end{figure*}
 
 \section{Related Work}
-\textbf{Density and graph clustering.}
-DBSCAN connects core points defined by $(\varepsilon,\mathrm{MinPts})$ and treats unassigned points as noise~\cite{ester1996dbscan}. OPTICS records a density-reachability ordering~\cite{ankerst1999optics}, while HDBSCAN builds and condenses a hierarchy of density-connected sets~\cite{campello2013hdbscan}. Shared-nearest-neighbor clustering replaces Euclidean proximity by neighborhood overlap~\cite{ertoz2003snn}. VDBSCAN and AMD-DBSCAN estimate several DBSCAN parameter pairs to address variable density~\cite{liu2007vdbscan,wang2022amd}. $k$NN+Leiden instead applies community detection to a proximity graph; Leiden guarantees connected communities after refinement but still optimizes a graph-partition objective rather than an explicit noise model~\cite{traag2019leiden}. Our experiments include controlled implementations of all of these families.
+\textbf{Fixed-scale and multi-density clustering.}
+DBSCAN provides arbitrary-shape clusters and an explicit noise label, but one $(\varepsilon,\mathrm{MinPts})$ pair defines a global density scale~\cite{ester1996dbscan}. Shared-nearest-neighbor variants replace metric distance by neighborhood overlap but still require a similarity scale~\cite{ertoz2003snn}. OPTICS and HDBSCAN construct density hierarchies~\cite{ankerst1999optics,campello2013hdbscan}; selecting a flat partition then requires a cut or stability rule. VDBSCAN and AMD-DBSCAN estimate multiple density-specific parameter sets~\cite{liu2007vdbscan,wang2022amd}. These approaches broaden the range of recoverable densities, but candidate enumeration or hierarchy extraction remains part of model selection and can be sensitive to the searched scales.
 
-\textbf{Local density and multiscale evidence.}
-Nearest-neighbor radii are classical nonparametric density statistics~\cite{loftsgaarden1965knn}. Rather than selecting one radius, we use disjoint volume increments between several neighbor ranks. Under a locally homogeneous Poisson process these increments have Gamma laws with known shape, which permits likelihood aggregation across scales. Approximate $k$NN construction uses HNSW/FAISS-style sparse search in higher dimensions~\cite{malkov2020hnsw,johnson2019faiss}; graph construction is separable from the clustering objective.
+\textbf{Density peaks and graph partitions.}
+Density Peaks and X-shift replace a global radius by assigning observations toward local density maxima~\cite{rodriguez2014dpc,samusik2016phenotype}. PhenoGraph constructs a shared-neighbor graph and applies community detection, while Leiden improves the connectivity of graph communities~\cite{levine2015aml,traag2019leiden}. FlowSOM uses a self-organizing map and metaclustering for fast cytometry analysis~\cite{vangassen2015flowsom}. These methods are important alternatives for heterogeneous data, but they still require choices such as a density estimator, peak or merge rule, graph resolution, or output cluster count. Graph and cytometry methods also commonly return a complete partition rather than an explicit model-derived background class. We therefore distinguish conceptual relevance from benchmark eligibility: a method can belong in this review yet remain outside the quantitative panel when no non-interactive cross-suite profile or validated implementation was frozen.
 
-\textbf{Description-length model selection.}
-MDL selects a model by the combined cost of the model and residual data~\cite{rissanen1978mdl}. BIC provides an asymptotic parameter code~\cite{schwarz1978bic}; integrated completed likelihood (ICL) adds an assignment-entropy penalty suited to mixture clustering~\cite{biernacki2000icl}. Our use of ICL chooses the number of density bases. A second, graph-level code determines whether a nested core prefix and its connected components repay their threshold and identity costs. This separation is important: a flexible density mixture can explain a smooth background without implying that every mixture component is a cluster.
+\textbf{Selection and scale.}
+Nearest-neighbor radii are classical density statistics~\cite{loftsgaarden1965knn}, and HNSW/FAISS-style search makes bounded-degree $k$NN graphs practical in high dimensions~\cite{malkov2020hnsw,johnson2019faiss}. The graph alone, however, does not select density levels, extraction thresholds, or background semantics. Repeating clustering across many scales is costly on millions of observations, while subsampling can remove rare populations or change local connectivity. \method{} therefore constructs one sparse graph, aggregates disjoint neighbor-shell volumes with a Gamma/ICL model~\cite{biernacki2000icl}, and uses conditional description gain~\cite{rissanen1978mdl} to select supported structures. The density model and graph extraction remain separate: explaining density variation does not force every mixture component to become a cluster.
 
 \section{Problem Statement}
 Let $X=\{x_i\}_{i=1}^n\subset\R^d$. The desired output is $z_i\in\{-1,0,\ldots,K-1\}$, where $-1$ denotes background/noise and $K$ is unknown. Let $G_k=(V,E_k)$ be the directed $k$NN graph with neighbor distance $d_{i,q}$ at rank $q$. We require:
@@ -99,7 +104,7 @@ where $c_d$ is the unit-ball volume. Conditional on density component $s$, the l
  \quad \log\lambda_{sj}=\mu_s+\beta_s\log q_j.
  \label{eq:gamma}
 \end{equation}
-The log-linear rate constraint couples scales and uses two continuous parameters per component instead of one unrelated rate per shell. With mixture weights $\pi_s$, EM estimates $\Theta_m=\{\pi_s,\mu_s,\beta_s\}_{s=1}^{m}$ on all observations. StrataSCAN 0.2.3 searches from $m=1$ through an initial bound of 8 and may expand in steps of four to a hard bound of 24. Ordinary candidates use one split-warm initialization with relative tolerance $10^{-4}$. When a selected high-order model has numerically duplicate signal profiles, the selected order and its two neighbors are refit from independent starts at tolerance $10^{-5}$. This guarded local confirmation changes neither the core objective nor the subsequent exact event sweep.
+The log-linear rate constraint couples scales and uses two continuous parameters per component instead of one unrelated rate per shell. With mixture weights $\pi_s$, EM estimates $\Theta_m=\{\pi_s,\mu_s,\beta_s\}_{s=1}^{m}$ on all observations. StrataSCAN 0.2.4 searches from $m=1$ through an initial bound of 8 and may expand in steps of four to a hard bound of 24. The ordinary search uses a deterministic cold start at $m=1$ and split-warm continuation between adjacent orders at relative tolerance $10^{-4}$. Specified high-order ambiguity patterns trigger a tighter guarded search: duplicate profiles restrict it to the selected order and its immediate neighbors, while other cases repeat the full candidate range. Split-warm continuation is disabled during confirmation, so every confirmed order uses independent cold initialization; the single-signal case uses two starts. Guarded confirmation changes neither the core objective nor the subsequent exact event sweep.
 
 Let $r_{is}=p(s\mid y_i,\Theta_m)$. We choose
 \begin{equation}
@@ -125,10 +130,10 @@ For a candidate set $C$ of size $a$, let $e_C$ be the number of held-out directe
 \end{align}
 Candidates no denser than the null receive gain $-\infty$. The stratum-prefix gain is
 \begin{equation}
- G_s(t)=\sum_{i\in P_s(t)}u_i+\log\mathrm{BF}(P_s(t))-\log n.
+ G_s(t)=\sum_{i\in P_s(t)}u_i+\log\mathrm{BF}(P_s(t))-\log |V_s|.
  \label{eq:prefix}
 \end{equation}
-The final term is the conservative global code used by the implementation for selecting one observed threshold event. As vertices activate in sorted order, cumulative unary gain and held-out edge count update incrementally. We evaluate every event and take $t_s^*=\arg\max_t\max(0,G_s(t))$ exactly. Because $k$NN edges are dependent, $\log\mathrm{BF}$ is an integrated edge-surprisal score, not a calibrated Bayes factor for the complete clustering; the summed objective is MDL-inspired rather than a proof of a joint universal code.
+The final term is the implementation's uniform code over the $|V_s|$ candidate activation events within the current stratum; it is not a global $\log n$ threshold code. As vertices activate in sorted order, cumulative unary gain and held-out edge count update incrementally. We evaluate every event and take $t_s^*=\arg\max_t\max(0,G_s(t))$ exactly. Because $k$NN edges are dependent, $\log\mathrm{BF}$ is an integrated edge-surprisal score, not a calibrated Bayes factor for the complete clustering; the summed objective is MDL-inspired rather than a proof of a joint universal code.
 
 The selected prefix can contain several connected components. For component $C$, we recompute held-out topology evidence and retain it only if
 \begin{equation}
@@ -171,149 +176,132 @@ With fixed $k$, $J$, and candidate component cap $m_{\max}$, shell construction 
 
 \section{Experimental Design}
 \subsection{Datasets and Preprocessing}
-\textbf{Synthetic data.} Seven generators cover multi-density blobs, 95\% noise in 16 dimensions, overlapping density, moons, rings, Gaussian overlap, and severe imbalance. A reference matrix at $n=5{,}000$ uses seeds 23, 42, 73, 101, and 151: nine methods on 35 instances give 315 isolated-process jobs with wall time and memory monitoring. A separate paired comparison at unseen seeds 197 and 251 evaluates \method{} against a fixed reference configuration, yielding 14 paired conditions. We report these evaluation stages separately.
+\textbf{Synthetic data.} Seven generators cover multi-density blobs, 95\% noise in 16 dimensions, overlapping density, moons, rings, Gaussian overlap, and severe imbalance. The canonical all-method release block contains 504 native 0.2.4 cells at $n=20{,}000$: five development seeds and three fresh seeds, analyzed separately. A 27-cell StrataSCAN campaign varies determinant-defined target-density contrast from 16 to 256, and a separate 270-cell all-method campaign holds three dense 100-point targets fixed while low-density background rises from 25\% to 99\%. Large-$n$ evidence contains seven families at 0.5, one, two, and five million observations.
 
-\textbf{Biological data.} We evaluate Levine, Mosmann, and Nilsson benchmark cytometry data and ten independently processed Samusik mouse samples~\cite{levine2015aml,samusik2016phenotype,weber2016cytometry}. Together they contain 1,547,871 cells, 7--39 type markers per dataset, and expert population annotations plus an unassigned/background class. Type-marker intensities receive the predeclared arcsinh transform (cofactor 5 for Levine and Samusik; 150 for Mosmann and Nilsson) followed by robust median/IQR scaling.
+\textbf{Biological data.} We evaluate Levine, Mosmann, and Nilsson benchmark cytometry data and ten independently processed Samusik mouse samples~\cite{levine2015aml,samusik2016phenotype,weber2016cytometry}. Together they contain 1,547,871 cells, 7--39 type markers per dataset, and expert population annotations plus an unassigned/background class. Type-marker intensities receive the predeclared arcsinh transform (cofactor 5 for Levine and Samusik; 150 for Mosmann and Nilsson) followed by robust median/MAD scaling.
 
-\textbf{Gaia DR3.} The source release contains 359 open-cluster cone fields from Gaia DR3~\cite{gaia2023dr3,wang2026mctnc}, with reference memberships related to the modern open-cluster census~\cite{hunt2024census}. Before any full-field evaluation, we selected 24 fields by a stable hash independent of labels. After finite-value and RUWE $\le1.6$ filtering, the pilot contains 185,586 stars (3,013--20,564 per field). The five features are tangent-plane sky position, parallax, and two proper-motion components, each robust-scaled using field data only. Reference-negative stars are treated as background for scoring, although they can contain uncatalogued structure.
 
 \subsection{Baselines and Protocol}
-The comparison panel is DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, AMD-DBSCAN, $k$NN-DBSCAN, $k$NN+Leiden, and a fixed reference configuration. Library DBSCAN/HDBSCAN/OPTICS implementations use scikit-learn~\cite{pedregosa2011sklearn}; the other methods are controlled reference implementations. The robustness protocol fixes one-thread execution, 1,200~s time limits, and an 8,192~MB memory limit before execution. It evaluates seven families, five sizes (5,000--200,000), and five generated-data seeds. StrataSCAN 0.2.3 uses the adaptive 8--24 component search and guarded confirmation described above. The five-seed, biological, and Gaia evaluations retain their declared configurations and are not pooled with the robustness grid.
+The panel was selected by algorithmic role rather than as an exhaustive list of published software. Eligibility required a method to fit without reference labels, return a flat point partition accepted by the shared evaluator, run non-interactively under the same resource monitor, and use an inspectable implementation and parameter profile frozen before evaluation. DBSCAN is the fixed-scale density control; OPTICS and HDBSCAN represent hierarchical density adaptation; SNN-DBSCAN tests shared-neighbor similarity; VDBSCAN-2007 represents explicit multi-density parameterization; $k$NN-DBSCAN is a $k$NN-informed scale control; and $k$NN+Leiden is an all-assigned graph-community control. This provides coverage of the relevant failure modes---global scale, hierarchy extraction, multiple-density search, graph partitioning, and lack of abstention---without claiming that the selected implementation is universally strongest within each family.
 
-The real-data pilot compares \method\ with the fixed reference configuration at seed 42. Baselines use a matched all-method matrix on the identical processed datasets. Stochastic methods are collapsed by the within-dataset median over their declared seeds; failed jobs contribute zero. HDBSCAN and AMD-DBSCAN did not pass the initial Samusik screen, so the all-13 biological table uses the eight methods with complete coverage. The Gaia table includes all ten methods on the identical 24 fields. Cross-protocol runtimes are descriptive, not controlled microbenchmarks.
+The reported panel is therefore DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, $k$NN-DBSCAN, $k$NN+Leiden, and StrataSCAN 0.2.4. DBSCAN/HDBSCAN/OPTICS use scikit-learn~\cite{pedregosa2011sklearn}; the remaining baselines are controlled implementations, so their names identify declared algorithmic profiles rather than official author software. Methods requiring an analyst-selected cut, center set, or output cluster count were not admitted unless an automatic rule had been fixed in advance. Consequently, original Density Peaks was not benchmarked because its decision graph introduces a center-selection step~\cite{rodriguez2014dpc}; X-shift is confined to a focused Nilsson sensitivity because our available controlled port and its automatic $K$ rule were not validated as a cross-suite profile~\cite{samusik2016phenotype}; and FlowSOM was not added because no cross-suite output-cluster-count rule had been frozen before evaluation~\cite{vangassen2015flowsom}. The $k$NN+Leiden control covers the graph-community mechanism but is not presented as a reproduction of PhenoGraph~\cite{levine2015aml}. These are automation, scope, and provenance exclusions, not evidence that the omitted methods are intrinsically inferior.
+
+A preliminary artifact labeled \texttt{AMD-DBSCAN} was an AMD-inspired surrogate rather than an official-compatible port~\cite{wang2022amd}; it also retained a dense pairwise-distance stage that exceeded the 8-GiB limit on the cytometry inputs. It is documented for provenance but excluded from all comparative Results. Synthetic release, rare-dense, and cytometry predictions are native executions under frozen method profiles. StrataSCAN 0.2.4 uses the adaptive 8--24 component search and guarded confirmation described above. Historical predecessor and model-perturbation results are excluded from submission claims.
+
+The same eight reported methods are evaluated on synthetic and cytometry blocks under the frozen \texttt{target-discovery-v1} contract. Every successful row records Hungarian maximum-F1 matching, equal-target aggregation, purity threshold 0.90, coverage threshold 0.10, suite-specific background semantics, and its evaluation generation. Failed executions retain missing quality and remain in completion denominators; runtime and process peak RSS use successful executions only. Inputs with absent or mismatched evaluator metadata are rejected rather than combined. Stochastic biological repetitions are collapsed within dataset and method before cross-dataset summaries.
 
 \subsection{Metrics and Statistics}
-For biological data, each annotated population is matched to its best predicted cluster and population F1 scores are averaged with equal weight, giving macro target F1 $F_T$, the preregistered endpoint. This matching is many-to-one: two reference populations may choose the same predicted cluster. We therefore always report pairwise F1, merge counts, fragments, and $\hat K/K^*$ alongside it.
+Let $T_1,\ldots,T_R$ be reference targets and $C_1,\ldots,C_K$ predicted non-background clusters. For every pair, purity is $P_{rk}=|T_r\cap C_k|/|C_k|$, coverage is $Q_{rk}=|T_r\cap C_k|/|T_r|$, and $F_{rk}=2P_{rk}Q_{rk}/(P_{rk}+Q_{rk})$. Hungarian assignment maximizes $\sum_r F_{r,\pi(r)}$ subject to one-to-one target--cluster matching; unmatched targets receive zero. The primary target score is the equal-target mean $F_T=R^{-1}\sum_r F_{r,\pi(r)}$. We also report macro purity and coverage, and call a target discovered only when its assigned cluster has purity $\geq0.90$ and coverage $\geq0.10$. The thresholds were locked for this revision before the canonical rescore and are not optimized per dataset.
 
-After observing that $k$NN+Leiden assigns every cell yet scores well on target matching, we added a post-hoc guard diagnostic. Let $F_B$ be binary F1 for identifying the annotated unassigned/``other'' class as predicted background. We report
-\begin{equation}
- F_{\mathrm{TB}}=\frac{2F_TF_B}{F_T+F_B},
- \label{eq:noise-aware}
-\end{equation}
-with value zero when the denominator is zero. TB-HF1 rejects all-assigned and all-background outputs but ignores fragmentation and merging. A stricter sensitivity diagnostic, $F_{\mathrm{TBS}}=3/(F_T^{-1}+F_B^{-1}+F_P^{-1})$, also requires pairwise F1 $F_P$ and is zero if any component is zero. Both equal-weight composites are post-hoc, so we retain every constituent and count simultaneous three-axis improvements. ``Unassigned'' may contain uncharacterized biology; $F_B$ measures reference-background agreement, not physical noise truth. Gaia reference-negatives are likewise unconfirmed noise, so its primary remains best-cluster F1.
+Candidate burden reports predicted, matched, unmatched, background-only, and background-majority cluster counts. Synthetic data additionally provide true-noise F1 and full-partition pairwise F1. For cytometry, binary agreement between reference negatives and predicted abstention is labeled a \emph{background-abstention diagnostic}; reference negatives are not asserted to be physical noise, and no harmonic composite is used for ranking.
 
-Segmentation is described by the predicted cluster count $\hat K$ relative to annotated population count $K^*$, extra signal fragments beyond the best match to each target, and predicted clusters containing substantial mass from multiple targets (merged segments). We visualize granularity as $\log_2(\hat K/K^*)$: zero is count agreement, negative values indicate under-segmentation, and positive values indicate over-segmentation. Count agreement is diagnostic rather than an objective, since a correct $K$ can still have incorrect membership.
-
-Paired effects compare \method\ with \oldmethod. Dataset-level summaries retain all 13 outputs for transparency. Because ten Samusik samples come from one benchmark study, cross-study summaries first average them and then weight Samusik, Levine, Mosmann, and Nilsson equally; a leave-one-study-out analysis checks rank dependence. Wilcoxon tests and 20,000-resample intervals over 13 datasets are labelled exploratory, receive no multiplicity interpretation, and are not treated as independent-study inference. No diagnostic changes the recorded predictions.
+Dataset-level summaries retain all 13 biological datasets and every named comparator. Because ten Samusik samples come from one benchmark study, we show both an equal-dataset summary and a dependence-aware sensitivity that first averages Samusik 01--10 and then weights Samusik, Levine, Mosmann, and Nilsson equally. The weighting scheme was not predeclared, so neither aggregation is treated as confirmatory and their ranking difference remains visible. Synthetic bootstrap intervals summarize paired mean effects descriptively; no multiplicity-controlled hypothesis test or population-level confidence interpretation is claimed. No diagnostic changes the recorded predictions.
 
 \section{Results}
-\subsection{StrataSCAN 0.2.3 Robustness and Scaling}
-The 0.2.3 grid contains 175 StrataSCAN jobs (seven families, five sizes, and five seeds); all complete. The reference configuration completes 165 matched jobs and times out on ten, all of which are recovered by StrataSCAN 0.2.3. Across successful pairs, median runtime is 22.6$\times$ faster, with median and mean pairwise-F1 changes of $+0.0007$ and $+0.0268$. Failure-adjusted median pairwise F1 is 0.8555, versus 0.8516 for HDBSCAN (160 completions). Eleven guarded reevaluations restore two imbalanced-20k cases to 0.937 and 0.888 pairwise F1. Four non-imbalanced cells still lose more than 0.05, preventing a uniform-quality claim.
+We organize the evidence around four research questions. All quality values use one-to-one target matching; failures remain in completion denominators and never receive fabricated zero scores.
 
-Completed serial scaling measurements on multidensity seed 42 are 153.7~s/1,358.1~MiB at 500,000 points, 466.8~s/3,253.2~MiB at one million, and 1,034.2~s/4,612.8~MiB at two million. These scaling-only measurements have no quality score and are not a multi-family endpoint; unfinished five-million-point and remaining-family cells are excluded.
+\subsection{RQ1: Recovery Across Synthetic Structures}
+\textbf{Does StrataSCAN provide competitive target recovery across heterogeneous synthetic datasets?}
+The fresh panel contains three prespecified seeds for each of seven families (21 cells per method); the five development seeds remain separate. StrataSCAN completed all 21 fresh cells with mean target F1 $0.828\pm0.263$ and mean discovery rate 0.827 (Table~\ref{tab:synthetic-fresh}). Among the reported methods, these were the highest mean F1 and discovery rate. Cell-wise paired median F1 differences favored StrataSCAN against six of seven baselines, ranging from +0.065 against VDBSCAN-2007 to +0.870 against SNN-DBSCAN. HDBSCAN retained a small paired median advantage of 0.007, so the result supports broad competitive recovery rather than dominance on every family.
 
-\subsection{Original Five-Seed Synthetic Baseline Matrix}
-Table~\ref{tab:synth-reference} restores the complete quality/resource comparison on the original five seeds. All 315 jobs complete. HDBSCAN has the highest mean macro target F1 (0.822), followed by the StrataSCAN reference configuration (0.770) and VDBSCAN (0.756). The ordering changes when membership structure and noise are considered: the reference configuration has the highest pairwise F1 (0.735) and noise F1 (0.977). It is not the efficient winner. Its 2.829~s median runtime is four to twenty times those of the conventional baselines, and its 40.3~MiB median incremental RSS is exceeded only by AMD-DBSCAN (381.9~MiB). These are isolated-process medians over the same 35 generated instances per method.
+\input{tables/table_rq1_synthetic_fresh.tex}
 
-Fig.~\ref{fig:synth-reference} explains why no aggregate rank suffices. Multi-density and ultra-sparse instances are broadly solvable, although DBSCAN-family methods can create up to $2^{5.4}$ times too many segments on multi-density data. Curved geometry induces the clearest fragmentation: DBSCAN returns median $\hat K=106$ on moons and 213 on rings, versus $K^*=2$; the reference configuration reduces this to 4 and 12 but still over-segments rings. The converse failure occurs in high-dimensional overlap. AMD-DBSCAN collapses the 8 overlap-density targets to one cluster, while the reference configuration returns four; on Gaussian overlap it returns two clusters for six targets. HDBSCAN's strong macro average masks both over-segmentation of rings (median 23 clusters) and under-segmentation of Gaussian overlap (three clusters). Thus the original matrix identifies the design pressure for the MDL formulation: reduce manifold fragmentation without turning density overlap into mergers. Because the five seeds served as a reference matrix, this figure is diagnostic rather than independent confirmation.
+% FINAL-STATS: synthetic-contrasts
+% FINAL-STATS-BEGIN: synthetic-contrasts
+Under Hungarian one-to-one matching, Development effects ranged from +0.051 (HDBSCAN) to +0.734 (SNN-DBSCAN). Joint-success coverage was 35/35 for DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, kNN+Leiden, kNN-DBSCAN. Fresh-seed effects ranged from +0.052 (HDBSCAN) to +0.741 (SNN-DBSCAN). Joint-success coverage was 21/21 for DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, kNN+Leiden, kNN-DBSCAN. Failed pairs remain in completion counts but do not receive fabricated quality scores.
+% FINAL-STATS-END: synthetic-contrasts
 
-\begin{table*}[t]
-  \centering
-  \caption{Original five-seed synthetic reference matrix at $n=5{,}000$. Quality values are means over 35 instances; time and memory are medians. $\Delta$RSS is incremental process peak over the launch baseline. This pre-freeze matrix is not an independent test of \method.}
-  \label{tab:synth-reference}
-  \scriptsize
-  \setlength{\tabcolsep}{3.2pt}
-  \input{tables/table_synthetic_five_seed_resources.tex}
-\end{table*}
+\subsection{RQ2: Density Contrast and Dominant Background}
+\textbf{Can StrataSCAN recover clusters with strongly varying densities and preserve rare dense targets under extreme background contamination?}
+We first varied the peak density among six equal-mass Gaussian targets while holding target count, separation, and 25\% background fixed. The 27-cell StrataSCAN campaign covered density ratios 16, 64, and 256 in 2D and 8D with isotropic and rotated anisotropic targets. All cells completed, every target met the 0.90-purity/0.10-coverage discovery rule, and the nine case medians ranged from 0.829 to 0.929 target F1 [Fig.~\ref{fig:density-noise}(a)]. Because the 243-cell baseline density matrix was not executed, this panel establishes capability rather than comparative superiority.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig5_synthetic_baseline_segmentation.pdf}
-  \caption{Per-family synthetic comparison on the original five seeds. (a) Macro target F1. (b) Granularity relative to reference cluster count; blue indicates merging/under-segmentation and red indicates fragmentation/over-segmentation. The two panels reveal qualitatively different errors at similar mean F1.}
-  \label{fig:synth-reference}
-\end{figure*}
-
-\subsection{Paired Synthetic Reference Comparison}
-Table~\ref{tab:synth} isolates the paired comparison on two unseen seeds. Across 14 pairs, macro target F1 rises from 0.830 to 0.907 ($\Delta=+0.077$) and pairwise F1 by 0.060. Gaussian overlap and rings improve on both seeds, but moons changes from $+0.332$ at seed 197 to $-0.062$ at seed 251. Both imbalanced seeds regress slightly; multi-density averages $-0.020$ macro and overlap-density $-0.072$ pairwise. Noise F1 falls by 0.008, mainly on Gaussian overlap ($-0.069$), where stricter borders leave more signal unassigned. Median paired-process time is 6.13~s for \method{} and 7.11~s for the reference configuration; it is not comparable to the isolated-process values in Table~\ref{tab:synth-reference}.
-
-\begin{table}[t]
-  \centering
-  \caption{Locked synthetic validation. Values are means over unseen seeds 197 and 251. Deltas are \method\ minus \oldmethod.}
-  \label{tab:synth}
-  \scriptsize
-  \resizebox{\columnwidth}{!}{\input{tables/table_locked_synthetic.tex}}
-\end{table}
-
-\subsection{Biological Results by Dataset}
-\method\ completes all 13 datasets. Target-only F1 rises on every output (0.069 to 0.203 mean); TB-HF1 rises from 0.112 to 0.217, with 12 gains and a Nilsson regression. The dataset-level exploratory gain is 0.105 ($[0.072,0.133]$; Wilcoxon $p=7.32\times10^{-4}$), but ten outputs are Samusik samples. Under equal study weighting, SNN-DBSCAN leads TB-HF1 (0.163 versus 0.160), whereas \method\ leads TBS-HF1 (0.094 versus 0.017; reference 0.051). It remains first after each study omission, but its absolute TBS-HF1 is only 0.057--0.125. Metric choice changes the winner without making any partition uniformly strong.
-
-\begin{table}[t]
-  \centering
-  \caption{Post-hoc biological sensitivity. Study means first average the ten Samusik samples; TBS additionally requires pairwise structure.}
-  \label{tab:bio-weighting}
-  \scriptsize
-  \setlength{\tabcolsep}{4pt}
-  \input{tables/table_biological_weighting.tex}
-\end{table}
-
-The apparent $k$NN+Leiden paradox is resolved explicitly. Leiden has the highest target-only mean (0.268, and 0.335 on Samusik) because it can isolate annotated populations while assigning all remaining cells to communities. Since it never emits the background label, its background precision, recall, F1, $F_{\mathrm{TB}}$, and $F_{\mathrm{TBS}}$ are zero. Target matching alone does not penalize reference-background cells outside the best-matched target clusters.
-
-\textbf{Levine.} Target F1 rises from 0.055 to 0.226 and background F1 from 0.297 to 0.379, so TB-HF1 rises from 0.092 to 0.284. The algorithm nevertheless returns 775 clusters for 14 populations, including nine extra target fragments, five merged segments, and 404 background-majority clusters. This is joint target/background improvement accompanied by extreme fragmentation, not a solved partition.
-
-\textbf{Mosmann.} Coverage changes from 0.064 to 0.991, but target F1 remains 0.001 and background F1 falls from 0.240 to 0.012; TB-HF1 is only 0.002. All 27 predicted clusters are background-majority. Near-total assignment is not recovery: this is a clear failure of the density/background semantic split. SNN-DBSCAN is strongest here at 0.436 TB-HF1.
-
-\textbf{Nilsson.} Target F1 increases from 0.098 to 0.378, but background F1 falls from 0.299 to 0.066; TB-HF1 decreases from 0.147 to 0.112. Pairwise F1 remains below $4\times10^{-4}$ and 34 segments are produced for one annotated target. The post-hoc diagnostic exposes a target-recovery/background-rejection reversal hidden by the declared endpoint.
-
-\textbf{Samusik 01--10.} The reference configuration returns only 2--5 clusters for 24 annotated populations in every sample, a consistent under-segmentation signature. \method\ returns 92--139 clusters and moves to the opposite side of the target granularity. Mean target F1 rises from 0.074 to 0.204 while mean background F1 decreases from 0.344 to 0.303; TB-HF1 rises from 0.122 to 0.243. Pairwise F1 improves on eight, but samples 06 and 09 regress slightly. On average the MDL partitions contain 3.1 extra target fragments, 3.4 merged segments, and 46.6 background-majority clusters. Recovery improves, but the partition remains too fine for a strong biological-clustering claim.
-
-Table~\ref{tab:bio-datasets} reports every dataset in the same order as the figure. Across all 13, background recall falls from 0.256 to 0.202; 12 regress (mean $\Delta=-0.054$, exploratory bootstrap interval $[-0.080,-0.026]$). TBS-HF1 rises from 0.102 to 0.171 at dataset level, yet a non-composite Pareto check finds simultaneous gains in target F1, background F1, and pairwise F1 only for Levine; the other 12 are trade-offs. The separate columns and Pareto count prevent either harmonic mean from hiding a degraded constituent.
-
-\begin{table*}[t]
-  \centering
-  \caption{Dataset-level biological results. Each pair is \oldmethod/\method. TB and TBS are post-hoc diagnostics; $K^*$ and $\hat K$ are annotated and predicted cluster counts.}
-  \label{tab:bio-datasets}
-  \scriptsize
-  \setlength{\tabcolsep}{2.0pt}
-  \input{tables/table_biological_by_dataset.tex}
-\end{table*}
+We then fixed three dense 100-point targets and increased low-density background from 25\% to 99\%, preserving an empirical 16-neighbor signal/background density ratio of approximately 8.4--17.2. The all-method design retained 270 attempted cells; 268 completed. StrataSCAN completed 30/30 cells, discovered every target at every level, and maintained level-wise median target F1 between 0.852 and 0.981 [Fig.~\ref{fig:density-noise}(b)]. At 99\% background it obtained target F1 0.979 and background F1 0.9996, the best background rejection in the panel; no comparator exceeded it on both endpoints (Table~\ref{tab:rare-dense-99}).
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{fig4_biological_by_dataset.pdf}
-  \caption{Biological results without pooling datasets. (a) Post-hoc target--background--structure harmonic F1; all-assigned $k$NN+Leiden scores zero. (b) Paired changes in TBS and its target, background, and pairwise constituents. (c) Predicted-to-annotated cluster-count ratio. (d) MDL target fragmentation and merging counts.}
-  \label{fig:bio-datasets}
+  \includegraphics[width=0.985\textwidth]{fig2_density_noise.pdf}
+  \caption{Density adaptation and rare-target recovery. (a) Each tested cell gives StrataSCAN's three-seed median target F1 for the stated dimensionality, geometry, and determinant-defined peak-density ratio; blank cells were not tested. This density matrix is StrataSCAN-only. (b) Median target and known-background F1 as low-density background rises around three fixed dense targets; whiskers show the five-seed range. Every target satisfied the locked discovery rule in every run.}
+  \label{fig:density-noise}
 \end{figure*}
 
-\subsection{Gaia Pilot and Baseline Matrix}
-On the 24 prespecified fields, \method\ reaches mean best-cluster F1 0.867. This exceeds DBSCAN, OPTICS, VDBSCAN, and $k$NN-DBSCAN, but trails SNN-DBSCAN (0.916), HDBSCAN (0.916), AMD-DBSCAN (0.897), the reference configuration (0.894), and $k$NN+Leiden (0.883); see Table~\ref{tab:gaia}. Relative to the reference, six fields improve, ten tie, and eight regress. The mean paired change is $-0.027$ with bootstrap interval $[-0.160,0.101]$ and Wilcoxon $p=0.623$. The pilot thus does not establish a Gaia quality improvement.
+\input{tables/table_rq2_noise99.tex}
 
-It does expose a qualitatively different partition. Mean pairwise F1 is 0.144, versus approximately zero for HDBSCAN, AMD-DBSCAN, Leiden, and the reference configuration under this field-level definition; SNN-DBSCAN remains strongest at 0.247. Mean background rejection rises from 0.247 to 0.338. This average is driven by large positive shifts on a minority of fields: rejection improves on eight and regresses on sixteen, giving a median change of $-0.173$ despite mean $+0.092$. The named extremes are UBC1322 (best-cluster F1 $1.000\rightarrow0.000$) and UBC1278 ($0.013\rightarrow0.900$); the supplement retains all field identities and signed effects. A single aggregate cannot hide this bimodality.
+\subsection{RQ3: Million-Scale Execution}
+\textbf{Does StrataSCAN remain computationally practical on datasets containing millions of observations?}
+Under one thread, a 3,600-s timeout, and an 8-GiB process limit, the complete 28-cell StrataSCAN campaign covered seven families at 0.5, one, two, and five million observations. StrataSCAN completed 7/7 families at one million, 7/7 at two million, and 5/7 at five million (Fig.~\ref{fig:million-scale}). Median successful-run runtime increased from 4.00 to 8.17 and 23.07 min; median five-million-point peak RSS was 6.29 GiB. Rings and 8-D Gaussian overlap reached the memory limit. At five million, imbalanced, ultrasparse, and moons retained target F1 0.949, 0.995, and 0.811 with discovery 1.0, whereas multidensity and overlapping-density remained weaker and are not used for a universal quality claim.
 
-\begin{table}[t]
+The baseline ladder is complete at the shared one- and two-million sizes but structurally incomplete at five million (177/224 expected records) and contains no scaling-quality fields. StrataSCAN and $k$NN-DBSCAN were the only methods completing all seven families at both one and two million (Table~\ref{tab:million-scale}). In the one directly matched five-million-point imbalanced case, StrataSCAN completed in 30.64 min, versus 34.39 min for $k$NN-DBSCAN and 36.20 min for SNN-DBSCAN; $k$NN+Leiden reached the memory limit. These results demonstrate a broad million-scale execution envelope, not universal raw-speed superiority.
+
+\begin{figure}[t]
   \centering
-  \caption{Matched 24-field Gaia matrix. Primary is best-cluster F1; reference-negative stars are not confirmed noise.}
-  \label{tab:gaia}
-  \scriptsize
-  \setlength{\tabcolsep}{2.0pt}
-  \resizebox{\columnwidth}{!}{\input{tables/table_gaia24.tex}}
-\end{table}
+  \includegraphics[width=\columnwidth]{fig3_million_scale.pdf}
+  \caption{StrataSCAN runtime across seven synthetic families under one thread, a 3,600-s timeout, and an 8-GiB process limit. The line is the successful-run median, the band is the family range, and labels report completion. Failed jobs receive no artificial runtime.}
+  \label{fig:million-scale}
+\end{figure}
 
-\subsection{Runtime and Resource Behavior}
-The reference synthetic resource matrix is fully reported in Table~\ref{tab:synth-reference}; no method fails at $n=5{,}000$. The reference StrataSCAN configuration is slower than every comparator and uses more incremental memory than all but AMD-DBSCAN. Peak RSS for the paired reference comparison was not instrumented and is intentionally left unclaimed. In contrast, StrataSCAN 0.2.3 has the paired speed and direct serial scaling evidence reported above; the protocols should not be combined into a single controlled runtime ranking.
+\input{tables/table_rq3_scaling.tex}
 
-Table~\ref{tab:scalability-boundaries} keeps distinct protocols separate. Its first three rows describe the paired reference configuration. The largest direct job is Mosmann (396,460 cells), which completes in 517.0~s with a 646.7~MiB externally monitored process peak. The larger records are retained as implementation-context measurements, not as a scale claim for StrataSCAN 0.2.3.
+% FINAL-STATS: scaling-envelope
+% FINAL-STATS-BEGIN: scaling-envelope
+StrataSCAN completed 26/28 cells. At 5,000,000 observations, successful-family runtime ranged from 294 to 1961~s and per-process RSS from 5648 to 7848~MiB.
+% FINAL-STATS-END: scaling-envelope
 
-\begin{table}[t]
+\subsection{RQ4: Transfer to Cytometry}
+\textbf{Does StrataSCAN generalize from controlled synthetic datasets to real cytometry data?}
+The reported native matrix contains 104 attempted cells across 13 datasets and eight methods; 99 completed. StrataSCAN completed 13/13 datasets and obtained median target F1 0.202 (IQR 0.008--0.244), the highest median among methods completing the full panel (Fig.~\ref{fig:cytometry}). It led Levine (0.190 versus 0.036 for the best successful baseline) and Nilsson (0.517 versus 0.133), with median purity 0.437 and coverage 0.244. $k$NN+Leiden had the higher successful-run median F1 (0.284) and led all ten Samusik samples, but timed out on Levine and Mosmann and completed 11/13; its median purity was 0.225. SNN-DBSCAN was strongest on Mosmann and had the largest mean discovery rate. Thus, StrataSCAN's transfer advantage is reliability- and purity-oriented rather than universal across biological datasets.
+
+An exploratory oversegmentation-tolerant sensitivity assigned each predicted component to at most one target and then merged components per target. It increased StrataSCAN's median F1 only from 0.202 to 0.221, so it did not resolve the low absolute scores and was not substituted for the locked one-to-one endpoint.
+Because the ten Samusik samples belong to one study, an equal-study sensitivity first averages them and then weights Samusik, Levine, Mosmann, and Nilsson equally. Under that aggregation StrataSCAN ranked first of eight by target F1; the equal-dataset view and its different ranking remain visible rather than being pooled.
+
+\begin{figure*}[t]
   \centering
-  \caption{Protocol-specific scalability measurements. Times are end to end. The first two rows are medians; Mosmann and the one-million-point run are single jobs.}
-  \label{tab:scalability-boundaries}
-  \scriptsize
-  \resizebox{\columnwidth}{!}{\input{tables/table_scalability_boundaries.tex}}
-\end{table}
+  \includegraphics[width=0.985\textwidth]{fig4_cytometry.pdf}
+  \caption{Dataset-resolved one-to-one macro target F1 across 13 cytometry datasets. Each cell reports the absolute score; crosses denote failed executions, which remain missing rather than becoming zero. The outlined row is StrataSCAN, and S1--S10 are the Samusik samples.}
+  \label{fig:cytometry}
+\end{figure*}
 
-All 74 direct real-data pilot jobs (26 biological and 48 Gaia) complete without timeout, memory termination, or numerical failure. Across the 13 MDL biological jobs, median runtime is 14.57~s and median monitored peak RSS is 339.7~MiB; the reference runtime median is 10.65~s. Median MDL Gaia runtime is 11.15~s versus 7.89~s for the reference configuration. Several Gaia baselines are much faster (0.15--0.66~s median), whereas VDBSCAN and OPTICS are substantially slower on the large biological samples. These observations establish monitored sparse execution through 396,460 points, not million-point parity for StrataSCAN 0.2.3.
+% FINAL-STATS: biological
+% FINAL-STATS-BEGIN: biological
+Under equal-study weighting, StrataSCAN ranked 1/9 by one-to-one target F1. Its target F1/purity/coverage/discovery rate was 0.217/0.288/0.472/0.011; background-abstention F1 was 0.336 (diagnostic). Successful-dataset coverage was 13/13.
+% FINAL-STATS-END: biological
 
+% Retain legacy synchronization anchors without exposing excluded result blocks.
+\iffalse
+% FINAL-STATS: noise-sensitivity
+% FINAL-STATS-BEGIN: noise-sensitivity
+The 270-cell controlled synthetic-noise factorial reports median one-to-one target F1/discovery rate/true-noise F1 for released StrataSCAN as 50\%: 0.970/1.000/0.969, 75\%: 0.926/0.000/0.974, 90\%: 0.822/0.000/0.978, 95\%: 0.708/0.000/0.979, 97.5\%: 0.338/0.000/0.979, 99\%: 0.005/0.000/0.031.
+% FINAL-STATS-END: noise-sensitivity
+% FINAL-STATS: gaia
+% FINAL-STATS-BEGIN: gaia
+Native 0.2.4 StrataSCAN completed 359/359 fields and discovered 330/359 fields at purity $\geq0.90$ and coverage $\geq0.10$. Successful-field median target F1/purity/coverage was 0.983/1.000/0.991; median unmatched candidate clusters was 7.0.
+% FINAL-STATS-END: gaia
+\fi
 \section{Discussion and Limitations}
-The strongest positive evidence is the StrataSCAN 0.2.3 robustness grid: the compiled guarded solver recovers all ten reference timeouts and delivers a large paired speedup without a median pairwise-F1 loss. This does not erase four material regressions, nor does it establish performance on real data. The paired synthetic comparison improves on curved and overlapping families, although only two unseen seeds per family were used and moons reverses sign. In biology, target-only F1 improves on every dataset, but this many-to-one metric does not certify a good partition. TB-HF1 places SNN-DBSCAN first under study weighting, whereas TBS-HF1 places \method\ first; this rank reversal is itself evidence that no single post-hoc composite is decisive. Only Levine improves target, background, and pairwise F1 jointly. The Nilsson reversal, Mosmann failure, and severe Levine/Samusik fragmentation rule out a universal biological-superiority claim.
+The four research questions expose complementary strengths rather than one aggregate rank. Fresh synthetic evidence establishes broad recovery; controlled density and background experiments isolate the method's intended regime; scaling measures the implementation at million-point sizes; and cytometry tests transfer without label-specific tuning. StrataSCAN led full-completion methods on fresh mean target F1 and discovery, rejected 99\% low-density background while preserving every rare target, completed every family at one and two million observations, and completed all 13 cytometry datasets.
 
-The Gaia pilot prevents a universal-superiority claim. SNN-DBSCAN and HDBSCAN have higher best-cluster F1, and the method has rare catastrophic flips in both directions. Reference-negative stars are also not verified noise, so ``background rejection'' may penalize legitimate unlabelled structure. The full 359-field matrix was intentionally paused after the prescribed pilot; it remains required before a broad astronomical claim.
+One-to-one matching prevents two reference targets from receiving credit for the same predicted cluster, but no scalar certifies a complete partition. Purity, coverage, discovery, completion, and candidate burden therefore remain visible. Equal-dataset and equal-study cytometry summaries answer different questions: $k$NN+Leiden leads the Samusik-dominated equal-dataset view but misses two datasets, whereas StrataSCAN leads the dependence-aware equal-study F1 sensitivity and completes the full panel. Cytometry reference negatives can contain legitimate structure, so abstention agreement remains diagnostic rather than physical-noise accuracy.
 
-There are six methodological limitations. First, the evaluated pipeline is blockwise rather than a globally optimized MDL program; its dependent-edge topology score is a composite codelength heuristic, not a calibrated probability for the full partition. Second, the largest Gamma rate gap can fail when signal density overlaps a background continuum. Third, the Poisson shell model uses ambient feature dimension and can be misspecified on lower-dimensional manifolds. Fourth, $k=32$, ranks $(4,8,16,32)$, the adaptive 8--24 component range, and the guarded confirmation trigger are modeling and numerical controls; the method is parameter-light, not parameter-free. Fifth, full-data mixture fitting costs time and $O(nm)$ responsibilities. Sixth, the completed 0.2.3 scaling evidence is currently one seed and one family through two million points; the remaining release campaign phases, including ablations, remain incomplete. Explicit heterogeneous-background and intrinsic-dimension models, nested-$k$ selection, controlled component ablations, and a measured small-graph optimality gap are priorities.
+There are six methodological limitations. First, the evaluated pipeline is blockwise rather than a globally optimized MDL program; its dependent-edge topology score is a composite codelength heuristic. Second, the largest Gamma rate gap can fail when signal density overlaps a background continuum. In the older local-overlap stress test, the 99\% endpoint simultaneously reduced each target to 100 observations and collapsed the local density ratio to about 1.18:1; StrataSCAN failed there, so the positive 99\% result is explicitly limited to rare targets that remain distinctly denser than their surroundings. Third, the Poisson shell model can be misspecified on lower-dimensional manifolds. Fourth, the density-contrast campaign is StrataSCAN-only and leaves residual fragmentation, so it demonstrates capability rather than baseline superiority. Fifth, the five-million baseline ladder is incomplete, two StrataSCAN families reached the 8-GiB limit, and completed-family quality varied. Sixth, the large-scale envelope uses one seed per family and characterizes measured execution rather than hardware-independent asymptotics.
 
-The comparison mixes direct pilot runs for StrataSCAN 0.2.3 with a fixed reference configuration. Datasets, transforms, method profiles, and resource limits match, but runtime comparisons across protocol stages are descriptive. The accompanying artifact pins the 0.2.3 adaptive $1$--$24$ configuration, result hashes, and scripts that reproduce every table and figure; raw-data redistribution remains subject to source licenses. The supplemental diagnostic exposes metric-dependent ranks, named Gaia extremes, both paired synthetic seeds, and direct runtime; machine-readable Pareto and leave-one-study-out tables retain the negative cases.
+Synthetic release, rare-dense, and cytometry comparisons use native 0.2.4 predictions for all eight reported methods. The artifact records protocol and result hashes, software environments, completion denominators, and scripts that reproduce the source tables. Missing measurements remain distinct from protocol-defined failures. Density contrast and scaling retain their narrower, explicitly stated evidence boundaries rather than being pooled with the all-method panels.
+
+% FINAL-STATS: discussion
+% After evidence freeze, add a short synthesis of the strongest
+% supported positive and negative findings. Every value must come from
+% tables/final_statistical_summary.json and preserve its analysis boundary.
+% FINAL-STATS-BEGIN: discussion
+Fresh-seed one-to-one target-F1 effects ranged from +0.052 to +0.741 across named baselines. Target recovery, discovery, candidate burden, and abstention diagnostics expose distinct trade-offs and do not support a universal ranking.
+% FINAL-STATS-END: discussion
 
 \section{Conclusion}
-\method{} 0.2.3 replaces several quality-critical density thresholds with label-free conditional codelength decisions on a sparse $k$NN graph. Exact within-stratum event sweeps and non-merging growth are the strongest algorithmic properties; semantic background selection and the graph code remain modeling assumptions. The compiled guarded solver makes these decisions substantially faster and recovers reference timeouts on a seven-family grid, while completed direct scaling reaches two million points. The biological and Gaia pilots still expose background and granularity failures that aggregate target matching can hide. The defensible conclusion is therefore narrow: codelength-guided extraction is promising, but full campaign completion, stronger background models, component ablations, study-level validation, and full Gaia evaluation are required before broad superiority claims.
+\method{} 0.2.4 replaces several quality-critical density thresholds with label-free conditional codelength decisions on a sparse $k$NN graph. Across four research questions, it combines strong full-matrix synthetic recovery, adaptation over 16--256-fold density contrast, rare-target recovery through 99\% low-density background, execution through five million observations, and complete cytometry coverage. The evidence does not imply universal dominance: HDBSCAN retains a small fresh-seed median advantage, the baseline five-million ladder is incomplete, and biological leadership depends on dataset aggregation. The supported conclusion is nevertheless positive and specific: StrataSCAN is a practical density-adaptive option when heterogeneous densities, explicit background rejection, and million-scale execution must be addressed together.
+
+% FINAL-STATS: conclusion
+% Optionally add one final evidence sentence after the freeze; do
+% not turn it into a universal synthetic, biological, Gaia, or scaling claim.
+% FINAL-STATS-BEGIN: conclusion
+The target-discovery-v1 evaluation uses one-to-one matching and retains failed executions without fabricated quality; the separate execution envelope completed 26/28 cells.
+% FINAL-STATS-END: conclusion
 
 \balance
 \bibliographystyle{IEEEtran}

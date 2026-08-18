@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-target-discovery-v1-noise-sweep",
+  "purpose": "predeclared_noise_fraction_sensitivity_with_fixed_moons_geometry_target_size_and_evaluation_contract",
+  "parameter_mode": "v0.2.4_correctness_patch_and_frozen_external_method_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1200,
+    "memory_limit_mb": 8192
+  },
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "AMD-DBSCAN",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "stochastic_methods": ["StrataSCAN"],
+  "method_parameters": {
+    "stratascan": "v0.2.4_defaults_at_frozen_source_hash",
+    "baselines": "controlled_reference_profiles_in_baselines_algorithms",
+    "evaluation": "benchmarks/evaluation_protocol.v1.json",
+    "controlled_factors": "n_dimension_geometry_seed_and_generator_held_fixed_within_noise_trajectory"
+  },
+  "synthetic": {
+    "quality_seeds": [211, 223, 227, 229, 233],
+    "scaling_seeds": [],
+    "quality_sizes": [20000],
+    "scaling_sizes": [],
+    "cases": [
+      {"id": "moons_noise50", "family": "moons", "dimension": 2, "noise_fraction": 0.50},
+      {"id": "moons_noise75", "family": "moons", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "moons_noise90", "family": "moons", "dimension": 2, "noise_fraction": 0.90},
+      {"id": "moons_noise95", "family": "moons", "dimension": 2, "noise_fraction": 0.95},
+      {"id": "moons_noise975", "family": "moons", "dimension": 2, "noise_fraction": 0.975},
+      {"id": "moons_noise99", "family": "moons", "dimension": 2, "noise_fraction": 0.99}
+    ]
+  },
+  "analysis": {
+    "failure_quality": 0.0,
+    "primary_metrics": [
+      "macro_target_f1_hungarian",
+      "macro_target_purity",
+      "macro_target_coverage",
+      "noise_evidence_f1",
+      "target_discovery_rate"
+    ],
+    "discovery_sensitivity": [
+      {"purity": 0.90, "coverage": 0.05},
+      {"purity": 0.90, "coverage": 0.10},
+      {"purity": 0.90, "coverage": 0.25},
+      {"purity": 0.95, "coverage": 0.10}
+    ]
+  }
+}

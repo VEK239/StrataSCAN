@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+"""HISTORICAL NONCANONICAL analysis for the legacy evaluator.
+
+This module is retained only for audit lineage.  The submission build never
+imports or invokes it; use ``final_manuscript_statistics.py`` and
+``final_manuscript_figures.py`` for target-discovery-v1 evidence.
+"""
+
 import json
 from pathlib import Path
 

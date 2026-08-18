@@ -1,50 +1,25 @@
-# OEDM 2026 supplemental diagnostics
+# Supplementary figure guide
 
-The main manuscript uses three nonredundant figures: the method pipeline, the
-five-seed synthetic recovery/granularity matrix, and the dataset-level
-biological analysis. Three earlier standalone plots repeated values already in
-Tables II–V. They are replaced by one consolidated diagnostic so that the
-negative findings remain inspectable without competing with the primary
-figures.
+The canonical `target-discovery-v1` supplement contains:
 
-![Consolidated secondary diagnostics](figures/figS1_secondary_diagnostics.png)
+- S3: development synthetic target F1, discovery rate, and true-noise F1;
+- S4: dataset-level cytometry one-to-one target F1;
+- S5: Gaia target discovery, purity, coverage, target F1, unmatched-candidate
+  burden, and completion;
+- S7: the 270-cell, nine-method controlled synthetic known-noise sweep.
 
-**Figure S1 — Secondary evidence and sensitivity checks.** (a) Study-weighted
-biological TB-HF1 and the stricter TBS-HF1, which also requires pairwise
-structure. SNN-DBSCAN leads under TB-HF1, whereas MDL-StrataSCAN leads under
-TBS-HF1; the reversal shows that no post-hoc composite gives a metric-invariant
-winner. (b) Signed best-cluster-F1 changes on the 24 prespecified Gaia fields:
-six improve, ten tie, and eight regress, with UBC1322 and UBC1278 naming the
-largest loss and gain. (c) Both locked seed effects for target and pairwise F1,
-instead of family means alone. Moons reverses sign; Gaussian overlap and rings
-improve on both seeds. (d) End-to-end runtime against dataset size for the directly evaluated
-fixed-range biological and Gaia pilots. The largest job is Mosmann (396,460
-cells, 517 s); this is the largest scale attributable to the submitted
-snapshot.
+All panels use the five v0.2.4 freezes. Failed quality remains missing. S4 does
+not treat ten Samusik samples as ten independent studies. S5 calls
+reference-negative agreement a background-abstention diagnostic and records
+the sole mixed-provenance boundary: native 0.2.4 StrataSCAN plus exact
+single-target-rescored legacy external predictions. S7 is not
+generalized beyond its declared synthetic mechanism.
 
-## Machine-readable evidence
+`tables/discovery_threshold_sensitivity.csv` and its concise Markdown rendering
+recompute discovery from the frozen per-target matches at (0.90,0.05),
+(0.90,0.10), (0.90,0.25), and (0.95,0.10). The locked 0.90/0.10 pair remains
+primary; this analysis changes neither assignments nor fitted parameters.
 
-- `tables/method_comparison_matrix.csv` contains both dataset- and
-  study-weighted biological summaries for TB-HF1 and TBS-HF1.
-- `tables/biological_pareto_by_dataset.csv` shows that only Levine improves
-  target F1, background F1, and pairwise F1 simultaneously; the other twelve
-  outputs are trade-offs.
-- `tables/biological_study_leave_one_out.csv` reports the TBS-HF1 method rank
-  after omitting each biological study in turn.
-- `tables/gaia24_field_results.csv` retains all 24 field-level outcomes.
-- `tables/gaia_paired_field_effects.csv` retains field identities and signed
-  predecessor-to-MDL changes.
-- `tables/locked_synthetic_by_family.csv` retains target, pairwise, and
-  injected-noise deltas.
-- `tables/locked_synthetic_seed_effects.csv` retains the two paired effects
-  separately rather than only their family means.
-- `tables/scalability_evidence_boundaries.csv` identifies which algorithm
-  snapshot supports every reported scale observation.
-- `tables/biological_segmentation_by_dataset.csv` retains fragmentation,
-  merging, cluster-count, target, and reference-background diagnostics for all
-  13 biological datasets.
-
-The supplement does not introduce a new endpoint, seed, or prediction. TBS-HF1,
-Pareto counts, and leave-one-study-out ranks are explicitly post-hoc sensitivity
-analyses computed from the frozen artifacts; they do not alter the declared
-target-only endpoint.
+Historical S1 galleries, S2 model-specification perturbations, and S6
+solver-predecessor comparisons are noncanonical because they were not rescored
+under this contract. They are absent from submission claims and manifests.

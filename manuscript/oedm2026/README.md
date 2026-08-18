@@ -1,94 +1,58 @@
 # OEDM 2026 manuscript package
 
-This directory contains the anonymous IEEE ICDM OEDM draft, its compiled PDF,
-publication figures, result tables, bibliography, analysis code, and visual-QA
-renders.
+This directory contains the anonymous IEEE workshop manuscript and its
+fail-closed reproducibility pipeline for StrataSCAN 0.2.4.
 
-## Primary artifacts
+## Canonical evaluation contract
 
-- `manuscript.tex` — IEEE conference manuscript source.
-- `references.bib` — bibliography used by the manuscript.
-- `MDL-StrataSCAN_OEDM2026_draft.pdf` — stable compiled draft for review.
-- `figures/` — every figure in vector PDF/SVG and high-resolution PNG form.
-- `tables/` — manuscript-ready LaTeX tables plus machine-readable CSV/JSON data.
-- `scripts/analyze_results.py` — regenerates the aggregate figures, tables,
-  confidence intervals, paired tests, and method-ranking matrices.
-- `scripts/revision_results.py` — regenerates the per-dataset biological
-  segmentation analysis and original five-seed synthetic quality/resource
-  matrix.
-- `scripts/build.ps1` — regenerates analysis artifacts and compiles the PDF.
-- `build/` — LaTeX outputs and analysis console output.
-- `artifact_manifest.json` — evaluated configuration, endpoint provenance, and
-  immutable result/protocol hashes.
-- `REVIEW_AND_REVISION.md` — adversarial reviewer findings, corrections, and
-  remaining limitations.
-- `SUPPLEMENT.md` and `supplement/figures/` — consolidated secondary
-  diagnostics and their interpretation.
-- `qa/submission_verified/` — 150-dpi renders of every page of the exact stable
-  PDF used for final visual inspection.
+The submission uses `target-discovery-v1`: Hungarian one-to-one target--cluster
+matching maximizes pairwise F1; target F1, purity, coverage, discovery rate
+(purity >= 0.90 and coverage >= 0.10), and candidate burden remain separate.
+Known-noise metrics are valid only for synthetic data. Cytometry and Gaia
+reference negatives support an explicitly diagnostic background-abstention
+measure, not a physical-noise claim. Failed executions retain missing quality,
+and paired effects use joint successes with their declared denominators.
 
-## Evidence included in this draft
+Exactly five same-stem CSV/provenance pairs under
+`results/published/v0.2.4/target-discovery-v1/` are build inputs:
 
-The evidence is deliberately separated by evaluation stage:
+1. `synthetic_release.csv` (development and fresh rows distinguished by
+   `evidence_stage`);
+2. `synthetic_scaling.csv`;
+3. `cytometry.csv`;
+4. `gaia.csv`;
+5. `noise_factorial.csv`.
 
-- the new 0.2.3 release robustness grid: seven families, five sizes, and five
-  seeds (175 StrataSCAN jobs), with all jobs completed, a 22.6x median paired
-  speedup against the conservative solver, and retained negative cells;
-- completed serial 0.2.3 multidensity scaling measurements through 2,000,000
-  points; the remaining five-million-point campaign cells are explicitly
-  incomplete and are not reported as endpoints;
-- the original 315-job synthetic reference matrix: seven families, five
-  pre-freeze seeds, nine methods, `n = 5,000`, with quality, segmentation,
-  runtime, and process-memory measurements;
-- 14 post-freeze synthetic revision pairs: unseen seeds 197 and 251 at `n = 5,000`,
-  comparing MDL-StrataSCAN only with its immediate 0.1.2 predecessor;
-- all 13 biological/cytometry datasets (1,547,871 cells total), reported
-  separately with target recovery, reference-background identification, and
-  segmentation diagnostics; macro target F1 is the declared endpoint, while
-  target--background and target--background--structure harmonic F1 are
-  explicitly post-hoc sensitivity diagnostics;
-- the prespecified 24-field Gaia DR3 pilot;
-- conventional graph/density baselines where protocol coverage permits.
+Each provenance JSON records the CSV SHA-256, evaluator version, Hungarian
+matching strategy and objective, and both discovery thresholds. The scripts
+reject absent or mismatched metadata, unexpected identities, unrescored legacy
+rows, non-synthetic `noise_f1` fields, and incomplete matrices.
 
-The scalability evidence is deliberately separated by algorithm generation and
-protocol. The 0.2.3 release has completed direct serial multidensity runs
-through 2,000,000 points; its other scaling cells remain in progress. The
-historical fixed-range snapshot has direct monitored runs through the
-396,460-cell Mosmann dataset. The one-million-point dev9 smoke test and the
-five-million-point 0.1.2 matrix are retained as lineage evidence, not attributed
-to the submitted solver. The historical scalability evidence table records
-this distinction explicitly.
+Synthetic release, noise-sweep, scaling, and cytometry evidence is native
+target-discovery-v1. Gaia alone combines native 0.2.4 StrataSCAN with legacy
+external predictions after an exact single-target rescore; the equivalence
+proof, source generations, and seed aggregation are recorded in its provenance.
+Historical model-specification and solver-predecessor studies are noncanonical
+and do not support submission claims.
 
-The incomplete 359-field Gaia sweep is not included in any result, table, test,
-or conclusion. Its paused checkpoints remain outside this manuscript directory
-and can be resumed as a separate validation stage.
+The raw method key `AMD-DBSCAN` is displayed as **AMD-inspired**. Its frozen
+controlled implementation retains the published dense distance stage but does
+not reproduce the later AMD parameter-adaptation procedure; it must not be
+interpreted as the authors' official implementation. Its 0/13 cytometry
+completion is reported without fabricated quality. See
+`docs/V0.2.4_BASELINE_INTEGRITY_AUDIT.md` for the attribution audit.
 
-The five-seed synthetic matrix is explicitly described as diagnostic/development
-evidence; it is not pooled with the locked two-seed ablation. No newly generated
-baseline measurements at seeds 197 or 251 are used.
+## Build
 
-## Rebuild
-
-From the repository root, run:
+From the repository root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File manuscript\oedm2026\scripts\build.ps1
 ```
 
-The analysis requires the repository's Python scientific stack. The build script
-uses `.tmp/tectonic/tectonic.exe`, the project-local Tectonic binary used for the
-checked PDF. The final output is copied to
-`manuscript/oedm2026/MDL-StrataSCAN_OEDM2026_draft.pdf`.
-
-## Submission status
-
-The draft is formatted in IEEE two-column workshop style and uses anonymous
-author metadata for triple-blind review. Before submission, replace or confirm
-the workshop year/track metadata requested by the final EasyChair form, archive
-immutable benchmark manifests and result hashes, and prepare an anonymized code
-artifact. The manuscript distinguishes strong biological recovery evidence from
-segmentation/background limitations and the mixed Gaia pilot rather than making
-a universal-superiority claim.
-
-The checked 0.2.3 PDF is ten US-Letter pages including references. Its SHA-256
-digest is `95fd4970b9925677081403ceecd0e26cea4fbcb5afed9077bb7c68b370322a15`.
+The build runs final statistics, keyed manuscript synchronization, figures,
+the predeclared discovery-threshold sensitivity table, the synchronization
+check, LaTeX, and the artifact-manifest write/check. It
+stops before figure or PDF generation until all five evidence blocks pass.
+Generated summaries, figures, and manifests become canonical only after a
+successful complete build.

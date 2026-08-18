@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+"""HISTORICAL NONCANONICAL figure code for legacy evaluation fields.
+
+It is excluded from build.ps1 and from both generated manifests.
+"""
+
 from pathlib import Path
 
 import matplotlib as mpl

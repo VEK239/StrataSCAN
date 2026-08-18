@@ -1,0 +1,253 @@
+dataset,method,seed,n,dimension,declared_noise_fraction,status,target_f1,noise_f1,pairwise_f1,predicted_clusters,truth_clusters,granularity_ratio,granularity_log2_ratio,runtime_seconds,process_peak_rss_mb,peak_rss_mb,error_type,evidence_status,source_protocol
+multidensity_2d,StrataSCAN,42,500000,2,0.75,ok,0.5250804661717933,0.996706601627059,0.33160650601009756,219,6,36.5,5.189824558880018,136.8984250999929,1345.27734375,1358.83984375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+multidensity_2d,DBSCAN,42,500000,2,0.75,ok,,,,,,,,20.975419200000033,1095.90234375,1020.9921875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,HDBSCAN,42,500000,2,0.75,ok,,,,,,,,2562.2543102,359.87109375,285.4921875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,OPTICS,42,500000,2,0.75,ok,,,,,,,,2384.129840999998,284.42578125,290.84375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,SNN-DBSCAN,42,500000,2,0.75,ok,,,,,,,,10.69937199999913,534.03125,529.28125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,VDBSCAN-2007,42,500000,2,0.75,ok,,,,,,,,18.916563400001905,2560.58984375,1718.93359375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,AMD-DBSCAN,42,500000,2,0.75,error,,,,,,,,,201.01171875,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN-DBSCAN,42,500000,2,0.75,ok,,,,,,,,3.8287873000008403,266.38671875,263.0078125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN+Leiden,42,500000,2,0.75,ok,,,,,,,,292.52048619999914,2097.09765625,1928.48828125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,StrataSCAN,42,500000,16,0.95,ok,0.9923784059599287,0.9996569598222084,0.9850251327391115,15,12,1.25,0.32192809488736235,170.84725630001049,759.84765625,759.59765625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+ultrasparse_16d,DBSCAN,42,500000,16,0.95,ok,,,,,,,,969.1527935000049,1468.05078125,1383.9453125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,HDBSCAN,42,500000,16,0.95,timeout,,,,,,,,,311.51171875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,OPTICS,42,500000,16,0.95,timeout,,,,,,,,,360.9296875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,SNN-DBSCAN,42,500000,16,0.95,ok,,,,,,,,135.1856093000024,537.88671875,562.95703125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,VDBSCAN-2007,42,500000,16,0.95,ok,,,,,,,,1876.6840736999948,1487.6171875,1403.703125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,AMD-DBSCAN,42,500000,16,0.95,error,,,,,,,,,275.640625,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN-DBSCAN,42,500000,16,0.95,ok,,,,,,,,118.69001240000216,344.625,344.625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN+Leiden,42,500000,16,0.95,timeout,,,,,,,,,2703.14453125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,StrataSCAN,42,500000,16,0.8,ok,0.45606267052374233,0.5383827412787555,0.1039855713950841,545,8,68.125,6.090112419664289,196.06015199999092,1434.49609375,1435.0390625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlapping_density_16d,DBSCAN,42,500000,16,0.8,ok,,,,,,,,910.5515410000007,372.0625,367.640625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,HDBSCAN,42,500000,16,0.8,timeout,,,,,,,,,341.83203125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,OPTICS,42,500000,16,0.8,timeout,,,,,,,,,361.45703125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,SNN-DBSCAN,42,500000,16,0.8,ok,,,,,,,,103.83810950000043,558.04296875,563.4140625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,VDBSCAN-2007,42,500000,16,0.8,ok,,,,,,,,908.9565308000019,1479.68359375,1301.18359375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,AMD-DBSCAN,42,500000,16,0.8,error,,,,,,,,,285.81640625,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN-DBSCAN,42,500000,16,0.8,ok,,,,,,,,94.32924099999946,345.453125,345.453125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN+Leiden,42,500000,16,0.8,timeout,,,,,,,,,2849.6953125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,StrataSCAN,42,500000,2,0.25,ok,0.8659886905703488,0.9669077253570785,0.739015241858255,332,2,166,7.3750394313469245,26.56762859999435,754.3125,764.7265625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+moons_2d,DBSCAN,42,500000,2,0.25,ok,,,,,,,,12.096676000001025,331.90625,332.765625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,HDBSCAN,42,500000,2,0.25,ok,,,,,,,,2728.7255626000006,362.95703125,288.61328125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,OPTICS,42,500000,2,0.25,ok,,,,,,,,2344.0495259,272.90234375,285.3203125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,SNN-DBSCAN,42,500000,2,0.25,ok,,,,,,,,18.445430800000395,551.7265625,529.73046875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,VDBSCAN-2007,42,500000,2,0.25,ok,,,,,,,,17.233652099999745,369.0703125,366.5234375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,AMD-DBSCAN,42,500000,2,0.25,error,,,,,,,,,216.68359375,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN-DBSCAN,42,500000,2,0.25,ok,,,,,,,,5.589672699999937,266.3359375,279.37109375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN+Leiden,42,500000,2,0.25,ok,,,,,,,,528.5239478999993,2104.328125,1934.9609375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,StrataSCAN,42,500000,2,0.75,ok,0.5810498898566705,0.9813220667194789,0.6380157224144629,62,2,31,4.954196310386875,36.176466099976096,1030.26953125,1029.3671875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+rings_2d,DBSCAN,42,500000,2,0.75,ok,,,,,,,,10.4920551000032,421.5625,400.6875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,HDBSCAN,42,500000,2,0.75,ok,,,,,,,,2260.7131257,363.77734375,289.68359375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,OPTICS,42,500000,2,0.75,ok,,,,,,,,1786.8435647000006,294.87890625,284.65625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,SNN-DBSCAN,42,500000,2,0.75,ok,,,,,,,,13.602531900003669,527.53515625,528.6171875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,VDBSCAN-2007,42,500000,2,0.75,ok,,,,,,,,13.618485700004385,577.796875,501.71484375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,AMD-DBSCAN,42,500000,2,0.75,error,,,,,,,,,203.63671875,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN-DBSCAN,42,500000,2,0.75,ok,,,,,,,,4.908101299995906,278.90234375,269.953125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN+Leiden,42,500000,2,0.75,ok,,,,,,,,244.95194800000172,2101.734375,1934.859375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,StrataSCAN,42,500000,8,0.25,ok,0.949539936483636,0.9091524412211017,0.9007924838509481,214,6,35.666666666666664,5.15650448567999,171.18654910000623,1409.01171875,1420.515625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlap_8d,DBSCAN,42,500000,8,0.25,ok,,,,,,,,190.9574513999978,369.4296875,350.50390625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,HDBSCAN,42,500000,8,0.25,ok,,,,,,,,3490.4539455999984,393.26171875,321.58984375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,OPTICS,42,500000,8,0.25,ok,,,,,,,,1592.2641393999984,350.828125,314.09375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,SNN-DBSCAN,42,500000,8,0.25,ok,,,,,,,,93.79411909999908,545.9375,545.875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,VDBSCAN-2007,42,500000,8,0.25,ok,,,,,,,,847.8293237000034,7246.953125,4180.7109375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,AMD-DBSCAN,42,500000,8,0.25,error,,,,,,,,,245.37890625,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN-DBSCAN,42,500000,8,0.25,ok,,,,,,,,70.93877340000108,314.703125,314.703125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN+Leiden,42,500000,8,0.25,ok,,,,,,,,260.2493162999999,2566.81640625,2203.9140625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,StrataSCAN,42,500000,16,0.75,ok,0.9643107080604653,0.9898755528454963,0.9398319037484589,69,8,8.625,3.108524456778169,194.50583589999587,1079.87109375,1085.30859375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+imbalanced_16d,DBSCAN,42,500000,16,0.75,ok,,,,,,,,771.1116864,364.2890625,364.1796875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,HDBSCAN,42,500000,16,0.75,timeout,,,,,,,,,318.99609375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,OPTICS,42,500000,16,0.75,timeout,,,,,,,,,360.734375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,SNN-DBSCAN,42,500000,16,0.75,ok,,,,,,,,136.82940000000053,565.1953125,549.62890625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,VDBSCAN-2007,42,500000,16,0.75,memory_limit,,,,,,,,,8192.12109375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,AMD-DBSCAN,42,500000,16,0.75,error,,,,,,,,,293.1875,,MemoryError,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN-DBSCAN,42,500000,16,0.75,ok,,,,,,,,130.87308389999998,344.9453125,344.9453125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN+Leiden,42,500000,16,0.75,ok,,,,,,,,237.53239949999988,2767.7890625,2218.390625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,StrataSCAN,42,1000000,2,0.75,ok,0.3764117512277178,0.996977390883811,0.17405130980194267,527,6,87.83333333333333,6.456696650916058,367.4698302000179,3027.59375,3032.68359375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+multidensity_2d,DBSCAN,42,1000000,2,0.75,ok,,,,,,,,31.231987100007245,2098.53125,1867.1796875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,HDBSCAN,42,1000000,2,0.75,timeout,,,,,,,,,332.74609375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,OPTICS,42,1000000,2,0.75,timeout,,,,,,,,,432.12109375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,SNN-DBSCAN,42,1000000,2,0.75,ok,,,,,,,,20.156110500000068,880.57421875,849.69921875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,VDBSCAN-2007,42,1000000,2,0.75,ok,,,,,,,,43.107746199995745,5268.56640625,3230.3125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,AMD-DBSCAN,42,1000000,2,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN-DBSCAN,42,1000000,2,0.75,ok,,,,,,,,17.208801500004483,342.6171875,345.86328125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN+Leiden,42,1000000,2,0.75,ok,,,,,,,,1789.302312499989,3975.6484375,3637.6953125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,StrataSCAN,42,1000000,16,0.95,ok,0.9937858881593152,0.9996937780111566,0.9878380887610182,14,12,1.1666666666666667,0.22239242133644802,286.40521129997796,1293.11328125,1297.92578125,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+ultrasparse_16d,DBSCAN,42,1000000,16,0.95,ok,,,,,,,,3064.951137099997,4888.28125,4722.8671875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,HDBSCAN,42,1000000,16,0.95,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,OPTICS,42,1000000,16,0.95,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,SNN-DBSCAN,42,1000000,16,0.95,ok,,,,,,,,220.75234420000925,890.73828125,890.67578125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,VDBSCAN-2007,42,1000000,16,0.95,timeout,,,,,,,,,4822.16015625,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,AMD-DBSCAN,42,1000000,16,0.95,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN-DBSCAN,42,1000000,16,0.95,ok,,,,,,,,210.03308429999743,500.08203125,500.08203125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN+Leiden,42,1000000,16,0.95,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,StrataSCAN,42,1000000,16,0.8,ok,0.5031063321356154,0.5246102465368763,0.1530340497272585,665,8,83.125,6.377210530388552,370.4720116999815,2648.3359375,2643.66796875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlapping_density_16d,DBSCAN,42,1000000,16,0.8,ok,,,,,,,,2867.167694200005,546.2109375,542.64453125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,HDBSCAN,42,1000000,16,0.8,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,OPTICS,42,1000000,16,0.8,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,SNN-DBSCAN,42,1000000,16,0.8,ok,,,,,,,,183.54442140000174,882.4609375,897.4140625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,VDBSCAN-2007,42,1000000,16,0.8,ok,,,,,,,,2886.326231500003,3153.33984375,2748.99609375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,AMD-DBSCAN,42,1000000,16,0.8,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN-DBSCAN,42,1000000,16,0.8,ok,,,,,,,,171.79479889999493,500.22265625,500.22265625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN+Leiden,42,1000000,16,0.8,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,StrataSCAN,42,1000000,2,0.25,ok,0.8610514036404537,0.9661950583054717,0.7293424828693564,589,2,294.5,8.20212382383046,49.880403199989814,1416.6875,1417.9375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+moons_2d,DBSCAN,42,1000000,2,0.25,ok,,,,,,,,23.343163099998492,479.69140625,484.9609375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,HDBSCAN,42,1000000,2,0.25,timeout,,,,,,,,,331.1484375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,OPTICS,42,1000000,2,0.25,timeout,,,,,,,,,395.8671875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,SNN-DBSCAN,42,1000000,2,0.25,ok,,,,,,,,23.060609699998167,881.21484375,866.94140625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,VDBSCAN-2007,42,1000000,2,0.25,ok,,,,,,,,27.666594800000894,550.640625,552.59765625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,AMD-DBSCAN,42,1000000,2,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN-DBSCAN,42,1000000,2,0.25,ok,,,,,,,,8.544371500000125,350.5859375,376.71875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN+Leiden,42,1000000,2,0.25,ok,,,,,,,,1673.7106716999988,3983.1171875,3644.859375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,StrataSCAN,42,1000000,2,0.75,ok,0.5418181068712261,0.9815821809375742,0.6081827873399117,159,2,79.5,6.312882955284356,87.8063003999996,1851.72265625,1869.5859375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+rings_2d,DBSCAN,42,1000000,2,0.75,ok,,,,,,,,21.266586199999438,669.8359375,619.6328125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,HDBSCAN,42,1000000,2,0.75,timeout,,,,,,,,,333.6796875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,OPTICS,42,1000000,2,0.75,timeout,,,,,,,,,435.421875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,SNN-DBSCAN,42,1000000,2,0.75,ok,,,,,,,,22.45665989999543,899.40234375,882.58984375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,VDBSCAN-2007,42,1000000,2,0.75,ok,,,,,,,,26.244480200010003,936.35546875,811.40625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,AMD-DBSCAN,42,1000000,2,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN-DBSCAN,42,1000000,2,0.75,ok,,,,,,,,8.718840300003649,345.12109375,343.04296875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN+Leiden,42,1000000,2,0.75,ok,,,,,,,,1090.242969999992,3962.328125,3623.9921875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,StrataSCAN,42,1000000,8,0.25,ok,0.8906804860449132,0.02063727293670251,0.7867415391180684,395,6,65.83333333333333,6.040746342343309,333.0886401000025,3391.42578125,3392.99609375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlap_8d,DBSCAN,42,1000000,8,0.25,ok,,,,,,,,484.83701889999793,571.4296875,512.79296875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,HDBSCAN,42,1000000,8,0.25,timeout,,,,,,,,,399.25,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,OPTICS,42,1000000,8,0.25,timeout,,,,,,,,,486.859375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,SNN-DBSCAN,42,1000000,8,0.25,ok,,,,,,,,145.11295809999865,862.48046875,860.85546875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,VDBSCAN-2007,42,1000000,8,0.25,memory_limit,,,,,,,,,8192.51171875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,AMD-DBSCAN,42,1000000,8,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN-DBSCAN,42,1000000,8,0.25,ok,,,,,,,,133.76278850001108,439.140625,439.140625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN+Leiden,42,1000000,8,0.25,ok,,,,,,,,735.9482656000037,4884.3203125,4112.828125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,StrataSCAN,42,1000000,16,0.75,ok,0.9638869332505021,0.9895255422929814,0.9355283158900037,122,8,15.25,3.9307373375628862,476.8157404999947,2939.07421875,2934.94921875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+imbalanced_16d,DBSCAN,42,1000000,16,0.75,timeout,,,,,,,,,500.046875,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,HDBSCAN,42,1000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,OPTICS,42,1000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,SNN-DBSCAN,42,1000000,16,0.75,ok,,,,,,,,276.0305693000046,877.34765625,898.125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,VDBSCAN-2007,42,1000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,AMD-DBSCAN,42,1000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN-DBSCAN,42,1000000,16,0.75,ok,,,,,,,,247.95556190000207,500.375,500.375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN+Leiden,42,1000000,16,0.75,ok,,,,,,,,533.4442838000032,4378.375,3734.7734375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,StrataSCAN,42,2000000,2,0.75,ok,0.362511434213376,0.9969272606939809,0.16192977322505128,1175,6,195.83333333333334,7.613482540731206,858.9877524000185,4154.16796875,4151.54296875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+multidensity_2d,DBSCAN,42,2000000,2,0.75,timeout,,,,,,,,,3881.828125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,HDBSCAN,42,2000000,2,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,OPTICS,42,2000000,2,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,SNN-DBSCAN,42,2000000,2,0.75,timeout,,,,,,,,,1574.28125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,VDBSCAN-2007,42,2000000,2,0.75,ok,,,,,,,,230.77003949999926,7068.24609375,6354.0390625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,AMD-DBSCAN,42,2000000,2,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN-DBSCAN,42,2000000,2,0.75,ok,,,,,,,,35.395592399989255,558.54296875,566.4765625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN+Leiden,42,2000000,2,0.75,timeout,,,,,,,,,7581.703125,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,StrataSCAN,42,2000000,16,0.95,ok,0.9944367381844033,0.9997163962433815,0.9891057855425754,13,12,1.0833333333333333,0.11547721741993588,738.2488662000105,2307.2578125,2310.77734375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+ultrasparse_16d,DBSCAN,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,HDBSCAN,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,OPTICS,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,SNN-DBSCAN,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,VDBSCAN-2007,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,AMD-DBSCAN,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN-DBSCAN,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN+Leiden,42,2000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,StrataSCAN,42,2000000,16,0.8,ok,0.4729582132291512,0.5422153005529836,0.1347583104413667,1215,8,151.875,7.246740598493143,802.5648961999977,3186.375,3194.765625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlapping_density_16d,DBSCAN,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,HDBSCAN,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,OPTICS,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,SNN-DBSCAN,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,VDBSCAN-2007,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,AMD-DBSCAN,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN-DBSCAN,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN+Leiden,42,2000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,StrataSCAN,42,2000000,2,0.25,ok,0.8363529956292906,0.9664134948907368,0.6830125879239081,1184,2,592,9.20945336562895,112.37271049999981,2649.46875,2650.28125,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+moons_2d,DBSCAN,42,2000000,2,0.25,ok,,,,,,,,44.493955700003426,777.8828125,791.4296875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,HDBSCAN,42,2000000,2,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,OPTICS,42,2000000,2,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,SNN-DBSCAN,42,2000000,2,0.25,ok,,,,,,,,46.92194230000314,1524.4609375,1553.9453125,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,VDBSCAN-2007,42,2000000,2,0.25,ok,,,,,,,,74.59077599999728,918.66796875,921.421875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,AMD-DBSCAN,42,2000000,2,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN-DBSCAN,42,2000000,2,0.25,ok,,,,,,,,19.522697299995343,499.63671875,526.87109375,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN+Leiden,42,2000000,2,0.25,timeout,,,,,,,,,7668.0859375,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,StrataSCAN,42,2000000,2,0.75,ok,0.5024824849230489,0.9818491946059498,0.5604315264744437,345,2,172.5,7.430452551665532,216.35265049998998,3526.25,3518.1875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+rings_2d,DBSCAN,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,HDBSCAN,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,OPTICS,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,SNN-DBSCAN,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,VDBSCAN-2007,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,AMD-DBSCAN,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN-DBSCAN,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN+Leiden,42,2000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,StrataSCAN,42,2000000,8,0.25,ok,0.9180051337264908,0.016999457501356247,0.8460210439059654,640,6,106.66666666666667,6.7369655941662066,647.427026099991,5068.3046875,5096.61328125,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlap_8d,DBSCAN,42,2000000,8,0.25,ok,,,,,,,,1453.9884022999904,946.15625,835.8671875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,HDBSCAN,42,2000000,8,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,OPTICS,42,2000000,8,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,SNN-DBSCAN,42,2000000,8,0.25,ok,,,,,,,,293.1611264999956,1498.41015625,1500.91015625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,VDBSCAN-2007,42,2000000,8,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,AMD-DBSCAN,42,2000000,8,0.25,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN-DBSCAN,42,2000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN+Leiden,42,2000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,StrataSCAN,42,2000000,16,0.75,ok,0.9442679502043744,0.9842958872180648,0.8985810186401505,503,8,62.875,5.974414589805527,861.0120540999924,3354.546875,3357.234375,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+imbalanced_16d,DBSCAN,42,2000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,HDBSCAN,42,2000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,OPTICS,42,2000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,SNN-DBSCAN,42,2000000,16,0.75,ok,,,,,,,,453.1080374999874,1544.1953125,1550.57421875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,VDBSCAN-2007,42,2000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,AMD-DBSCAN,42,2000000,16,0.75,skipped_prior_failure,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN-DBSCAN,42,2000000,16,0.75,ok,,,,,,,,427.341439900003,809.890625,809.890625,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN+Leiden,42,2000000,16,0.75,ok,,,,,,,,1042.4271143000078,7968.9609375,7241.671875,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,StrataSCAN,42,5000000,2,0.75,ok,0.4127395325264705,0.9969738846674063,0.19452975149522006,2621,6,436.8333333333333,8.770939137607261,1180.5116822999844,5822.328125,5830.515625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+multidensity_2d,DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,HDBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,OPTICS,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,SNN-DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,VDBSCAN-2007,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,AMD-DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN-DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+multidensity_2d,kNN+Leiden,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,StrataSCAN,42,5000000,16,0.95,ok,0.9948276496782329,0.9997365957158867,0.9898564883390375,14,12,1.1666666666666667,0.22239242133644802,1500.7623810999794,4433.35546875,4443.98046875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+ultrasparse_16d,DBSCAN,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,HDBSCAN,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,OPTICS,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,SNN-DBSCAN,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,VDBSCAN-2007,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,AMD-DBSCAN,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN-DBSCAN,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+ultrasparse_16d,kNN+Leiden,42,5000000,16,0.95,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,StrataSCAN,42,5000000,16,0.8,ok,0.4826439628099208,0.5072393016083155,0.10973633428996749,2136,8,267,8.060695931687555,2233.2999040999857,5771.515625,5790.76953125,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlapping_density_16d,DBSCAN,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,HDBSCAN,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,OPTICS,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,SNN-DBSCAN,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,VDBSCAN-2007,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,AMD-DBSCAN,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN-DBSCAN,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlapping_density_16d,kNN+Leiden,42,5000000,16,0.8,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,StrataSCAN,42,5000000,2,0.25,ok,0.810571699462795,0.9662670184026921,0.6358644106305513,3509,2,1754.5,10.776844232402167,288.8635108000017,5822.1171875,5848.48046875,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+moons_2d,DBSCAN,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,HDBSCAN,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,OPTICS,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,SNN-DBSCAN,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,VDBSCAN-2007,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,AMD-DBSCAN,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN-DBSCAN,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+moons_2d,kNN+Leiden,42,5000000,2,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,StrataSCAN,42,5000000,2,0.75,ok,0.4609903034606221,0.9820145735938667,0.5029309188092118,1120,2,560,9.129283016944967,1460.2218235999753,4531.37109375,4532.8203125,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+rings_2d,DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,HDBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,OPTICS,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,SNN-DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,VDBSCAN-2007,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,AMD-DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN-DBSCAN,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+rings_2d,kNN+Leiden,42,5000000,2,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,StrataSCAN,42,5000000,8,0.25,ok,0.752791956761386,0.012633667119616531,0.6763661976100915,1109,6,184.83333333333334,7.530081149440554,1782.640425199992,7201.0703125,7218.5703125,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+overlap_8d,DBSCAN,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,HDBSCAN,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,OPTICS,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,SNN-DBSCAN,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,VDBSCAN-2007,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,AMD-DBSCAN,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN-DBSCAN,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+overlap_8d,kNN+Leiden,42,5000000,8,0.25,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,StrataSCAN,42,5000000,16,0.75,ok,0.949014945535581,0.9857599742808651,0.9139343863470444,891,8,111.375,6.799281621521922,1847.3848466000054,6383.27734375,6392.94140625,,accepted StrataSCAN execution envelope,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1
+imbalanced_16d,DBSCAN,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,HDBSCAN,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,OPTICS,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,SNN-DBSCAN,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,VDBSCAN-2007,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,AMD-DBSCAN,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN-DBSCAN,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1
+imbalanced_16d,kNN+Leiden,42,5000000,16,0.75,pending,,,,,,,,,,,,in-progress baseline snapshot,0.2.3-seven-family-baselines-scalability-5m-v1

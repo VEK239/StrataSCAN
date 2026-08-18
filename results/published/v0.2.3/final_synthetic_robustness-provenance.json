@@ -1,0 +1,50 @@
+{
+  "methods": [
+    "AMD-DBSCAN",
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "StrataSCAN",
+    "VDBSCAN-2007",
+    "kNN+Leiden",
+    "kNN-DBSCAN"
+  ],
+  "output": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\published\\v0.2.3\\final_synthetic_robustness.csv",
+  "policy": "unchanged frozen external baseline rows plus a complete current-release StrataSCAN rerun; predecessor StrataSCAN rows are excluded",
+  "purpose": "final synthetic robustness evidence for manuscript figures",
+  "rows": 1575,
+  "sha256": "9e32a4159d2ab06e8fb0b9679011e68b1d7267fbbb07da69d46c06c0d4a4f326",
+  "sources": [
+    {
+      "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\v0.2.2-seven-family-robustness-v2\\results.csv",
+      "sha256": "114214e00c41741ffd999e7bce666f547b7f10697aabbbf9bc212d6a54d2628c"
+    },
+    {
+      "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\v0.2.2-seven-family-robustness-v2\\manifest.json",
+      "sha256": "142ea2085ed43b1fcebf7fe7f3325eaa34254a3de59234d64c3c381e76f29b00"
+    },
+    {
+      "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\v0.2.2-seven-family-robustness-v2\\validation.json",
+      "sha256": "0ced3bfef6d4b1a0bb10fd1ce79869fe7ef2ddf6daeb82c58df8d3e20eff338f"
+    },
+    {
+      "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\v0.2.3-final-figures-stratascan-robustness-v1\\results.csv",
+      "sha256": "24192859f80b08edd72d281dff803b4b9bf2b5e5ca5d5c44e608c413d9e14232"
+    },
+    {
+      "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\v0.2.3-final-figures-stratascan-robustness-v1\\manifest.json",
+      "sha256": "094cd8756b8ff3429a1de5951223ec5162df1b137d7a1673cac112a847a2b8ff"
+    },
+    {
+      "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\runs\\v0.2.3-final-figures-stratascan-robustness-v1\\validation.json",
+      "sha256": "b06b7193d69c84d38b8fccf2951faa95daef04b3cda6f54b9b09a619a4827540"
+    }
+  ],
+  "status_counts": {
+    "error": 90,
+    "memory_limit": 17,
+    "ok": 1451,
+    "timeout": 17
+  }
+}

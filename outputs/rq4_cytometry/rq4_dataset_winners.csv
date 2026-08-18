@@ -1,0 +1,14 @@
+dataset_id,best_target_f1,winning_methods
+levine,0.1901834180369206,StrataSCAN
+mosmann,0.2790697674418604,SNN-DBSCAN
+nilsson,0.5168800931315483,StrataSCAN
+samusik_01,0.282529892247133,kNN+Leiden
+samusik_02,0.3173733770112808,kNN+Leiden
+samusik_03,0.3179776769646023,kNN+Leiden
+samusik_04,0.3109619016832572,kNN+Leiden
+samusik_05,0.2928609610928294,kNN+Leiden
+samusik_06,0.2777600583038859,kNN+Leiden
+samusik_07,0.2913448140816368,kNN+Leiden
+samusik_08,0.2525831643735644,kNN+Leiden
+samusik_09,0.284008484009629,kNN+Leiden
+samusik_10,0.2469422635929816,kNN+Leiden

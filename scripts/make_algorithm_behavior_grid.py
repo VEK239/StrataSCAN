@@ -153,8 +153,8 @@ def draw_panel(
 
 def save(fig: plt.Figure, output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output.with_suffix(".pdf"))
-    fig.savefig(output.with_suffix(".svg"))
+    fig.savefig(output.with_suffix(".pdf"), dpi=600)
+    fig.savefig(output.with_suffix(".svg"), dpi=600)
     fig.savefig(output.with_suffix(".png"), dpi=600)
     plt.close(fig)
 
@@ -167,25 +167,62 @@ def main() -> None:
     parser.add_argument("--n", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--max-display-points", type=int, default=8000)
+    parser.add_argument(
+        "--case-id",
+        action="append",
+        default=[],
+        help="include only this protocol case; repeat to build a multi-page gallery",
+    )
+    parser.add_argument(
+        "--method",
+        action="append",
+        default=[],
+        help="include only this method; repeat to split a legible multi-page gallery",
+    )
     args = parser.parse_args()
 
     configure_style()
     protocol = json.loads(args.protocol.read_text(encoding="utf-8"))
     cases = protocol["synthetic"]["cases"]
+    if args.case_id:
+        requested = set(args.case_id)
+        known = {case["id"] for case in cases}
+        unknown = sorted(requested - known)
+        if unknown:
+            raise ValueError(f"unknown case IDs: {unknown}")
+        cases = [case for case in cases if case["id"] in requested]
+    methods = METHODS
+    if args.method:
+        unknown_methods = sorted(set(args.method) - set(METHODS))
+        if unknown_methods:
+            raise ValueError(f"unknown methods: {unknown_methods}")
+        methods = [method for method in METHODS if method in set(args.method)]
+    if not cases:
+        raise ValueError("the behavior grid requires at least one case")
+    if not methods:
+        raise ValueError("the behavior grid requires at least one method")
     benchmark = pd.read_csv(args.benchmark_results)
-    tier = "scaling" if args.n in protocol["synthetic"]["scaling_sizes"] else "quality"
+    in_quality = args.n in protocol["synthetic"]["quality_sizes"]
+    in_scaling = args.n in protocol["synthetic"]["scaling_sizes"]
+    if in_quality == in_scaling:
+        raise ValueError(
+            f"n={args.n} must occur in exactly one of quality_sizes or scaling_sizes"
+        )
+    tier = "quality" if in_quality else "scaling"
     benchmark = benchmark.loc[
         (benchmark["seed"] == args.seed)
         & benchmark["dataset_id"].str.contains(fr"__{tier}__n{args.n}$")
     ].set_index(["dataset_id", "method"])
 
-    columns = ["Ground truth", *METHODS]
+    columns = ["Ground truth", *methods]
     fig, axes = plt.subplots(
         len(cases),
         len(columns),
-        figsize=(14.4, 9.6),
-        constrained_layout=True,
+        figsize=(7.16, 0.62 + 1.22 * len(cases)),
+        constrained_layout=False,
+        squeeze=False,
     )
+    fig.subplots_adjust(left=0.17, right=0.995, bottom=0.055, top=0.975, hspace=0.10, wspace=0.08)
     records: list[dict[str, object]] = []
     with threadpool_limits(limits=1):
         for row, case in enumerate(cases):
@@ -215,7 +252,7 @@ def main() -> None:
                 fontweight="bold",
             )
             dataset_id = f"{case['id']}__{tier}__n{args.n}"
-            for column, method in enumerate(METHODS, start=1):
+            for column, method in enumerate(methods, start=1):
                 frozen_status = "missing"
                 frozen_pairwise = np.nan
                 frozen_runtime = np.nan
@@ -229,14 +266,22 @@ def main() -> None:
                 started = perf_counter()
                 failed = False
                 error = ""
-                if frozen_status not in {"missing", "ok"}:
+                if frozen_status != "ok":
                     failed = True
-                    error = str(frozen.get("error", frozen_status))
+                    error = (
+                        str(frozen.get("error", frozen_status))
+                        if frozen_status != "missing"
+                        else "not measured"
+                    )
                     labels = np.full(dataset.X.shape[0], -1, dtype=np.int64)
                     runtime = float(frozen_runtime) if pd.notna(frozen_runtime) else np.nan
                     metrics = {"pairwise_f1": np.nan}
                     clusters = 0
-                    annotation = frozen_status.replace("_", " ").upper()
+                    annotation = (
+                        "NOT MEASURED"
+                        if frozen_status == "missing"
+                        else frozen_status.replace("_", " ").upper()
+                    )
                 else:
                     try:
                         result = run_method(method, dataset.X, args.seed)
@@ -244,7 +289,7 @@ def main() -> None:
                         labels = result.labels
                         metrics = evaluate(dataset, labels, "synthetic")
                         clusters = int(np.unique(labels[labels >= 0]).size)
-                        annotation = f"F1={float(metrics['pairwise_f1']):.2f}  k={clusters}\n{runtime:.2f} s"
+                        annotation = f"F1={float(metrics['pairwise_f1']):.2f}  k={clusters}"
                     except Exception as exception:  # controlled visual evidence
                         failed = True
                         error = f"{type(exception).__name__}: {exception}"
@@ -252,7 +297,7 @@ def main() -> None:
                         runtime = perf_counter() - started
                         metrics = {"pairwise_f1": np.nan}
                         clusters = 0
-                        annotation = f"FAILED\n{runtime:.2f} s"
+                        annotation = "FAILED"
                 draw_panel(
                     axes[row, column],
                     projection,
@@ -292,8 +337,9 @@ def main() -> None:
         )
     fig.text(
         0.5,
-        -0.002,
-        "Predicted clusters are colored categorically; predicted noise is light gray. High-dimensional datasets are shown by PCA without changing the clustering input.",
+        0.012,
+        "Predicted clusters are colored categorically and colors are not label-matched across methods; predicted noise is light gray.\n"
+        "High-dimensional datasets are shown by PCA without changing the clustering input.",
         ha="center",
         fontsize=6.5,
     )
@@ -307,6 +353,8 @@ def main() -> None:
     max_delta = max(successful_deltas, default=0.0)
     provenance = {
         "protocol": str(args.protocol.resolve()),
+        "case_ids": [case["id"] for case in cases],
+        "methods": methods,
         "benchmark_results": str(args.benchmark_results.resolve()),
         "n": args.n,
         "seed": args.seed,
@@ -315,7 +363,7 @@ def main() -> None:
         "display_sampling": "deterministic uniform sample used only for plotting",
         "projection": "original coordinates for 2D; deterministic PCA for dimensions > 2",
         "clustering_input": "full native-dimensional dataset",
-        "annotations": "quality and runtime from this full recomputation",
+        "annotations": "pairwise F1 and cluster count from this full recomputation; runtime retained only in the accompanying provenance CSV",
         "frozen_benchmark_comparison": "retained in the accompanying CSV; this figure does not mix frozen metrics with newly recomputed labels",
         "max_absolute_pairwise_f1_delta": max_delta,
         "formats": ["PDF", "SVG", "PNG 600 dpi"],

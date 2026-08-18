@@ -1,0 +1,19 @@
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Method & 1M & 2M & 5M & 2M time (s) \\
+\midrule
+\textbf{StrataSCAN} & 7/7 & 7/7 & 5/7 & 490 \\
+DBSCAN & 6/7 & 3/7 & P* & 58 \\
+HDBSCAN & 0/7 & 0/7 & P* & -- \\
+OPTICS & 0/7 & 0/7 & P* & -- \\
+SNN-DBSCAN & 7/7 & 6/7 & 1/1* & 355 \\
+VDBSCAN & 4/7 & 3/7 & P* & 75 \\
+AMD-DBSCAN & 0/7 & 0/7 & P* & -- \\
+kNN-DBSCAN & 7/7 & 7/7 & 1/1* & 331 \\
+kNN$+$Leiden & 5/7 & 1/7 & M* & 1042 \\
+\bottomrule
+\end{tabular}
+% Entries are successful/recorded jobs. At 5M, * marks a structurally incomplete
+% baseline campaign (usually only the imbalanced family was recorded). M=memory
+% limit; P=skipped after an earlier ladder failure; F=other recorded failure.
+% Runtime is the median over successful cells only and must be read with completion.
