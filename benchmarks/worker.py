@@ -80,6 +80,16 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _array_fingerprint(values: np.ndarray) -> dict[str, Any]:
+    array = np.ascontiguousarray(values)
+    digest = hashlib.sha256(array.view(np.uint8)).hexdigest()
+    return {
+        "sha256": digest,
+        "dtype": array.dtype.str,
+        "shape": list(array.shape),
+    }
+
+
 def atomic_evaluation_state(
     path: Path, dataset: Any, labels: np.ndarray, reference: str
 ) -> dict[str, Any]:
@@ -147,6 +157,10 @@ def execute(
         "peak_rss_mb": float(memory.peak_mb),
         "incremental_rss_mb": float(memory.delta_mb),
         "dataset_metadata": dataset.metadata,
+        "dataset_fingerprint": {
+            "X": _array_fingerprint(dataset.X),
+            "y": _array_fingerprint(dataset.y),
+        },
         "parameters": method.parameters,
         "profile": method.profile,
         "metrics": metrics,

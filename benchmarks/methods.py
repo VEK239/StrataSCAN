@@ -6,8 +6,13 @@ from typing import Any
 import numpy as np
 
 from baselines import dispatch_baseline
+from baselines.dpc_knn import METHOD_ID as DPC_KNN_METHOD_ID, run_dpc_knn_2016
 from stratascan import StrataSCAN
-from stratascan.optimization import GammaMDLConfig, OptimizationStrataSCAN
+from stratascan.optimization import (
+    GammaMDLConfig,
+    OptimizationStrataSCAN,
+    OptimizationStrictCoreConfig,
+)
 from stratascan.predictive import PredictiveMultiscaleStrataSCAN
 from stratascan.experimental import (
     AdaptiveMultiscaleTailStrataSCAN,
@@ -73,6 +78,63 @@ def run_method(method: str, X: np.ndarray, seed: int) -> MethodResult:
                 ),
                 "connectivity": "density_ordered_non_merging_knn_watershed",
                 "border_rule": "strict_local_core_radius",
+            },
+            model.profile_,
+        )
+    if method == DPC_KNN_METHOD_ID:
+        result = run_dpc_knn_2016(X)
+        return MethodResult(
+            result.labels,
+            {
+                "geometry_profile": profile,
+                "knn_backend": "not_used_exact_blockwise_all_pairs",
+                **result.metadata,
+            },
+            result.profile,
+        )
+
+    structural_ablations = {
+        "StrataSCAN-NoDensityStratification": (
+            OptimizationStrictCoreConfig(signal_strata="single_layer"),
+            "density_stratification",
+            "single_non_background_density_layer",
+        ),
+        "StrataSCAN-FixedCoreScale": (
+            OptimizationStrictCoreConfig(core_threshold_rule="fixed_quantile"),
+            "stratum_specific_event_sweep",
+            "predeclared_fixed_q95_core_scale",
+        ),
+        "StrataSCAN-NoBackgroundRecovery": (
+            OptimizationStrictCoreConfig(background_recovery=False),
+            "adaptive_initial_background_recovery",
+            "initial_background_remains_background",
+        ),
+    }
+    if method in structural_ablations:
+        optimization_config, ablated_component, replacement = structural_ablations[method]
+        model = OptimizationStrataSCAN(
+            backend=backend,
+            n_jobs=1,
+            ambient_dimension=float(X.shape[1]),
+            optimization_config=optimization_config,
+        )
+        labels = model.fit_predict(X)
+        return MethodResult(
+            labels,
+            {
+                "version": "0.2.4-structural-ablation-v1",
+                "geometry_profile": profile,
+                "knn_backend": backend,
+                "ablation_of": ablated_component,
+                "replacement": replacement,
+                "optimization_config": {
+                    "signal_strata": optimization_config.signal_strata,
+                    "core_threshold_rule": optimization_config.core_threshold_rule,
+                    "fixed_core_quantile": optimization_config.fixed_core_quantile,
+                    "background_recovery": optimization_config.background_recovery,
+                    "core_rank": optimization_config.core_rank,
+                    "connectivity_rank": optimization_config.connectivity_rank,
+                },
             },
             model.profile_,
         )

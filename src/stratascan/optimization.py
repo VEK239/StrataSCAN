@@ -94,6 +94,10 @@ class OptimizationStrictCoreConfig:
 
     core_rank: int = 4
     connectivity_rank: int = 4
+    signal_strata: Literal["gamma", "single_layer"] = "gamma"
+    core_threshold_rule: Literal["event_sweep", "fixed_quantile"] = "event_sweep"
+    fixed_core_quantile: float = 0.95
+    background_recovery: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -1800,6 +1804,12 @@ def _validate_config(graph: KNNGraph, config: OptimizationStrictCoreConfig) -> N
             "optimization needs a disjoint connectivity-sized edge window "
             "for topology evidence"
         )
+    if config.signal_strata not in {"gamma", "single_layer"}:
+        raise ValueError("unknown signal_strata mode")
+    if config.core_threshold_rule not in {"event_sweep", "fixed_quantile"}:
+        raise ValueError("unknown core_threshold_rule")
+    if not 0.0 < config.fixed_core_quantile <= 1.0:
+        raise ValueError("fixed_core_quantile must lie in (0, 1]")
 
 
 def _signal_log_odds(background_probability: np.ndarray) -> np.ndarray:
@@ -2343,6 +2353,14 @@ def optimize_strict_core_from_graph(
             continue
         is_background = background_group is not None and group == background_group
         if is_background:
+            if not cfg.background_recovery:
+                ordering_modes.append("disabled_initial_background_fixed")
+                threshold_sizes.append(0)
+                thresholds.append(0.0)
+                group_gains.append(0.0)
+                selected_components.append(0)
+                boundary_component_gains.append([])
+                continue
             ordering_modes.append("adaptive_d4_rank_windows_with_beta_boundary_code")
             background_core, _, background_scan_profile = (
                 _adaptive_background_core(
@@ -2376,19 +2394,27 @@ def optimize_strict_core_from_graph(
         group_unary_gain = unary_gain
         order = np.argsort(ordering_score[rows], kind="stable")
         ordered_rows = rows[order]
-        event_steps, event_left, event_right = _stratum_events(
-            graph, rows, order, cfg.connectivity_rank
-        )
         reference_size = graph.n_samples
-        best_size, best_gain = _best_threshold_event_sweep(
-            group_unary_gain[ordered_rows],
-            ordering_score[ordered_rows],
-            event_steps,
-            event_left,
-            event_right,
-            reference_size,
-            cfg.connectivity_rank,
-        )
+        if cfg.core_threshold_rule == "event_sweep":
+            event_steps, event_left, event_right = _stratum_events(
+                graph, rows, order, cfg.connectivity_rank
+            )
+            best_size, best_gain = _best_threshold_event_sweep(
+                group_unary_gain[ordered_rows],
+                ordering_score[ordered_rows],
+                event_steps,
+                event_left,
+                event_right,
+                reference_size,
+                cfg.connectivity_rank,
+            )
+        else:
+            threshold = float(
+                np.quantile(ordering_score[rows], cfg.fixed_core_quantile)
+            )
+            best_size = int(np.sum(ordering_score[ordered_rows] <= threshold))
+            best_gain = float("nan")
+            ordering_modes[-1] = f"d4_fixed_q{cfg.fixed_core_quantile:g}"
         threshold_sizes.append(int(best_size))
         group_gains.append(float(best_gain))
         if best_size == 0:
@@ -2423,7 +2449,10 @@ def optimize_strict_core_from_graph(
         graph, core, core_radius, groups
     )
     border_started = perf_counter()
-    border = np.flatnonzero(~core).astype(np.int64)
+    border_candidates = ~core
+    if not cfg.background_recovery and background_group is not None:
+        border_candidates &= groups != background_group
+    border = np.flatnonzero(border_candidates).astype(np.int64)
     attached = np.zeros(graph.n_samples, dtype=bool)
     attachment_gain = np.zeros(graph.n_samples, dtype=np.float64)
     border_model = "no_core_components"
@@ -2472,6 +2501,10 @@ def optimize_strict_core_from_graph(
             "optimization_description_gain_nats": total_gain,
             "optimization_core_rank": int(cfg.core_rank),
             "optimization_connectivity_rank": int(cfg.connectivity_rank),
+            "optimization_signal_strata": cfg.signal_strata,
+            "optimization_core_threshold_rule": cfg.core_threshold_rule,
+            "optimization_fixed_core_quantile": float(cfg.fixed_core_quantile),
+            "optimization_background_recovery": bool(cfg.background_recovery),
             "optimization_candidate_groups": reported_groups,
             "optimization_selected_groups": selected_groups,
             "optimization_group_sizes": group_sizes,
@@ -2540,6 +2573,45 @@ class OptimizationStrataSCAN(GraphStrataSCAN):
             ambient_dimension=float(dimension),
             config=self.gamma_config,
         )
+        if self.optimization_config.signal_strata == "single_layer":
+            background_value = stratification.diagnostics.get(
+                "mdl_gamma_background_group"
+            )
+            background_group = (
+                int(background_value) if background_value is not None else None
+            )
+            original_groups = np.asarray(stratification.groups, dtype=np.int32)
+            if background_group is None:
+                remapped_groups = np.zeros(graph.n_samples, dtype=np.int32)
+                supported_groups = np.array([0], dtype=np.int32)
+                selected_components = 1
+                remapped_background_group = None
+            else:
+                remapped_groups = np.where(
+                    original_groups == background_group, 1, 0
+                ).astype(np.int32)
+                supported_groups = np.array([0], dtype=np.int32)
+                selected_components = 2
+                remapped_background_group = 1
+            diagnostics = {
+                **stratification.diagnostics,
+                "ablation_signal_strata": "single_non_background_layer",
+                "ablation_original_signal_group_count": int(
+                    np.unique(
+                        original_groups
+                        if background_group is None
+                        else original_groups[original_groups != background_group]
+                    ).size
+                ),
+                "mdl_gamma_background_group": remapped_background_group,
+            }
+            stratification = replace(
+                stratification,
+                groups=remapped_groups,
+                supported_groups=supported_groups,
+                selected_components=selected_components,
+                diagnostics=diagnostics,
+            )
         result = optimize_strict_core_from_graph(
             graph,
             stratification,
