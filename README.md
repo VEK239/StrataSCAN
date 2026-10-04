@@ -1,46 +1,24 @@
 # StrataSCAN
 
-**Adaptive Density-Stratified Clustering on Sparse kNN Graphs**
+![StrataSCAN: neighbourhood shells, density strata, and adaptive cluster extraction](assets/method_overview.png)
 
-**Accepted at [OEDM 2026](https://fan-meng.github.io/ICDM-Workshop/OEDM-26/index.html), the Workshop on Optimization Based Techniques for Emerging Data Mining Problems at IEEE ICDM 2026.**
+**Adaptive density-stratified clustering on sparse kNN graphs.** Finds clusters at different densities and rejects background, without a global radius or a requested cluster count.
 
-StrataSCAN finds supported groups at different local densities and leaves unsupported observations unassigned. It chooses local core scales automatically on one sparse nearest-neighbour graph, without requiring a global DBSCAN radius or a requested number of clusters.
+**Accepted at [OEDM 2026](https://fan-meng.github.io/ICDM-Workshop/OEDM-26/index.html), a workshop at IEEE ICDM 2026.**
 
-This README follows the current article and camera-ready method explanation. The branch provides the **0.2.4 implementation**, existing experiment protocols, and curated measurements under the [MIT license](LICENSE). The executable protocols and stored results cover every experiment in the current article, including DPC-kNN and the stratification ablation.
-
-This repository is also an **installable Python collection of clustering methods**: StrataSCAN, DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, AMD-DBSCAN, kNN-DBSCAN, kNN+Leiden, X-shift, and the automatic DPC-kNN hybrid. The comparator implementations can be used independently through `stratascan.baselines`; you do not need to run the article experiments.
-
-**Start here:** [method catalog](#method-catalog) · [installation](#install) · [Python examples](#quick-start) · [experiment protocols](benchmarks/README.md) · [recorded results](results/README.md) · [citation](#citation) · [agent guide](AGENTS.md).
-
-## Why density stratification?
-
-A dataset can contain compact populations, diffuse populations, and a much larger background. One neighbourhood radius is a difficult compromise: a small radius can break a diffuse group, while a large one can connect groups through background. **A sparse population is not automatically noise.**
-
-StrataSCAN first asks how a point's neighbourhood changes as it expands. Similar neighbourhood profiles define density strata. A stratum is still not a cluster: spatially separate groups can have similar density, so connectivity and evidence for a supported core are checked separately. The initial background is also searched for locally supported structure.
-
-![Method illustration from the current article: neighbourhood shells, Gamma density strata, and adaptive core radii](assets/method_overview.png)
+[PyPI](https://pypi.org/project/stratascan/) · [Install](#install) · [Quick start](#quick-start) · [Methods](#method-catalog) · [Experiments](#article-experiments) · [Citation](#citation) · [MIT license](LICENSE)
 
 ## Install
 
-Use **Python 3.11 or newer**. Install the [published package from PyPI](https://pypi.org/project/stratascan/):
+Python **3.11+**:
 
 ```bash
-python -m pip install stratascan
+pip install stratascan
 ```
 
-For optional graph and Leiden comparator dependencies:
-
-```bash
-python -m pip install "stratascan[baselines]"
-```
-
-For optional FAISS neighbour search only, use `python -m pip install "stratascan[perf]"`. FAISS availability depends on your platform; the core installation also works without it. To use the exact article software release, pin `stratascan==0.2.4` (or `"stratascan[baselines]==0.2.4"` with comparator dependencies).
-
-The PyPI package includes the library and comparator implementations. To run article protocols or contribute to development, clone the repository and follow [benchmark instructions](benchmarks/README.md) or [development instructions](#development).
+Optional dependencies: `pip install "stratascan[perf]"` for FAISS neighbour search, or `pip install "stratascan[baselines]"` for FAISS and Leiden comparators. Pin `stratascan==0.2.4` to use the article software release.
 
 ## Quick start
-
-This self-contained example uses the same input construction as the existing public API test:
 
 ```python
 import numpy as np
@@ -54,44 +32,48 @@ X = np.vstack([
 ]).astype(np.float32)
 
 model = StrataSCAN(backend="brute").fit(X)
-labels = model.labels_
+labels = model.labels_  # -1: noise; 0, 1, ...: clusters
 print(model.n_clusters_)
-print("Rejected points:", np.count_nonzero(labels == -1))
 ```
 
-`X` is a finite numeric array with shape `(n_samples, n_features)`, at least one feature, and **more than 32 rows** with the default `k=32`. Distances are Euclidean. Choose feature scaling appropriate to your data before fitting; the estimator does not automatically normalize features.
+Pass a finite numeric array `(n_samples, n_features)` with more than 32 observations under the default `k=32`. Scale features before fitting; distances are Euclidean. `fit_predict(X)` returns labels directly.
 
-Labels `0, 1, ...` identify clusters; **`-1` means noise / abstention**. Cluster numbers have no ordering or identity across separate fits. `fit_predict(X)` directly returns the labels. Fitted attributes include `labels_`, `n_clusters_`, `core_sample_indices_`, `stratification_`, and `profile_`. `StrataSCAN` is an alias of `OptimizationStrataSCAN`. The API fits the supplied observations; it does not provide an out-of-sample `predict` method.
+## How it works
+
+1. **Build one kNN graph.** Neighbourhood shells at ranks 4, 8, 16 and 32 capture local density at several scales.
+2. **Separate density strata.** A Gamma mixture groups similar neighbourhood profiles; semantic ICL selects its order.
+3. **Extract supported cores.** Within each stratum, select a local radius using density and connectivity evidence minus description cost. Search the initial background for additional supported groups.
+4. **Grow from dense to sparse.** Extend existing clusters without merging them; attach border points within selected core radii and leave the remainder unassigned.
+
+[Implementation](src/stratascan/optimization.py) · [Default settings](benchmarks/protocols/release_defaults.json)
+
+<details>
+<summary>Algorithm settings and execution</summary>
+
+The Gamma search starts at up to eight bases and expands by four to a bound of 24. A largest-log-rate-gap split selects candidate strata and initial background. Core extraction sweeps fourth-neighbour distances, handling ties together; slots 1–4 construct components and slots 5–8 score connectivity. Components need positive description gain. Background recovery compares candidate groups with background windows and their local surroundings, then repeats after removing accepted groups. The criterion is MDL-inspired; it is not a calibrated significance test or a global optimization guarantee.
+
+`backend="auto"` selects KD-tree for up to two features, FAISS HNSW in higher dimensions if installed, and brute-force otherwise. HNSW is approximate; backend choice can change results. Brute-force is suitable for the small example above and can be expensive on large data. The first fit includes Numba compilation; `n_jobs=1` is the default.
+
+Fitted attributes include `labels_`, `n_clusters_`, `core_sample_indices_`, `stratification_` and `profile_`. `StrataSCAN` aliases `OptimizationStrataSCAN`; configuration classes are `GammaMDLConfig` and `OptimizationStrictCoreConfig`. For `fit_from_graph`, pass `ambient_dimension=X.shape[1]`. There is no out-of-sample `predict`. The inherited `profile_["algorithm_version"]` value `0.2.3` identifies the algorithm family, not the package version.
+
+Density overlap, the mixture search bound and available memory can limit extraction. Background recovery does not guarantee a false-discovery rate.
+
+</details>
 
 ## Method catalog
 
-The table names the implementations actually shipped in this package. The common comparator call is `dispatch_baseline(method, X, profile, seed=42)` from `stratascan.baselines`. DPC-kNN has the separate direct function shown below. The fixed comparator profiles are the existing label-free benchmark settings.
+The package also ships independently usable clustering implementations and adapters.
 
-| Method / searchable name | Python entry point or dispatch ID | Implementation |
-| --- | --- | --- |
-| StrataSCAN; density-stratified clustering | `stratascan.StrataSCAN` | Article estimator; adaptive Gamma strata and sparse kNN graph extraction |
-| DBSCAN; Density-Based Spatial Clustering of Applications with Noise | `"DBSCAN"` | scikit-learn adapter with the retained automatic radius profile |
-| HDBSCAN; hierarchical density-based clustering | `"HDBSCAN"` | scikit-learn adapter with the retained profile |
-| OPTICS; Ordering Points To Identify the Clustering Structure | `"OPTICS"` | scikit-learn adapter with the retained profile |
-| SNN-DBSCAN; shared nearest-neighbor clustering | `"SNN-DBSCAN"` | Controlled shared-neighbor implementation with a Numba kernel |
-| VDBSCAN; variable-density DBSCAN | `"VDBSCAN-2007"` | Controlled multiple-radius sequential implementation |
-| AMD-DBSCAN; adaptive multi-density DBSCAN | `"AMD-DBSCAN"` | Dense compatibility implementation; materializes pairwise distances |
-| kNN-DBSCAN; nearest-neighbor DBSCAN | `"kNN-DBSCAN"` | Controlled graph-based implementation |
-| kNN plus Leiden; graph community detection | `"kNN+Leiden"` | kNN graph construction with igraph/leidenalg community detection |
-| X-shift; density-peak cytometry clustering | `"X-shift"` | Controlled Python port using angular geometry; additional to the article matrix |
-| DPC-kNN; density peaks clustering with k-nearest neighbors | `stratascan.baselines.run_dpc_knn_2016` | Exact blockwise 2016 core with the 2020 automatic gap-based centre selector; hybrid ID `DPC-kNN-2016+GB-auto-p2pct` |
-
-Source: [common comparators](src/stratascan/baselines/algorithms.py), [DPC-kNN](src/stratascan/baselines/dpc_knn.py), [StrataSCAN estimator](src/stratascan/optimization.py). These ports and adapters are not described as the original authors' software. Returned metadata records the settings; the implementation boundaries matter when comparing results or citing methods.
-
-## Use the comparator methods
-
-The installed package also includes the comparator implementations in `stratascan.baselines`. For all optional graph and Leiden dependencies, install:
-
-```bash
-python -m pip install "stratascan[baselines]"
-```
-
-Call a comparator directly on a finite numeric array:
+| Method / dispatch ID | Implementation |
+| --- | --- |
+| `DBSCAN`, `HDBSCAN`, `OPTICS` | scikit-learn adapters with automatic benchmark profiles |
+| `SNN-DBSCAN` | Shared nearest-neighbour clustering with a Numba kernel |
+| `VDBSCAN-2007` | Variable-density DBSCAN with multiple radii |
+| `AMD-DBSCAN` | Adaptive multi-density DBSCAN; stores pairwise distances |
+| `kNN-DBSCAN` | Graph-based nearest-neighbour DBSCAN |
+| `kNN+Leiden` | kNN graph with igraph/leidenalg communities |
+| `X-shift` | Python port using angular geometry; outside the article comparison |
+| DPC-kNN | 2016 density-peaks core + 2020 automatic centre selector; fixed `p=0.02` |
 
 ```python
 from stratascan.baselines import dispatch_baseline, run_dpc_knn_2016
@@ -99,120 +81,54 @@ from stratascan.baselines import dispatch_baseline, run_dpc_knn_2016
 profile = "low_dim" if X.shape[1] <= 2 else "high_dim"
 result = dispatch_baseline("DBSCAN", X, profile, seed=42)
 labels = result.labels
-print(result.metadata)
+settings = result.metadata
 
-# Automatic DPC-kNN hybrid: no manual centre selection or true cluster count.
-dpc = run_dpc_knn_2016(X)
-print(dpc.labels)
+dpc = run_dpc_knn_2016(X)  # automatic centres; assigns every point
 ```
 
-`dispatch_baseline` supports `DBSCAN`, `HDBSCAN`, `OPTICS`, `SNN-DBSCAN`, `VDBSCAN-2007`, `AMD-DBSCAN`, `kNN-DBSCAN`, `kNN+Leiden`, and `X-shift`. The profiles select the existing frozen settings; graph construction uses exact KD-tree in low dimensions and FAISS HNSW in high dimensions, with X-shift's angular geometry handled internally. Scaling features is the caller's responsibility. Some methods can emit noise label `-1`; DPC-kNN assigns every point to a cluster. DPC computes exact blockwise pairwise distances, so large inputs can be expensive even though it avoids storing the full distance matrix.
+These are controlled ports and adapters with fixed label-free profiles. The graph comparators use KD-tree in low dimensions and FAISS HNSW in high dimensions. DPC-kNN uses exact blockwise pairwise distances and has no noise label. See [comparator sources](src/stratascan/baselines/) for implementation details.
 
-These are controlled reference implementations and library adapters; their metadata identifies the implementation and settings. DPC-kNN combines the 2016 core with the 2020 automatic centre selector. They can be used independently of the benchmark runner. X-shift is included for users but is outside the current article comparison.
+## Article experiments
 
-## How the algorithm works
-
-1. **Look at several neighbourhood sizes.** Build one graph with 32 neighbours per observation. Distances at ranks 4, 8, 16, and 32 describe both the immediate surroundings and what happens farther away.
-2. **Measure what each expansion adds.** Shell volumes between successive radii express how much extra space is needed to reach the next neighbours. A local homogeneous-Poisson model motivates Gamma distributions for those volumes.
-3. **Identify density strata.** Fit a Gamma mixture to the multiscale profiles and select its order with semantic ICL. The deterministic search starts at up to eight bases and expands by four to a bound of 24. A largest-log-rate-gap split identifies candidate strata and an initial lower-density background group. This split is a modelling heuristic, not a unique physical boundary.
-4. **Select a supported core scale within each stratum.** Sweep observed fourth-neighbour-distance events. Neighbour slots 1–4 construct candidate components; slots 5–8 score their internal connectivity separately. Exact distance ties are evaluated together.
-5. **Retain components with positive description gain.** Combine evidence that points belong to signal, evidence of internal connectivity, and a cost for describing the selected structure.
-6. **Give the initial background a second chance.** Check whether a connected group is unusual among comparable background windows and whether it has local density contrast with its surroundings. Retain it only when the combined evidence exceeds its description cost; remove accepted components and repeat.
-7. **Grow clusters from denser to sparser strata.** Earlier cluster identities are preserved. Lower-density growth can extend them but cannot merge them. A border point attaches through a labelled neighbour only within that neighbour's selected core radius; otherwise it remains unassigned.
-
-The central idea is:
-
-$$
-\mathrm{gain}=\mathrm{density\ evidence}+\mathrm{connectivity\ evidence}-\mathrm{description\ cost}.
-$$
-
-All terms use natural logarithms and are expressed in nats. **`gain > 0` means the evidence exceeds the specified cost.** It is an MDL-inspired composite criterion, not a calibrated significance test. The complete algorithm makes decisions in stages; it does not claim a global optimum of one joint objective.
-
-The [release defaults](benchmarks/protocols/release_defaults.json) record the implemented settings. `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the modelling and extraction stages. The public API exposes the article estimator and its current configuration classes.
-
-## Performance and reproducibility
-
-`backend="auto"` uses exact KD-tree search for up to two features, FAISS HNSW for higher dimensions when FAISS is installed, and exact brute-force search otherwise. Optional dependencies therefore change the neighbour graph selected by `auto`. Choose an explicit backend when comparing runs; the example uses `brute` for a small exact calculation. HNSW is approximate, and brute-force search can be expensive for large inputs. `n_jobs=1` is the default.
-
-The first fit can include Numba compilation time. Timings depend on hardware, package versions, neighbour backend, and warm-up. Record these when making comparisons. If reusing a graph with `fit_from_graph`, pass the feature dimension explicitly as `ambient_dimension=X.shape[1]`.
-
-The package version is **0.2.4**. The inherited `profile_["algorithm_version"]` field still reports the **0.2.3 family identifier**; it is not a package-version check. This metadata is preserved with the article implementation.
-
-## Results in the current article
-
-### Heterogeneous synthetic structure
-
-The main panel evaluates seven synthetic families at **20,000 observations with three seeds per family**: 21 cells per method. StrataSCAN completes all 21 and obtains mean Hungarian-matched target F1 **0.828** and discovery rate **0.827**. It has the highest mean target F1 among methods completing the full panel under the same resource limits; the best method varies by family.
-
-**AMD-DBSCAN is included in the comparison.** Its mean target F1 is **0.843 over its 12 successful cells out of 21**. That conditional mean covers a different subset and cannot be ranked directly against a complete-panel mean. Failed runs remain in completion denominators and are not replaced with artificial F1 values.
-
-![Current article synthetic panel: target F1 and discovery across seven families](assets/synthetic_validation.png)
-
-Targets are matched one-to-one with predicted clusters by Hungarian assignment; unmatched targets receive zero. Target discovery requires purity at least **0.90** and coverage at least **0.10**. The [evaluation contract](benchmarks/evaluation_protocol.v1.json) defines the exact scoring rules.
-
-### Density contrast and rare targets
-
-The density-contrast experiment tests six equal-mass targets under 16–256-fold contrasts in 2D/8D and isotropic/anisotropic settings. All **36 StrataSCAN runs** finish; median target F1 spans **0.829–0.929**. This is a StrataSCAN capability test, not an all-method superiority test.
-
-A separate experiment keeps three dense 100-point targets fixed while low-density background increases from **25% to 99%**. StrataSCAN discovers all three targets in every run. At 99% background, median target F1 is **0.979** and true-background F1 is approximately **1.000**. Finding targets and rejecting the unsupported remainder are separate requirements.
-
-![Current article density-contrast and rare-target background experiments](assets/density_and_noise.png)
-
-### Million-point execution
-
-On the **16-D ultra-sparse family with 95% background**, the focused comparison uses one CPU and a **15-hour timeout**. At five million observations:
-
-| Method | Recorded runtime |
-| --- | ---: |
-| StrataSCAN | 22.83 min |
-| kNN-DBSCAN | 20.14 min |
-| SNN-DBSCAN | 21.31 min |
-| DBSCAN | 11.95 h |
-| HDBSCAN, OPTICS, VDBSCAN-2007, kNN+Leiden | >15 h; right-censored |
-
-![Current article runtime comparison on the 16-D ultra-sparse family](assets/ultrasparse_scaling.png)
-
-These are descriptive measurements for this family and resource budget. They do not establish that StrataSCAN is universally fastest. StrataSCAN also completes all seven synthetic families through five million observations. The family-wide runs and the focused comparison have separate recorded resource budgets.
-
-### Three independent cytometry benchmarks
-
-The main biological comparison now uses **Levine, Mosmann, and Nilsson**. Marker panels undergo benchmark-specific arcsinh transformation and robust scaling; Mosmann uses seven type and seven state markers.
-
-| Dataset | StrataSCAN target F1 |
-| --- | ---: |
-| Levine | 0.190 |
-| Mosmann | 0.565 |
-| Nilsson | 0.517 |
-| Median across the three datasets | **0.517** |
-
-StrataSCAN obtains the highest target F1 among completed runs on each of these three datasets in the evaluated generic-method comparison. Broader claims about biological clustering require broader evidence. Reference-negative events are not necessarily physical noise; agreement with abstention is a diagnostic.
-
-### Additional comparison and ablation
-
-The article also evaluates **DPC-kNN with automatic gap-based centre selection**, fixed `p=0.02`, no true cluster count, and no manual decision graph. Its canonical assignment has no noise label. The single stratification ablation processes all non-background observations as one density layer: mean target F1 changes from **0.828 to 0.735**, and discovery from **0.827 to 0.687**. It tests stratification within the complete pipeline; it does not isolate every stage's contribution.
-
-DPC-kNN obtains mean target F1 **0.116** and discovery **0.071**, completing 21/21 main-panel cells. Its existing implementation is in `src/stratascan/baselines/dpc_knn.py`; the ablation uses the existing `signal_strata="single_layer"` option. Both come from the experimental source branch, with their recorded results and runnable protocols included here. See [benchmark instructions](benchmarks/README.md) and [recorded evidence](results/README.md) for the included material.
-
-## Limits
-
-Global background burden differs from local target–background density overlap. Density overlap can defeat the initial semantic split, the component search can reach its bound, and execution can exceed available memory. Approximate neighbour graphs can change results. Background-recovery scores do not provide a guaranteed false-discovery rate. The core-scale search is exact only within its conditional candidate space.
-
-## Repository map
-
-| Path | Contents |
+| Experiment | Recorded result for StrataSCAN |
 | --- | --- |
-| `src/stratascan/` | Article estimator, Gamma fitting, density profiles, graph utilities, and metrics |
-| `src/stratascan/baselines/` | Existing controlled comparator implementations |
-| `benchmarks/` | Data loaders, evaluator, runner, and named experiment protocols |
-| `results/` | Curated measurements, summaries, and checksums |
-| `assets/` | Figures rendered from the final article figures |
-| `tests/` | Existing algorithm, neighbour, baseline, and evaluation tests |
+| Seven synthetic families, 20,000 points, three seeds | Target F1 **0.828**, discovery **0.827**; completed 21/21 |
+| Density contrast, 16–256-fold | Median target F1 **0.829–0.929** across 12 scenarios; completed 36/36 |
+| Rare dense targets, up to 99% background | All three targets discovered in every run; median F1 **0.979** at 99% |
+| Seven-family scaling | Completed all families through **5 million** points |
+| Focused 16-D scaling, 95% background | **22.83 min** at 5 million points, one CPU; comparison timeout 15 h |
+| Levine / Mosmann / Nilsson cytometry | Target F1 **0.190 / 0.565 / 0.517** |
+| Single-density-layer ablation | Target F1 **0.828 → 0.735**; discovery **0.827 → 0.687** |
 
-Synthetic data are generated by the existing loaders. Primary biological data are external; see [data preparation](benchmarks/README.md#external-data). There is one source tree: reproduction uses the same code and protocols, without a duplicate snapshot directory.
+The synthetic comparison includes ten methods, including DPC-kNN. Scores use Hungarian target matching; discovery requires purity ≥0.90 and coverage ≥0.10. Read completion counts alongside quality: AMD-DBSCAN's F1 **0.843** covers 12/21 successful cells, while StrataSCAN's **0.828** covers all 21. Timings apply to the recorded datasets and resource budgets.
+
+[Results and scoring](results/README.md) · [Reproduction instructions](benchmarks/README.md) · [Evaluation contract](benchmarks/evaluation_protocol.v1.json)
+
+<details>
+<summary>Article result figures</summary>
+
+![Target F1 and discovery across seven synthetic families](assets/synthetic_validation.png)
+
+![Density contrast and rare targets amid background](assets/density_and_noise.png)
+
+![Runtime comparison on the 16-D ultra-sparse family](assets/ultrasparse_scaling.png)
+
+</details>
+
+To run protocols, clone the repository and install its experiment dependencies:
+
+```bash
+git clone https://github.com/VEK239/StrataSCAN.git
+cd StrataSCAN
+python -m pip install -e ".[benchmark,perf]"
+python -m benchmarks.run_benchmark --protocol benchmarks/protocols/synthetic_quality.json --suite synthetic --list-jobs
+```
+
+Synthetic inputs are generated locally. Cytometry requires [external data preparation](benchmarks/README.md#external-data). The PyPI package contains the library; the checkout contains protocols, results and figures.
 
 ## Citation
 
-If you use this implementation or its recorded experimental evidence, cite the software using [CITATION.cff](CITATION.cff) and record the exact Git commit you used (`git rev-parse HEAD`). The current software attribution is **StrataSCAN contributors**, matching the package metadata. The associated paper, *StrataSCAN: Adaptive Density-Stratified Clustering on Sparse kNN Graphs*, has been accepted at [OEDM 2026](https://fan-meng.github.io/ICDM-Workshop/OEDM-26/index.html), a workshop at IEEE ICDM 2026. Article citation details will be added when available.
+Article citation details will be added when available. For the software, use [CITATION.cff](CITATION.cff):
 
 ```bibtex
 @software{stratascan_software,
@@ -224,19 +140,11 @@ If you use this implementation or its recorded experimental evidence, cite the s
 }
 ```
 
-When using a comparator, cite its original methodological publication as well and describe the implementation used here. In particular, DPC-kNN is an automatic hybrid, and X-shift is a controlled port. Software citation identifies the code used; it does not replace credit for the original methods.
+Record the package version or source commit used. When using comparators, also cite their original methodological publications and identify the implementation used here.
 
 ## Development
 
-Clone the source and create a virtual environment:
-
-```bash
-git clone https://github.com/VEK239/StrataSCAN.git
-cd StrataSCAN
-python -m venv .venv
-```
-
-Activate it with `.venv\Scripts\Activate.ps1` on Windows PowerShell, or `source .venv/bin/activate` on Linux/macOS. Then install the editable source and development tools:
+From the checkout, preferably in a virtual environment:
 
 ```bash
 python -m pip install -e ".[dev,benchmark]"
@@ -244,4 +152,4 @@ python -m pytest
 python -m build
 ```
 
-The optional `[perf]` extra enables tests and experiments that use FAISS. The figures belong to the article experiment evidence; the manuscript itself is not distributed in this branch.
+[src/stratascan/](src/stratascan/) — library · [benchmarks/](benchmarks/) — protocols and runner · [results/](results/) — measurements · [tests/](tests/) — tests · [AGENTS.md](AGENTS.md) — guide for coding and research agents
