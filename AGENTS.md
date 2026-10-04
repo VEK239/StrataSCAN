@@ -13,7 +13,7 @@ This repository provides an installable Python clustering library plus executabl
 
 ## Install and use
 
-Use Python >=3.11. From the checkout root, install `python -m pip install -e .` for the estimator and core comparators. Install `python -m pip install -e ".[baselines]"` for optional graph/Leiden comparator dependencies. Article runs need `python -m pip install -e ".[benchmark,perf]"`; test/build tools use `[dev]`.
+Use Python >=3.11. Users can install the published library with `python -m pip install stratascan`, or `python -m pip install "stratascan[baselines]"` for optional comparator dependencies. Pin `==0.2.4` for the article software release. For development, from the checkout root, install `python -m pip install -e .` for the estimator and core comparators. Install `python -m pip install -e ".[baselines]"` for optional graph/Leiden comparator dependencies. Article runs need `python -m pip install -e ".[benchmark,perf]"`; test/build tools use `[dev]`.
 
 `dispatch_baseline` accepts DBSCAN, HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN-2007, AMD-DBSCAN, kNN-DBSCAN, kNN+Leiden and X-shift. Pass `profile="low_dim"` for <=2 features or `"high_dim"` otherwise. Results expose `.labels` and `.metadata`. DPC-kNN uses its separate function, fixed p=0.02 and automatic centre selection; it assigns all points and has no noise label. StrataSCAN exposes `.labels_` and `.profile_`, with -1 for rejected observations. It has no out-of-sample predict method. Scale features before fitting.
 

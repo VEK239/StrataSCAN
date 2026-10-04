@@ -20,21 +20,21 @@ StrataSCAN first asks how a point's neighbourhood changes as it expands. Similar
 
 ## Install
 
-Use **Python 3.11 or newer**. From a terminal:
+Use **Python 3.11 or newer**. Install the [published package from PyPI](https://pypi.org/project/stratascan/):
 
 ```bash
-git clone --branch main --single-branch https://github.com/VEK239/StrataSCAN.git
-cd StrataSCAN
-python -m venv .venv
+python -m pip install stratascan
 ```
 
-Activate the environment with `.venv\Scripts\Activate.ps1` on Windows PowerShell, or `source .venv/bin/activate` on Linux/macOS. Then:
+For optional graph and Leiden comparator dependencies:
 
 ```bash
-python -m pip install -e .
+python -m pip install "stratascan[baselines]"
 ```
 
-For optional FAISS neighbour search, install `python -m pip install -e ".[perf]"`. FAISS availability depends on your platform. The core installation also works without it. This branch is installed from source; the instructions do not require a PyPI release.
+For optional FAISS neighbour search only, use `python -m pip install "stratascan[perf]"`. FAISS availability depends on your platform; the core installation also works without it. To use the exact article software release, pin `stratascan==0.2.4` (or `"stratascan[baselines]==0.2.4"` with comparator dependencies).
+
+The PyPI package includes the library and comparator implementations. To run article protocols or contribute to development, clone the repository and follow [benchmark instructions](benchmarks/README.md) or [development instructions](#development).
 
 ## Quick start
 
@@ -86,7 +86,7 @@ Source: [common comparators](src/stratascan/baselines/algorithms.py), [DPC-kNN](
 The installed package also includes the comparator implementations in `stratascan.baselines`. For all optional graph and Leiden dependencies, install:
 
 ```bash
-python -m pip install -e ".[baselines]"
+python -m pip install "stratascan[baselines]"
 ```
 
 Call a comparator directly on a finite numeric array:
@@ -225,6 +225,16 @@ If you use this implementation or its recorded experimental evidence, cite the s
 When using a comparator, cite its original methodological publication as well and describe the implementation used here. In particular, DPC-kNN is an automatic hybrid, and X-shift is a controlled port. Software citation identifies the code used; it does not replace credit for the original methods.
 
 ## Development
+
+Clone the source and create a virtual environment:
+
+```bash
+git clone https://github.com/VEK239/StrataSCAN.git
+cd StrataSCAN
+python -m venv .venv
+```
+
+Activate it with `.venv\Scripts\Activate.ps1` on Windows PowerShell, or `source .venv/bin/activate` on Linux/macOS. Then install the editable source and development tools:
 
 ```bash
 python -m pip install -e ".[dev,benchmark]"
