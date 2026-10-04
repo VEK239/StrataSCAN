@@ -217,7 +217,8 @@ If you use this implementation or its recorded experimental evidence, cite the s
   author = {{StrataSCAN contributors}},
   title = {StrataSCAN: Adaptive Density-Stratified Clustering and Reference Baselines},
   version = {0.2.4},
-  url = {https://github.com/VEK239/StrataSCAN/tree/main}
+  year = {2026},
+  url = {https://github.com/VEK239/StrataSCAN/tree/v0.2.4}
 }
 ```
 

@@ -5,9 +5,10 @@ title: "StrataSCAN: Adaptive Density-Stratified Clustering and Reference Baselin
 authors:
   - name: "StrataSCAN contributors"
 version: "0.2.4"
+date-released: "2026-10-04"
 license: MIT
 repository-code: "https://github.com/VEK239/StrataSCAN"
-url: "https://github.com/VEK239/StrataSCAN/tree/main"
+url: "https://github.com/VEK239/StrataSCAN/tree/v0.2.4"
 abstract: >-
   Installable Python implementations and adapters for StrataSCAN, DBSCAN,
   HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN, AMD-DBSCAN, kNN-DBSCAN,
