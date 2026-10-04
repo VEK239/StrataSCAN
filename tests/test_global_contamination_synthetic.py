@@ -10,7 +10,7 @@ from benchmarks.run_benchmark import expand_jobs, read_evaluation_protocol, read
 
 
 REPO = Path(__file__).resolve().parents[1]
-PROTOCOL = REPO / "benchmarks" / "protocol.v0.2.4-target-discovery-v1-global-contamination.json"
+PROTOCOL = REPO / "benchmarks" / "protocols/global_contamination.json"
 EVALUATION = REPO / "benchmarks" / "evaluation_protocol.v1.json"
 
 

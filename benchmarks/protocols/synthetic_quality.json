@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-target-discovery-v1-synthetic",
+  "purpose": "matched_size_development_and_fresh_seed_evaluation_under_frozen_target_discovery_v1_metrics",
+  "parameter_mode": "v0.2.4_correctness_patch_and_frozen_external_method_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1200,
+    "memory_limit_mb": 8192
+  },
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "AMD-DBSCAN",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "stochastic_methods": [
+    "StrataSCAN"
+  ],
+  "method_parameters": {
+    "stratascan": "v0.2.4_defaults_at_frozen_source_hash",
+    "baselines": "controlled_reference_profiles_in_baselines_algorithms",
+    "evaluation": "benchmarks/evaluation_protocol.v1.json",
+    "analysis_boundary": "development_seeds_23_42_73_101_151_and_fresh_seeds_211_223_227_reported_separately"
+  },
+  "synthetic": {
+    "quality_seeds": [
+      23,
+      42,
+      73,
+      101,
+      151,
+      211,
+      223,
+      227
+    ],
+    "scaling_seeds": [],
+    "quality_sizes": [
+      20000
+    ],
+    "scaling_sizes": [],
+    "cases": [
+      {
+        "id": "multidensity_2d",
+        "family": "multidensity",
+        "dimension": 2,
+        "noise_fraction": 0.75
+      },
+      {
+        "id": "ultrasparse_16d",
+        "family": "ultrasparse",
+        "dimension": 16,
+        "noise_fraction": 0.95
+      },
+      {
+        "id": "overlapping_density_16d",
+        "family": "overlapping_density",
+        "dimension": 16,
+        "noise_fraction": 0.8,
+        "signal_fraction": 0.2
+      },
+      {
+        "id": "moons_2d",
+        "family": "moons",
+        "dimension": 2,
+        "noise_fraction": 0.25
+      },
+      {
+        "id": "rings_2d",
+        "family": "rings",
+        "dimension": 2,
+        "noise_fraction": 0.75
+      },
+      {
+        "id": "overlap_8d",
+        "family": "gaussian_overlap",
+        "dimension": 8,
+        "noise_fraction": 0.25
+      },
+      {
+        "id": "imbalanced_16d",
+        "family": "gaussian_imbalanced",
+        "dimension": 16,
+        "noise_fraction": 0.75
+      }
+    ]
+  },
+  "analysis": {
+    "failure_quality": 0.0,
+    "primary_metric": "macro_target_f1_hungarian",
+    "secondary_metrics": [
+      "macro_target_purity",
+      "macro_target_coverage",
+      "target_discovery_rate",
+      "noise_evidence_f1",
+      "pairwise_f1",
+      "runtime_seconds",
+      "process_peak_rss_mb"
+    ],
+    "uncertainty": "paired_seed_bootstrap_with_family_level_reporting"
+  }
+}

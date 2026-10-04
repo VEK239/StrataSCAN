@@ -13,7 +13,7 @@ from stratascan.synthetic import make_density_contrast
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROTOCOL = ROOT / "benchmarks" / "protocol.v0.2.4-density-contrast.json"
+PROTOCOL = ROOT / "benchmarks" / "protocols/density_contrast.json"
 EVALUATION = ROOT / "benchmarks" / "evaluation_protocol.v1.json"
 
 

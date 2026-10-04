@@ -1,7 +1,0 @@
-table_group,worktree_commit,protocol,note
-standard synthetic 7,c3192aa25473bf93fa88078cb9233d9870ea22a3,0.2.3-final-figures-heldout-v1,"9 methods x 7 families x 3 fresh seeds at n=20,000"
-noise-aware 6 and noise curve,c7ffb5661c7ceb2f162bf86d3019f5050dbe59e4f,topology_density_4seed_v1,replicated fixed-target pilot; timeouts/skips not imputed
-scalability StrataSCAN,c3192aa25473bf93fa88078cb9233d9870ea22a3,0.2.3-seven-family-stratascan-scalability-5m-parallel-3600s-v1,accepted 28-cell envelope
-scalability baselines,c3192aa25473bf93fa88078cb9233d9870ea22a3,0.2.3-seven-family-baselines-scalability-5m-v1,snapshot 2026-08-06T12:45:41.617Z; 142/224 job records present
-biological,c3192aa25473bf93fa88078cb9233d9870ea22a3,final evidence matrix,9 methods x 13 cytometry datasets
-Gaia,c3192aa25473bf93fa88078cb9233d9870ea22a3,final evidence matrix,9 methods x 359 Gaia fields

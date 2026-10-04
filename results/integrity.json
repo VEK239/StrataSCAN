@@ -1,0 +1,75 @@
+{
+  "algorithm_version": "0.2.4",
+  "evaluation_contract": "target-discovery-v1",
+  "tables": {
+    "synthetic_quality": {
+      "rows": 504,
+      "source_csv_sha256": "37a52224a55b7d9bc0723a095dba8f1b9fe6cc82dbc240b42b83a46dc23a37c7",
+      "csv_sha256": "d8fe22f470581e987b9c762cfe22b12e901fcddf45275dd8c15307d90ecafe55"
+    },
+    "density_contrast": {
+      "rows": 27,
+      "source_csv_sha256": "3f5e3ca1a2fef194183dd72c14bad5cd5131d82956dd6b0e3a7f730aced06aa2",
+      "csv_sha256": "8f5edd9c58e33cc7272c60903c9dedfab8270ba34da9d2839da4eae859924f5d"
+    },
+    "rare_dense_noise": {
+      "rows": 270,
+      "source_csv_sha256": "2b4c7f3379981d04201a18754611f3e69418c8c89e0ea894c25b37783b3b2f27",
+      "csv_sha256": "d91c08f9de7babd7fe515675ea78f21764f064ace3baaddadc2a7fe6b4928292"
+    },
+    "scaling": {
+      "rows": 28,
+      "source_csv_sha256": "6037daee6c71ec8e0316f06df8f7a7df49e11a04ad7dca56fc961506c856c3d7",
+      "csv_sha256": "dbd1d0561941eb4967eec055cfd22d954e705284c2c639f7c7647b21ff6bcf7c"
+    },
+    "cytometry": {
+      "rows": 117,
+      "source_csv_sha256": "9dd7519d4f80490aaaa622eab12a584707b23c6928f578897a6ba39a9f58904e",
+      "csv_sha256": "385b39204ca31c7210f3bf34eab2db614064fc00c444372200f2b734c907a6eb"
+    },
+    "gaia": {
+      "rows": 3231,
+      "source_csv_sha256": "dd9cab8e00b09e959fc74129a15df121dd4179a07ed6f70dfe551ef79f184078",
+      "csv_sha256": "0d32cf7ac2ec36796292f39281b129cd4d6a814ecbe0d35055d0ce45fa18b8b8"
+    },
+    "noise_sweep": {
+      "rows": 270,
+      "source_csv_sha256": "f64bd7a65169a23f45ed28df6116c0b1cb6961f2d6c1b0f05d4e9a507984cd81",
+      "csv_sha256": "6a0d464f2c910ab6be67d8e2c4b715ef5bc9c2ce1dcfb26a85471b0fedff1248"
+    }
+  },
+  "removed_csv_columns": [
+    "error",
+    "evaluation_artifact_bytes",
+    "evaluation_artifact_path",
+    "evaluation_artifact_sha256",
+    "job_id",
+    "profile_json",
+    "target_matches_json",
+    "traceback"
+  ],
+  "source_sha256": {
+    "src/stratascan/__init__.py": "4e854d52e20db7241f307866575fcedeb3c1a3650c22b540a3fd0aee374c7b18",
+    "src/stratascan/core.py": "ea88134d26b8f5cfc9664a6f01bbe186618aee7ef9205d8ec80422a7227ba09d",
+    "src/stratascan/experimental.py": "72ae27b0ee3707a8206779f3136c40a9b8d106eb1ee9c35f41fda5841fecc22e",
+    "src/stratascan/metrics.py": "797e20de4be768d879fa8ec30c8d96f73fae98634e57551d3bd49cd1e6ed6f94",
+    "src/stratascan/multiscale.py": "b34833408a45f1122849a345eed812aa2f2e1d54537fa22f3a877ce784c49f1b",
+    "src/stratascan/neighbors.py": "42cec099a921e50fe6e2fc2169bf6c64bf0507694b5f81eac2418b7b2bf69c36",
+    "src/stratascan/optimization.py": "9248d82fe9aec99da30337d43e6990efd879e92d1a2c0f62459b765a3c6ea007",
+    "src/stratascan/predictive.py": "101b5123c559c38bbc459361b06602773ecb751e6849155ab5ad9c2caa0011fe",
+    "src/stratascan/stratification.py": "1af9f43c483bd378efba80443db1e7c577285a815168af3df01efcc20470207d",
+    "src/stratascan/strict_core.py": "8f4d051e69089e94f976903c5f96d9e8d8eaed750047bf6715dbacb187df23d0",
+    "src/stratascan/synthetic.py": "d20f71c18f5cddaa9e6d6d0d91f1ffbbafaa45766d2d1394ad6d68a08744316d",
+    "src/stratascan/types.py": "226a2497ba2e6901b209f26e9a1a418ac1e631c9e07837dfdb580379fdcf7dc0",
+    "src/stratascan/uniform_tail.py": "5b3fa17a168865ee34cb666a4b80f6178afe6f6b44f588ae0874967a1547e631",
+    "baselines/__init__.py": "549d9ffa0f4ff266c7156644a6cd6a165378cb3578883148e9c24f8de230b0d7",
+    "baselines/algorithms.py": "b89d05786276a055e4926bf01433502b72f2cccd75906dbcd17fca8253d2a8af",
+    "baselines/snn_kernel.py": "1d472c64e72f1a17099ba3e6c5caf3167c30168651b1aa1f958ebe8740aec339",
+    "benchmarks/__init__.py": "923d594099fc3b454105f6152dee5c297c4e732c51c57e7aa7b01cedbc0b142c",
+    "benchmarks/datasets.py": "af3500bbc07a41c8a49775a3d97908006d0d56426183636136fd113ac1844e3a",
+    "benchmarks/evaluation.py": "2aa8aad8a4346e06fa19bc4898c3110867b0994e9c4e83824bf62707c9ffb10c",
+    "benchmarks/methods.py": "36491d1deea38e7c03208b2fedb30f7bd8765f25b8cfd012562a8c3da024c8b8",
+    "benchmarks/run_benchmark.py": "9c44dc1413ca343012695e729e7cc1c3c0a615f9919b97fe75e319e7a4b49bf9",
+    "benchmarks/worker.py": "676461e2bb39958df8548f64dc35d98bcb70e1c22d9e011cc97af3897db1c273"
+  }
+}

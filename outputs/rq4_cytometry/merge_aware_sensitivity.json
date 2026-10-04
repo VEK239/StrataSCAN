@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "purpose": "exploratory oversegmentation-tolerant sensitivity; not a replacement primary endpoint",
-  "constraint": "each predicted component is assigned to at most one target before components are unioned",
-  "stratascan_one_to_one_median": 0.2033431136404888,
-  "stratascan_merge_aware_median": 0.22441050466134396,
-  "decision": "retain the locked one-to-one target F1; the constrained merge-aware sensitivity does not materially change the biological conclusion"
-}

@@ -1,137 +1,112 @@
 # StrataSCAN
 
-StrataSCAN 0.2.4 is a variable-density clustering algorithm based on a
-full-data multiscale Gamma model and a unified description-length clustering
-objective. It adaptively selects Gamma density bases, separates semantic signal
-strata from one aggregated background state, optimizes supported core radii,
-and retains unsupported points as noise. `StrataSCAN` is the public alias for
-the explicit `OptimizationStrataSCAN` estimator.
+**Density-adaptive clustering with explicit background rejection.** This branch contains the **0.2.4 algorithm and experiment evidence used in the article**. It is a research release under the [MIT license](LICENSE).
 
-## Installation
+StrataSCAN looks for supported groups at different local densities. It builds a sparse nearest-neighbour graph, models density strata, and selects core radii using a description-length objective. It returns cluster labels and leaves unsupported observations as noise, without requiring a global DBSCAN radius or a requested number of clusters.
 
-```bash
-pip install stratascan
-```
+![StrataSCAN method overview from the article](assets/method_overview.png)
 
-For the FAISS HNSW backend used by the high-dimensional benchmark:
+## Install
+
+Use **Python 3.11 or newer**. From a terminal:
 
 ```bash
-pip install "stratascan[perf]"
+git clone --branch publication/oedm2026-article --single-branch https://github.com/VEK239/StrataSCAN.git
+cd StrataSCAN
+python -m venv .venv
 ```
 
-## Usage
+Activate the environment with `.venv\Scripts\Activate.ps1` on Windows PowerShell, or `source .venv/bin/activate` on Linux/macOS. Then:
+
+```bash
+python -m pip install -e .
+```
+
+For optional FAISS neighbour search, install `python -m pip install -e ".[perf]"`. FAISS availability depends on your platform. The core installation also works without it. This branch is installed from source; the instructions do not require a PyPI release.
+
+## Quick start
+
+This self-contained example uses the same input construction as the existing public API test:
 
 ```python
+import numpy as np
 from stratascan import StrataSCAN
 
-labels = StrataSCAN().fit_predict(X)
+rng = np.random.default_rng(42)
+X = np.vstack([
+    rng.normal(-3.0, 0.25, size=(160, 4)),
+    rng.normal(3.0, 0.25, size=(160, 4)),
+    rng.uniform(-8.0, 8.0, size=(180, 4)),
+]).astype(np.float32)
+
+model = StrataSCAN(backend="brute").fit(X)
+labels = model.labels_
+print(model.n_clusters_)
+print("Rejected points:", np.count_nonzero(labels == -1))
 ```
 
-The estimator accepts NumPy-compatible two-dimensional input and follows the
-usual `fit`, `fit_predict`, `labels_`, and `n_clusters_` conventions. A
-prebuilt graph can be supplied with `fit_from_graph` or
-`fit_predict_from_graph`.
+`X` is a finite numeric array with shape `(n_samples, n_features)`, at least one feature, and **more than 32 rows** with the default `k=32`. Distances are Euclidean. Choose feature scaling appropriate to your data before fitting; the estimator does not automatically normalize features.
 
-## 0.2.4 method
+Labels `0, 1, ...` identify clusters; **`-1` means noise / abstention**. Cluster numbers have no ordering or identity across separate fits. `fit_predict(X)` directly returns the labels. Fitted attributes include `labels_`, `n_clusters_`, `core_sample_indices_`, `stratification_`, and `profile_`. `StrataSCAN` is an alias of `OptimizationStrataSCAN`. The API fits the supplied observations; it does not provide an out-of-sample `predict` method.
 
-1. Build a 32-neighbour graph. The default uses exact KD-tree search in 2D,
-   FAISS HNSW above 2D when FAISS is installed, and brute-force search as the
-   dependency-free fallback.
-2. Fit full-data local-Poisson Gamma shell profiles at neighbour ranks 4, 8,
-   16, and 32 with the compiled constrained-Gamma EM solver.
-3. Select the number of density bases with semantic ICL. Search starts at eight
-   bases and expands in blocks of four when the optimum is near the boundary,
-   up to a hard diagnostic bound of 24. Degenerate duplicate signal profiles
-   trigger a tighter local confirmation over the three neighbouring orders.
-4. Use the largest fitted log-rate gap to retain a dense signal prefix and
-   aggregate all remaining Gamma bases into one semantic background state.
-5. Optimize each signal stratum over observed fourth-neighbour radii using
-   Gamma posterior log-odds, held-out neighbour-window topology evidence, and
-   explicit description-length component costs.
-6. Scan the background separately for finitely supported overdensities using
-   rank-window and accessible-volume evidence.
-7. Form density-ordered, non-merging connected components and attach border
-   points only inside a selected core radius.
+## How the algorithm works
 
-The released background model is `gamma_components`. Continuous Gamma-rate,
-lognormal-rate, and inverse-Gamma-rate backgrounds remain opt-in research
-controls. `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the two
-released configuration stages. The 0.1.2
-`PredictiveMultiscaleStrataSCAN` class remains available explicitly for
-historical reproduction.
+1. **Neighbour graph.** Construct a graph with 32 neighbours per point and evaluate distance shells at ranks 4, 8, 16, and 32.
+2. **Density model.** Fit full-data local-Poisson Gamma shell profiles with the compiled constrained Gamma EM solver.
+3. **Select strata.** Semantic ICL selects the number of density bases. The search starts at eight bases and expands by four, up to a diagnostic bound of 24. Degenerate duplicate signal profiles receive a tighter local confirmation.
+4. **Separate background.** The largest fitted log-rate gap defines a dense signal prefix; the remaining bases form one semantic background state.
+5. **Choose core radii.** For each signal stratum, evaluate observed fourth-neighbour radii using Gamma posterior log-odds, held-out neighbour-window topology evidence, and description-length component costs. Exact distance ties are handled together.
+6. **Check background overdensities.** Rank-window and accessible-volume evidence can recover finitely supported groups inside the background.
+7. **Extract clusters.** Grow density-ordered components without merging them; attach border points only within a selected core radius. Unsupported points remain rejected.
 
-## Release evidence
+The article defaults are recorded in [release_defaults.json](benchmarks/protocols/release_defaults.json). `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the modelling and extraction settings. Additional explicitly named classes remain in the package for compatibility; the short `StrataSCAN` name selects the article algorithm.
 
-The 0.2.4 submission evidence uses the versioned target-discovery evaluation
-contract in
-[`benchmarks/evaluation_protocol.v1.json`](benchmarks/evaluation_protocol.v1.json).
-The optimizer-impact and comparator-attribution boundaries are recorded in
-[`docs/V0.2.4_OPTIMIZER_IMPACT_AUDIT.md`](docs/V0.2.4_OPTIMIZER_IMPACT_AUDIT.md)
-and
-[`docs/V0.2.4_BASELINE_INTEGRITY_AUDIT.md`](docs/V0.2.4_BASELINE_INTEGRITY_AUDIT.md).
-The 0.2.3 release evidence remains available in
-[`results/published/v0.2.3/RESULTS.md`](results/published/v0.2.3/RESULTS.md).
-The frozen 0.1.2 evaluation remains in
-[`results/published/v0.1.2/RESULTS.md`](results/published/v0.1.2/RESULTS.md).
+## Performance and reproducibility
 
-The 0.2.0 formulation and development evidence remain available in
-[`docs/V0.2.0_OPTIMIZATION.md`](docs/V0.2.0_OPTIMIZATION.md),
-[`docs/V0.2.0_DEV10_RESULTS.md`](docs/V0.2.0_DEV10_RESULTS.md),
-[`docs/V0.2.0_DEV11_VALIDATION.md`](docs/V0.2.0_DEV11_VALIDATION.md), and
-[`docs/V0.2.0_DEV12_BACKGROUND_VALIDATION.md`](docs/V0.2.0_DEV12_BACKGROUND_VALIDATION.md).
+`backend="auto"` uses exact KD-tree search for up to two features, FAISS HNSW for higher dimensions when FAISS is installed, and exact brute-force search otherwise. Optional dependencies therefore change the neighbour graph selected by `auto`. Choose an explicit backend when comparing runs; the example uses `brute` for a small exact calculation. HNSW is approximate, and brute-force search can be expensive for large inputs. `n_jobs=1` is the default.
+
+The first fit can include Numba compilation time. Timings depend on hardware, package versions, neighbour backend, and warm-up. Record these when making comparisons. If reusing a graph with `fit_from_graph`, pass the feature dimension explicitly as `ambient_dimension=X.shape[1]`.
+
+The package version is **0.2.4**. The inherited `profile_["algorithm_version"]` field still reports the **0.2.3 family identifier**; it is not a package-version check. This metadata is preserved with the article implementation.
+
+## Article experiments
+
+![Synthetic validation from the article](assets/synthetic_validation.png)
+
+![Density contrast and background burden experiments from the article](assets/density_and_noise.png)
+
+The experiments cover seven synthetic families, density contrast and rare dense targets under increasing background burden, large-input execution, and 13 cytometry datasets. Gaia fields provide a supplementary diagnostic. Full instructions and resource budgets are in [benchmarks/README.md](benchmarks/README.md); recorded scores and compact tables are in [results/README.md](results/README.md).
+
+The primary quality score is **macro target F1** after one-to-one Hungarian matching. Discovery requires target purity at least 0.90 and coverage at least 0.10. Background/noise metrics have dataset-specific interpretations. Failures remain visible in the recorded tables. The baseline implementations are controlled reference implementations; AMD-DBSCAN rows are retained for completeness but excluded from article comparative summaries.
+
+![Biological validation from the article](assets/biological_validation.png)
+
+![Large-input execution envelope from the article](assets/execution_envelope.png)
+
+## Limits of the evidence
+
+High global background burden is different from local overlap between target and background density. The rare-target experiment tests the former. Density overlap can defeat the semantic separation, the adaptive search can reach its component bound, and large inputs can exceed memory limits. The recorded 8 GiB experiment completed five of seven families at five million observations. The cytometry comparison does not show a universal quality advantage. Gaia catalogue non-members are an abstention diagnostic rather than verified physical noise.
+
+## Repository map
+
+| Path | Contents |
+| --- | --- |
+| `src/stratascan/` | Article implementation and its existing compatibility modules |
+| `baselines/` | Existing controlled comparator implementations |
+| `benchmarks/` | Data loaders, evaluator, runner, and named experiment protocols |
+| `results/` | Curated measurements, summaries, and checksums |
+| `assets/` | Figures rendered from the final article figures |
+| `scripts/` | Existing Samusik download and preparation utilities |
+| `tests/` | Existing algorithm, neighbour, baseline, and evaluation tests |
+
+Synthetic data are generated by the existing loaders. Primary biological and Gaia data are external; see [data preparation](benchmarks/README.md#external-data). There is one source tree: reproduction uses the same code and protocols, without a duplicate snapshot directory.
 
 ## Development
 
 ```bash
-python -m pip install -e ".[dev,perf,benchmark]"
+python -m pip install -e ".[dev,benchmark]"
 python -m pytest
 python -m build
 ```
 
-Use the benchmark runner with `StrataSCAN` to evaluate the 0.2.4 default. Use
-`StrataSCAN-PredictiveMultiscale` when reproducing the 0.1.2 estimator.
-
-The canonical synthetic target-discovery campaign is defined by one frozen
-protocol:
-
-```bash
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --list-jobs
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --output-dir results/runs/v0.2.4-target-discovery-v1-synthetic
-```
-
-The frozen release campaign uses one worker so runtime and peak-memory results
-remain comparable. For faster quality-only reevaluation, run four jobs in
-parallel into a fresh output root; do not use that run for timing or memory
-claims:
-
-```bash
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --max-workers 4 --output-dir results/runs/v0.2.4-target-discovery-v1-synthetic-parallel
-```
-
-Each phase freezes its source checksums and worker count. `--resume` is allowed
-only when those inputs are unchanged. For a clean partial reevaluation, list
-the expanded jobs and pass exact IDs into a new output directory:
-
-```bash
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --list-jobs
-python -m benchmarks.run_benchmark --protocol benchmarks/protocol.v0.2.4-target-discovery-v1-synthetic.json --evaluation-protocol benchmarks/evaluation_protocol.v1.json --suite synthetic --job-ids-from selected-jobs.txt --output-dir results/runs/selected-v0.2.4
-```
-
-### Samusik real-data benchmark
-
-The Samusik workflow downloads the official `Samusik_all` ExperimentHub object,
-exports the 10 mouse samples independently, screens all nine methods on sample
-01, and then measures per-population stability across samples 02--10 for the
-methods that completed screening.
-
-```bash
-python scripts/download_samusik.py
-Rscript scripts/prepare_samusik_data.R
-PYTHONPATH=src python -m benchmarks.run_benchmark --protocol benchmarks/protocol.samusik-01.json --suite cytometry --output-dir results/runs/samusik_01
-PYTHONPATH=src python -m benchmarks.run_benchmark --protocol benchmarks/protocol.samusik-all.json --suite cytometry --output-dir results/runs/samusik_all_samples_02_10 --max-workers 3
-python scripts/analyze_samusik_stability.py results/runs/samusik_01/results.csv results/runs/samusik_all_samples_02_10/results.csv --output-dir results/samusik_stability
-```
-
-## License
-
-MIT
+The optional `[perf]` extra enables tests and experiments that use FAISS. The figures belong to the article experiment evidence; the manuscript itself is not distributed in this branch.

@@ -1,2 +1,0 @@
-At the snapshot, StrataSCAN had 19/21 successful million-scale cells with no timeouts; the remaining two were pending. SNN-DBSCAN and kNN-DBSCAN each had 20/21 successful cells with no timeouts. DBSCAN had 15 successes and 4 timeouts; VDBSCAN-2007 had 12 successes and 6 timeouts; kNN+Leiden, OPTICS, and HDBSCAN had 5, 4, and 3 successes, respectively, with 13--15 timeouts each. Because incomplete medians condition on successful families, they must be read together with the censoring markers.
-

@@ -66,7 +66,7 @@ def test_release_protocol_matches_public_defaults() -> None:
     protocol_path = (
         Path(__file__).resolve().parents[1]
         / "benchmarks"
-        / "protocol.v0.2.4-release.json"
+        / "protocols/release_defaults.json"
     )
     parameters = json.loads(protocol_path.read_text(encoding="utf-8"))[
         "method_parameters"

@@ -1,22 +1,5 @@
 include README.md
-include CHANGELOG.md
 include LICENSE
+recursive-include assets *.png
 recursive-include baselines *.py
-recursive-include benchmarks *.py
-include benchmarks/protocol.v0.2.0-release.json
-include benchmarks/protocol.v0.2.1-release.json
-include benchmarks/protocol.v0.2.2-release.json
-include benchmarks/protocol.v0.2.3-release.json
-include benchmarks/campaign.v0.2.3-release.json
-include benchmarks/protocol.v0.2.3-seven-family-robustness.json
-include benchmarks/protocol.v0.2.3-seven-family-scaling-replicated.json
-include benchmarks/protocol.v0.2.3-seven-family-scaling-endpoint.json
-include benchmarks/protocol.v0.2.3-seven-family-ablations.json
-recursive-include docs *.md
-exclude docs/V0.2.2_SYNTHETIC_RERUN_PLAN.md
-recursive-include results/published/v0.1.0 *.md
-recursive-include results/published/v0.1.2 *.md
-recursive-include results/published/v0.2.0 *.md
-recursive-include results/published/v0.2.1 *.md
-recursive-include results/published/v0.2.2 *.md
-recursive-include results/published/v0.2.3 *.md
+recursive-include benchmarks *.py *.json *.md

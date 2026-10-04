@@ -25,7 +25,7 @@ from benchmarks.datasets import gaia_field_ids
 
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_PROTOCOL = Path(__file__).with_name("protocol.gamma-strict-core.json")
+DEFAULT_PROTOCOL = Path(__file__).parent / "protocols" / "synthetic_quality.json"
 DEFAULT_EVALUATION_PROTOCOL = Path(__file__).with_name("evaluation_protocol.v1.json")
 
 
@@ -907,7 +907,7 @@ def main() -> None:
     parser.add_argument(
         "--evaluation-protocol", type=Path, default=DEFAULT_EVALUATION_PROTOCOL
     )
-    parser.add_argument("--output-dir", type=Path, default=Path("results/runs/full_v200"))
+    parser.add_argument("--output-dir", type=Path, default=Path("runs/benchmark"))
     parser.add_argument("--suite", choices=("all", "synthetic", "cytometry", "gaia"), default="all")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument(
