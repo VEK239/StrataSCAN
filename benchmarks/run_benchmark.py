@@ -19,12 +19,14 @@ import time
 from typing import Any
 
 import psutil
+import numpy as np
 
 from benchmarks.datasets import gaia_field_ids
 
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_PROTOCOL = Path(__file__).with_name("protocol.gamma-strict-core.json")
+DEFAULT_PROTOCOL = Path(__file__).parent / "protocols" / "synthetic_quality.json"
+DEFAULT_EVALUATION_PROTOCOL = Path(__file__).with_name("evaluation_protocol.v1.json")
 
 
 def read_protocol(path: Path) -> dict[str, Any]:
@@ -36,6 +38,59 @@ def read_protocol(path: Path) -> dict[str, Any]:
     if len(protocol["methods"]) != len(set(protocol["methods"])):
         raise ValueError("protocol contains duplicate methods")
     return protocol
+
+
+def read_evaluation_protocol(path: Path) -> dict[str, Any]:
+    protocol = json.loads(path.read_text(encoding="utf-8"))
+    required = {
+        "schema_version", "protocol_version", "matching", "aggregation",
+        "discovery_thresholds", "fragment_min_target_fraction", "failure_policy", "suites",
+    }
+    missing = required - protocol.keys()
+    if missing:
+        raise ValueError(f"evaluation protocol is missing keys: {sorted(missing)}")
+    if protocol["schema_version"] != 1:
+        raise ValueError("unsupported evaluation protocol schema_version")
+    matching = protocol["matching"]
+    if matching.get("strategy") != "hungarian" or matching.get("objective") != "pairwise_f1":
+        raise ValueError("evaluation matching must be Hungarian maximum pairwise F1")
+    if float(matching.get("unmatched_target_score", float("nan"))) != 0.0:
+        raise ValueError("unmatched targets must receive zero")
+    thresholds = protocol["discovery_thresholds"]
+    for key in ("purity", "coverage"):
+        value = thresholds.get(key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError(f"evaluation discovery threshold {key} must be numeric")
+        if not 0.0 <= float(value) <= 1.0:
+            raise ValueError(f"evaluation discovery threshold {key} must lie in [0, 1]")
+    fraction = protocol["fragment_min_target_fraction"]
+    if isinstance(fraction, bool) or not isinstance(fraction, (int, float)):
+        raise TypeError("fragment_min_target_fraction must be numeric")
+    if not 0.0 <= float(fraction) <= 1.0:
+        raise ValueError("fragment_min_target_fraction must lie in [0, 1]")
+    if set(protocol["suites"]) != {"synthetic", "cytometry", "gaia"}:
+        raise ValueError("evaluation protocol must define synthetic, cytometry, and gaia suites")
+    return protocol
+
+
+def evaluation_for_job(
+    protocol: dict[str, Any], suite: str, dataset_id: str
+) -> dict[str, Any]:
+    suite_config = dict(protocol["suites"][suite])
+    overrides = suite_config.pop("dataset_overrides", {})
+    override = overrides.get(dataset_id, {})
+    resolved = {
+        "protocol_version": protocol["protocol_version"],
+        "matching": {
+            "strategy": protocol["matching"]["strategy"],
+            "objective": protocol["matching"]["objective"],
+        },
+        "discovery_thresholds": dict(protocol["discovery_thresholds"]),
+        "fragment_min_target_fraction": protocol["fragment_min_target_fraction"],
+        **suite_config,
+        **override,
+    }
+    return resolved
 
 
 def require_runtime_dependencies(protocol: dict[str, Any], suite: str) -> None:
@@ -91,11 +146,20 @@ def select_gaia_fields(fields: list[str], config: dict[str, Any]) -> list[str]:
     return sorted(ranked[:count])
 
 
-def expand_jobs(protocol: dict[str, Any], suite: str = "all") -> list[dict[str, Any]]:
+def expand_jobs(
+    protocol: dict[str, Any],
+    suite: str = "all",
+    evaluation_protocol: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     jobs: list[dict[str, Any]] = []
     methods = protocol["methods"]
     if suite in {"all", "synthetic"}:
         synthetic = protocol["synthetic"]
+        size_mode = synthetic.get("size_mode", "total_rows")
+        if size_mode not in {"total_rows", "fixed_signal_count"}:
+            raise ValueError(
+                "synthetic.size_mode must be 'total_rows' or 'fixed_signal_count'"
+            )
         tiers = (
             ("quality", synthetic["quality_sizes"], synthetic["quality_seeds"]),
             ("scaling", synthetic["scaling_sizes"], synthetic["scaling_seeds"]),
@@ -103,8 +167,27 @@ def expand_jobs(protocol: dict[str, Any], suite: str = "all") -> list[dict[str, 
         for case in synthetic["cases"]:
             for tier, sizes, seeds in tiers:
                 for n in sizes:
-                    dataset = {**case, "n": int(n), "tier": tier}
-                    dataset_id = f"{case['id']}__{tier}__n{int(n)}"
+                    base_size = int(n)
+                    if size_mode == "fixed_signal_count":
+                        fraction = float(case["noise_fraction"])
+                        if not 0.0 < fraction < 1.0:
+                            raise ValueError(
+                                "fixed_signal_count requires noise_fraction in (0, 1)"
+                            )
+                        background_size = int(round(base_size * fraction / (1.0 - fraction)))
+                        total_size = base_size + background_size
+                        dataset = {
+                            **case,
+                            "n": total_size,
+                            "signal_size": base_size,
+                            "tier": tier,
+                        }
+                        dataset_id = (
+                            f"{case['id']}__{tier}__signal{base_size}__n{total_size}"
+                        )
+                    else:
+                        dataset = {**case, "n": base_size, "tier": tier}
+                        dataset_id = f"{case['id']}__{tier}__n{base_size}"
                     for method in methods:
                         for seed in seeds:
                             job = {
@@ -116,6 +199,10 @@ def expand_jobs(protocol: dict[str, Any], suite: str = "all") -> list[dict[str, 
                                 "method": method,
                                 "seed": int(seed),
                             }
+                            if evaluation_protocol is not None:
+                                job["evaluation"] = evaluation_for_job(
+                                    evaluation_protocol, "synthetic", dataset_id
+                                )
                             job["job_id"] = _job_id(job)
                             jobs.append(job)
     if suite in {"all", "cytometry"}:
@@ -132,6 +219,10 @@ def expand_jobs(protocol: dict[str, Any], suite: str = "all") -> list[dict[str, 
                         "method": method,
                         "seed": int(seed),
                     }
+                    if evaluation_protocol is not None:
+                        job["evaluation"] = evaluation_for_job(
+                            evaluation_protocol, "cytometry", dataset["id"]
+                        )
                     job["job_id"] = _job_id(job)
                     jobs.append(job)
     if suite in {"all", "gaia"}:
@@ -161,6 +252,10 @@ def expand_jobs(protocol: dict[str, Any], suite: str = "all") -> list[dict[str, 
                             "method": method,
                             "seed": int(seed),
                         }
+                        if evaluation_protocol is not None:
+                            job["evaluation"] = evaluation_for_job(
+                                evaluation_protocol, "gaia", dataset_id
+                            )
                         job["job_id"] = _job_id(job)
                         jobs.append(job)
     ids = [job["job_id"] for job in jobs]
@@ -196,12 +291,19 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def input_paths(protocol: dict[str, Any], protocol_path: Path, suite: str) -> list[Path]:
+def input_paths(
+    protocol: dict[str, Any],
+    protocol_path: Path,
+    suite: str,
+    evaluation_protocol_path: Path | None = None,
+) -> list[Path]:
     paths = [
         protocol_path.resolve(),
         *sorted((REPO / "benchmarks").glob("*.py")),
-        *sorted((REPO / "src" / "stratascan").glob("*.py")),
+        *sorted((REPO / "src" / "stratascan").rglob("*.py")),
     ]
+    if evaluation_protocol_path is not None:
+        paths.append(evaluation_protocol_path.resolve())
     if suite in {"all", "synthetic"}:
         paths.extend([
             REPO / "benchmarks" / "datasets.py",
@@ -231,10 +333,13 @@ def input_paths(protocol: dict[str, Any], protocol_path: Path, suite: str) -> li
 
 
 def input_checksums(
-    protocol: dict[str, Any], protocol_path: Path, suite: str
+    protocol: dict[str, Any],
+    protocol_path: Path,
+    suite: str,
+    evaluation_protocol_path: Path | None = None,
 ) -> list[dict[str, Any]]:
     records = []
-    for path in input_paths(protocol, protocol_path, suite):
+    for path in input_paths(protocol, protocol_path, suite, evaluation_protocol_path):
         records.append({
             "path": str(path.relative_to(REPO)) if path.is_relative_to(REPO) else str(path),
             "bytes": path.stat().st_size,
@@ -308,6 +413,8 @@ def create_manifest(
     *,
     expanded_job_count: int,
     max_workers: int,
+    evaluation_protocol: dict[str, Any] | None = None,
+    evaluation_protocol_path: Path | None = None,
 ) -> dict[str, Any]:
     return {
         "schema_version": 1,
@@ -324,7 +431,20 @@ def create_manifest(
         "methods": protocol["methods"],
         "comparison": protocol.get("comparison"),
         "environment": environment(),
-        "inputs": input_checksums(protocol, protocol_path, suite),
+        "inputs": input_checksums(
+            protocol, protocol_path, suite, evaluation_protocol_path
+        ),
+        "evaluation": evaluation_protocol,
+        "evaluation_artifacts": {
+            "required_for_status": "ok",
+            "path_template": "evaluation_state/{job_id}.npz",
+            "format": "numpy_npz_compressed",
+            "lossless_arrays": ["y_true", "y_pred"],
+            "audit_arrays": [
+                "target_labels", "predicted_labels", "target_sizes", "predicted_sizes",
+                "target_predicted_contingency",
+            ],
+        } if evaluation_protocol is not None else None,
         "expanded_job_count": int(expanded_job_count),
         "expected_job_count": len(jobs),
         "jobs": jobs,
@@ -342,7 +462,12 @@ def kill_tree(process: subprocess.Popen[str]) -> None:
 
 
 def run_job(
-    job: dict[str, Any], spec_path: Path, result_path: Path, resources: dict[str, Any]
+    job: dict[str, Any],
+    spec_path: Path,
+    result_path: Path,
+    resources: dict[str, Any],
+    evaluation_state_path: Path | None = None,
+    evaluation_state_reference: str | None = None,
 ) -> dict[str, Any]:
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join([str(REPO / "src"), str(REPO), env.get("PYTHONPATH", "")])
@@ -359,7 +484,16 @@ def run_job(
         "--output", str(result_path),
         "--repo", str(REPO),
     ]
+    if evaluation_state_path is not None:
+        if not evaluation_state_reference:
+            raise ValueError("evaluation_state_reference is required with evaluation_state_path")
+        command.extend([
+            "--evaluation-state-output", str(evaluation_state_path),
+            "--evaluation-state-reference", evaluation_state_reference,
+        ])
     result_path.unlink(missing_ok=True)
+    if evaluation_state_path is not None:
+        evaluation_state_path.unlink(missing_ok=True)
     started = time.perf_counter()
     process = subprocess.Popen(
         command,
@@ -405,7 +539,7 @@ def run_job(
 
     if forced_status is not None:
         result = {
-            "schema_version": 1,
+            "schema_version": 2,
             "job_id": job["job_id"],
             "status": forced_status,
             "suite": job["suite"],
@@ -419,7 +553,7 @@ def run_job(
         result = json.loads(result_path.read_text(encoding="utf-8"))
     else:
         result = {
-            "schema_version": 1,
+            "schema_version": 2,
             "job_id": job["job_id"],
             "status": "error",
             "suite": job["suite"],
@@ -456,13 +590,53 @@ def validate(manifest: dict[str, Any], jobs_dir: Path) -> tuple[dict[str, Any], 
     unexpected = sorted(seen - set(expected))
     statuses: dict[str, int] = {}
     invalid_identity: list[str] = []
+    invalid_evaluation_artifacts: list[str] = []
+    required_artifact_arrays = {
+        "y_true", "y_pred", "target_labels", "predicted_labels", "target_sizes",
+        "predicted_sizes", "target_predicted_contingency",
+    }
     for result in results:
         statuses[result.get("status", "missing_status")] = statuses.get(result.get("status", "missing_status"), 0) + 1
         job = expected[result["job_id"]]
         identity = ("suite", "dataset_id", "method", "seed")
         if any(result.get(key) != job.get(key) for key in identity):
             invalid_identity.append(result["job_id"])
-    complete = not (missing or unexpected or duplicate or malformed or invalid_identity)
+        if result.get("status") == "ok" and manifest.get("evaluation_artifacts"):
+            artifact = result.get("evaluation_artifact")
+            expected_reference = f"evaluation_state/{result['job_id']}.npz"
+            try:
+                if not isinstance(artifact, dict) or artifact.get("path") != expected_reference:
+                    raise ValueError("invalid artifact reference")
+                artifact_path = (jobs_dir.parent / expected_reference).resolve()
+                state_root = (jobs_dir.parent / "evaluation_state").resolve()
+                if artifact_path.parent != state_root or not artifact_path.is_file():
+                    raise ValueError("artifact missing or outside evaluation_state")
+                if artifact.get("bytes") != artifact_path.stat().st_size:
+                    raise ValueError("artifact byte count mismatch")
+                if artifact.get("sha256") != sha256(artifact_path):
+                    raise ValueError("artifact checksum mismatch")
+                with np.load(artifact_path, allow_pickle=False) as state:
+                    if set(state.files) != required_artifact_arrays:
+                        raise ValueError("artifact array schema mismatch")
+                    y_true = state["y_true"]
+                    y_pred = state["y_pred"]
+                    table = state["target_predicted_contingency"]
+                    if y_true.ndim != 1 or y_true.shape != y_pred.shape:
+                        raise ValueError("artifact label arrays do not align")
+                    if y_true.size != int(result["n"]):
+                        raise ValueError("artifact label count does not match result")
+                    if table.shape != (
+                        state["target_labels"].size, state["predicted_labels"].size
+                    ):
+                        raise ValueError("artifact contingency dimensions do not align")
+                    if int(np.sum(table)) != int(np.sum((y_true >= 0) & (y_pred >= 0))):
+                        raise ValueError("artifact contingency is inconsistent with labels")
+            except (KeyError, OSError, TypeError, ValueError):
+                invalid_evaluation_artifacts.append(result["job_id"])
+    complete = not (
+        missing or unexpected or duplicate or malformed or invalid_identity
+        or invalid_evaluation_artifacts
+    )
     report = {
         "schema_version": 1,
         "complete": complete,
@@ -474,6 +648,7 @@ def validate(manifest: dict[str, Any], jobs_dir: Path) -> tuple[dict[str, Any], 
         "duplicate_job_ids": duplicate,
         "malformed_files": malformed,
         "invalid_identity_job_ids": invalid_identity,
+        "invalid_evaluation_artifact_job_ids": invalid_evaluation_artifacts,
     }
     return report, results
 
@@ -483,6 +658,7 @@ def write_csv(path: Path, results: list[dict[str, Any]]) -> None:
         "job_id", "status", "suite", "dataset_id", "method", "seed", "package_version",
         "n", "dimension", "load_seconds", "runtime_seconds", "process_runtime_seconds",
         "peak_rss_mb", "incremental_rss_mb", "process_peak_rss_mb", "error_type", "error",
+        "evaluation_artifact_path", "evaluation_artifact_sha256", "evaluation_artifact_bytes",
     ]
     metric_keys = sorted({
         key
@@ -497,6 +673,12 @@ def write_csv(path: Path, results: list[dict[str, Any]]) -> None:
         for result in sorted(results, key=lambda row: row["job_id"]):
             metrics = result.get("metrics", {})
             row = {key: result.get(key) for key in scalar_keys}
+            artifact = result.get("evaluation_artifact", {})
+            row.update({
+                "evaluation_artifact_path": artifact.get("path"),
+                "evaluation_artifact_sha256": artifact.get("sha256"),
+                "evaluation_artifact_bytes": artifact.get("bytes"),
+            })
             row.update({key: metrics.get(key) for key in metric_keys})
             row.update({
                 "dataset_metadata_json": json.dumps(result.get("dataset_metadata", {}), sort_keys=True),
@@ -511,10 +693,7 @@ def write_csv(path: Path, results: list[dict[str, Any]]) -> None:
 def _primary_metric(result: dict[str, Any]) -> float | None:
     metrics = result.get("metrics", {})
     key = {
-        "synthetic": "pairwise_f1",
-        # Historical protocols predeclare macro target F1. The joint
-        # target/background harmonic mean is emitted as a post-hoc diagnostic,
-        # not silently substituted as the confirmatory endpoint.
+        "synthetic": "macro_target_f1",
         "cytometry": "macro_target_f1",
         "gaia": "best_cluster_f1",
     }.get(result.get("suite"))
@@ -565,7 +744,7 @@ def compare_with_reference(
         if not old_ok:
             continue
         metric_name = {
-            "synthetic": "pairwise_f1",
+            "synthetic": "macro_target_f1",
             "cytometry": "macro_target_f1",
             "gaia": "best_cluster_f1",
         }[new["suite"]]
@@ -724,7 +903,10 @@ def create_report(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the unified StrataSCAN benchmark matrix")
     parser.add_argument("--protocol", type=Path, default=DEFAULT_PROTOCOL)
-    parser.add_argument("--output-dir", type=Path, default=Path("results/runs/full_v200"))
+    parser.add_argument(
+        "--evaluation-protocol", type=Path, default=DEFAULT_EVALUATION_PROTOCOL
+    )
+    parser.add_argument("--output-dir", type=Path, default=Path("runs/benchmark"))
     parser.add_argument("--suite", choices=("all", "synthetic", "cytometry", "gaia"), default="all")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument(
@@ -758,7 +940,9 @@ def main() -> None:
 
     protocol_path = args.protocol.resolve()
     protocol = read_protocol(protocol_path)
-    expanded_jobs = expand_jobs(protocol, args.suite)
+    evaluation_protocol_path = args.evaluation_protocol.resolve()
+    evaluation_protocol = read_evaluation_protocol(evaluation_protocol_path)
+    expanded_jobs = expand_jobs(protocol, args.suite, evaluation_protocol)
     requested_ids = set(args.job_id)
     if args.job_ids_from is not None:
         requested_ids.update(
@@ -784,9 +968,11 @@ def main() -> None:
     manifest_path = output / "manifest.json"
     jobs_dir = output / "jobs"
     specs_dir = output / "specs"
+    evaluation_state_dir = output / "evaluation_state"
     output.mkdir(parents=True, exist_ok=True)
     jobs_dir.mkdir(exist_ok=True)
     specs_dir.mkdir(exist_ok=True)
+    evaluation_state_dir.mkdir(exist_ok=True)
 
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -797,7 +983,9 @@ def main() -> None:
         if not args.validate_only:
             drift = input_drift(
                 manifest.get("inputs", []),
-                input_checksums(protocol, protocol_path, args.suite),
+                input_checksums(
+                    protocol, protocol_path, args.suite, evaluation_protocol_path
+                ),
             )
             if drift:
                 raise ValueError(
@@ -822,6 +1010,8 @@ def main() -> None:
             jobs,
             expanded_job_count=len(expanded_jobs),
             max_workers=args.max_workers,
+            evaluation_protocol=evaluation_protocol,
+            evaluation_protocol_path=evaluation_protocol_path,
         )
         atomic_json(manifest_path, manifest)
 
@@ -830,22 +1020,38 @@ def main() -> None:
         if existing_results and not args.resume:
             raise FileExistsError("results already exist; use --resume or a new output directory")
         total = len(jobs)
-        pending: list[tuple[int, dict[str, Any], Path, Path]] = []
+        pending: list[tuple[int, dict[str, Any], Path, Path, Path, str]] = []
         for index, job in enumerate(jobs, start=1):
             spec_path = specs_dir / f"{job['job_id']}.json"
             result_path = jobs_dir / f"{job['job_id']}.json"
+            evaluation_state_path = evaluation_state_dir / f"{job['job_id']}.npz"
+            evaluation_state_reference = f"evaluation_state/{job['job_id']}.npz"
             atomic_json(spec_path, job)
             if args.resume and result_path.exists():
                 existing = json.loads(result_path.read_text(encoding="utf-8"))
-                if existing.get("job_id") == job["job_id"]:
+                artifact = existing.get("evaluation_artifact", {})
+                if (
+                    existing.get("job_id") == job["job_id"]
+                    and evaluation_state_path.is_file()
+                    and artifact.get("path") == evaluation_state_reference
+                    and artifact.get("sha256") == sha256(evaluation_state_path)
+                ):
                     print(f"[{index}/{total}] resume {job['job_id']}", flush=True)
                     continue
-            pending.append((index, job, spec_path, result_path))
+            pending.append((
+                index, job, spec_path, result_path,
+                evaluation_state_path, evaluation_state_reference,
+            ))
 
-        def execute_pending(item: tuple[int, dict[str, Any], Path, Path]) -> tuple[int, dict[str, Any], dict[str, Any]]:
-            index, job, spec_path, result_path = item
+        def execute_pending(
+            item: tuple[int, dict[str, Any], Path, Path, Path, str]
+        ) -> tuple[int, dict[str, Any], dict[str, Any]]:
+            index, job, spec_path, result_path, state_path, state_reference = item
             print(f"[{index}/{total}] run {job['job_id']}", flush=True)
-            result = run_job(job, spec_path, result_path, manifest["resources"])
+            result = run_job(
+                job, spec_path, result_path, manifest["resources"],
+                state_path, state_reference,
+            )
             return index, job, result
 
         if args.max_workers == 1:

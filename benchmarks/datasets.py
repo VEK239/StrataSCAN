@@ -7,6 +7,7 @@ from typing import Any
 import numpy as np
 
 from stratascan.synthetic import (
+    make_density_contrast,
     make_multidensity_2d,
     make_overlapping_density_16d,
     make_ultrasparse_16d,
@@ -103,9 +104,94 @@ def _make_gaussian(spec: dict[str, Any], n: int, seed: int) -> tuple[np.ndarray,
     )
 
 
+def _make_global_contamination_invariance(
+    spec: dict[str, Any], n: int, seed: int
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """Fixed targets plus constant-intensity background on expanding support.
+
+    This family isolates *global* contamination burden. Increasing the declared
+    noise fraction adds points to two remote strips at a fixed areal intensity;
+    it does not shrink the targets, move them, or increase background density
+    near them. Background points form a deterministic prefix across fractions
+    for a given seed, which supports paired trajectory checks without selecting
+    favorable random realizations.
+    """
+
+    if int(spec.get("dimension", 2)) != 2:
+        raise ValueError("global_contamination_invariance is defined only in 2D")
+    signal_size = int(spec["signal_size"])
+    if signal_size < 3 * 40:
+        raise ValueError("signal_size must provide at least 40 points per target")
+    noise_fraction = float(spec["noise_fraction"])
+    if not 0.0 < noise_fraction < 1.0:
+        raise ValueError("noise_fraction must lie strictly between zero and one")
+    expected_n = signal_size + int(round(signal_size * noise_fraction / (1.0 - noise_fraction)))
+    if n != expected_n:
+        raise ValueError(
+            "global_contamination_invariance requires n consistent with "
+            f"signal_size and noise_fraction; expected {expected_n}, found {n}"
+        )
+
+    intensity = float(spec.get("background_intensity", 12.0))
+    strip_height = float(spec.get("background_strip_height", 10.0))
+    inner_edge = float(spec.get("background_inner_edge", 6.0))
+    if not np.isfinite(intensity) or intensity <= 0.0:
+        raise ValueError("background_intensity must be positive and finite")
+    if not np.isfinite(strip_height) or strip_height <= 0.0:
+        raise ValueError("background_strip_height must be positive and finite")
+    if not np.isfinite(inner_edge) or inner_edge < 5.0:
+        raise ValueError("background_inner_edge must be finite and at least 5")
+
+    signal_seed, background_seed, shuffle_seed = np.random.SeedSequence(seed).spawn(3)
+    signal_rng = np.random.default_rng(signal_seed)
+    centers = np.array([[-3.0, -2.0], [3.0, -2.0], [0.0, 3.0]], dtype=np.float64)
+    covariance = np.array([[0.35, 0.08], [0.08, 0.22]], dtype=np.float64)
+    counts = np.full(3, signal_size // 3, dtype=np.int64)
+    counts[: signal_size % 3] += 1
+    blocks = [
+        signal_rng.multivariate_normal(center, covariance, int(count)).astype(np.float32)
+        for center, count in zip(centers, counts, strict=True)
+    ]
+    labels = [np.full(int(count), index, dtype=np.int64) for index, count in enumerate(counts)]
+
+    n_background = n - signal_size
+    # Alternate between the right and left strips.  Position j occupies one
+    # intensity-normalized slice, so prefixes retain the same nominal density.
+    background_rng = np.random.default_rng(background_seed)
+    uniforms = background_rng.random((n_background, 2))
+    index = np.arange(n_background, dtype=np.int64)
+    within_side = index // 2
+    side = np.where(index % 2 == 0, 1.0, -1.0)
+    x = side * (
+        inner_edge + (within_side + uniforms[:, 0]) / (intensity * strip_height)
+    )
+    y = (uniforms[:, 1] - 0.5) * strip_height
+    background = np.column_stack([x, y]).astype(np.float32)
+
+    X = np.vstack([*blocks, background])
+    truth = np.concatenate([*labels, np.full(n_background, -1, dtype=np.int64)])
+    order = np.random.default_rng(shuffle_seed).permutation(n)
+    support_area = n_background / intensity
+    metadata = {
+        "signal_size": signal_size,
+        "background_size": n_background,
+        "declared_noise_fraction": noise_fraction,
+        "realized_noise_fraction": n_background / n,
+        "background_intensity": intensity,
+        "background_support_area": support_area,
+        "background_strip_height": strip_height,
+        "background_inner_edge": inner_edge,
+        "n_targets": 3,
+        "controlled_factor": "global_background_support_at_fixed_local_intensity",
+        "paired_background": "seeded_prefix",
+    }
+    return X[order], truth[order], metadata
+
+
 def load_synthetic(spec: dict[str, Any], seed: int) -> Dataset:
     n = int(spec["n"])
     family = spec["family"]
+    family_metadata: dict[str, Any] = {}
     if family == "multidensity":
         X, y = make_multidensity_2d(n, seed=seed)
     elif family == "ultrasparse":
@@ -116,10 +202,22 @@ def load_synthetic(spec: dict[str, Any], seed: int) -> Dataset:
             seed=seed,
             signal_fraction=float(spec.get("signal_fraction", 0.20)),
         )
+    elif family == "density_contrast":
+        X, y = make_density_contrast(
+            n,
+            seed=seed,
+            dimension=int(spec["dimension"]),
+            density_ratio=float(spec["density_ratio"]),
+            shape=str(spec.get("shape", "gaussian")),
+            noise_fraction=float(spec.get("noise_fraction", 0.50)),
+            n_clusters=int(spec.get("n_clusters", 6)),
+        )
     elif family in {"moons", "rings"}:
         X, y = _make_moons_or_rings(spec, n, seed)
     elif family in {"gaussian_overlap", "gaussian_imbalanced"}:
         X, y = _make_gaussian(spec, n, seed)
+    elif family == "global_contamination_invariance":
+        X, y, family_metadata = _make_global_contamination_invariance(spec, n, seed)
     else:
         raise ValueError(f"unknown synthetic family: {family}")
     names = [f"cluster_{value}" for value in sorted(np.unique(y[y >= 0]).tolist())]
@@ -127,7 +225,7 @@ def load_synthetic(spec: dict[str, Any], seed: int) -> Dataset:
         np.asarray(X, dtype=np.float32, order="C"),
         np.asarray(y, dtype=np.int64),
         names,
-        {"family": family, "n": n, "dimension": int(X.shape[1])},
+        {"family": family, "n": n, "dimension": int(X.shape[1]), **family_metadata},
     )
 
 

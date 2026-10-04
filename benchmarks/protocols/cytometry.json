@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-target-discovery-v1-biological",
+  "purpose": "all_method_biological_and_gaia_evaluation_under_the_frozen_target_discovery_v1_contract",
+  "parameter_mode": "v0.2.4_correctness_patch_and_frozen_external_method_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1800,
+    "memory_limit_mb": 8192
+  },
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "AMD-DBSCAN",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "stochastic_methods": [
+    "StrataSCAN"
+  ],
+  "method_parameters": {
+    "version": "0.2.4_at_frozen_source_hash",
+    "evaluation": "benchmarks/evaluation_protocol.v1.json",
+    "k": 32,
+    "shell_ranks": [
+      4,
+      8,
+      16,
+      32
+    ],
+    "criterion": "semantic_icl",
+    "initial_component_bound": 8,
+    "hard_component_bound": 24,
+    "background_distribution": "gamma_components",
+    "component_roles": "largest_rate_gap",
+    "core_rank": 4,
+    "connectivity_rank": 4,
+    "border_rule": "strict_local_core_radius"
+  },
+  "synthetic": {
+    "quality_seeds": [],
+    "scaling_seeds": [],
+    "quality_sizes": [],
+    "scaling_sizes": [],
+    "cases": []
+  },
+  "cytometry": {
+    "seeds": [
+      42
+    ],
+    "datasets": [
+      {
+        "id": "levine",
+        "features": "data/processed/levine/features.csv",
+        "feature_metadata": "data/processed/levine/feature_metadata.csv",
+        "feature_classes": [
+          "type"
+        ],
+        "transform": {
+          "name": "arcsinh",
+          "cofactor": 5.0
+        },
+        "metadata": "data/processed/levine/event_metadata.csv",
+        "label_column": "population_id",
+        "background_labels": [
+          "unassigned"
+        ]
+      },
+      {
+        "id": "mosmann",
+        "features": "data/processed/mosmann/features.csv",
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "transform": {
+          "name": "arcsinh",
+          "cofactor": 150.0
+        },
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "label_column": "population_id",
+        "background_labels": [
+          "other"
+        ]
+      },
+      {
+        "id": "nilsson",
+        "features": "data/processed/nilsson/features.csv",
+        "feature_metadata": "data/processed/nilsson/feature_metadata.csv",
+        "feature_classes": [
+          "type"
+        ],
+        "transform": {
+          "name": "arcsinh",
+          "cofactor": 150.0
+        },
+        "metadata": "data/processed/nilsson/event_metadata.csv",
+        "label_column": "population_id",
+        "background_labels": [
+          "other"
+        ]
+      }
+    ]
+  }
+}

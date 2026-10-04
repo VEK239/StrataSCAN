@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-oedm-dpc-knn-main-v1",
+  "purpose": "automatic_dpc_knn_hybrid_on_manuscript_table_i_fresh_synthetic_panel",
+  "parameter_mode": "du_2016_dpc_knn_p2pct_core_plus_flores_garza_2020_gap_auto_centers_no_noise_rule",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 7200,
+    "memory_limit_mb": 8192
+  },
+  "methods": [
+    "DPC-kNN-2016+GB-auto-p2pct"
+  ],
+  "stochastic_methods": [],
+  "method_parameters": {
+    "canonical_core_doi": "10.1016/j.knosys.2016.02.001",
+    "automatic_center_selector_doi": "10.1016/j.knosys.2020.106350",
+    "neighbour_fraction": 0.02,
+    "center_selection": "P1_last_gap_automatic",
+    "true_cluster_count": "not_used",
+    "reference_labels": "not_used",
+    "noise_model": "none_all_points_assigned"
+  },
+  "synthetic": {
+    "quality_seeds": [
+      211,
+      223,
+      227
+    ],
+    "scaling_seeds": [],
+    "quality_sizes": [
+      20000
+    ],
+    "scaling_sizes": [],
+    "cases": [
+      {
+        "id": "multidensity_2d",
+        "family": "multidensity",
+        "dimension": 2,
+        "noise_fraction": 0.75
+      },
+      {
+        "id": "ultrasparse_16d",
+        "family": "ultrasparse",
+        "dimension": 16,
+        "noise_fraction": 0.95
+      },
+      {
+        "id": "overlapping_density_16d",
+        "family": "overlapping_density",
+        "dimension": 16,
+        "noise_fraction": 0.8,
+        "signal_fraction": 0.2
+      },
+      {
+        "id": "moons_2d",
+        "family": "moons",
+        "dimension": 2,
+        "noise_fraction": 0.25
+      },
+      {
+        "id": "rings_2d",
+        "family": "rings",
+        "dimension": 2,
+        "noise_fraction": 0.75
+      },
+      {
+        "id": "overlap_8d",
+        "family": "gaussian_overlap",
+        "dimension": 8,
+        "noise_fraction": 0.25
+      },
+      {
+        "id": "imbalanced_16d",
+        "family": "gaussian_imbalanced",
+        "dimension": 16,
+        "noise_fraction": 0.75
+      }
+    ]
+  },
+  "analysis": {
+    "failure_quality": "missing_not_zero",
+    "primary_metric": "macro_target_f1_hungarian",
+    "secondary_metrics": [
+      "target_discovery_rate",
+      "noise_evidence_f1",
+      "pairwise_f1",
+      "runtime_seconds"
+    ],
+    "aggregation": "quality_conditional_on_status_ok_with_declared_completion_denominator"
+  }
+}

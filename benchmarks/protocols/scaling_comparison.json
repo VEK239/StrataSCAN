@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-target-discovery-v1-scaling-comparison",
+  "purpose": "focused_ultrasparse_16d_comparison",
+  "parameter_mode": "released_v0.2.4_defaults_and_frozen_controlled_baseline_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 54000,
+    "memory_limit_mb": 196608
+  },
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "stochastic_methods": [
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "method_parameters": {
+    "baseline_policy": "controlled_reference_profiles_in_baselines_algorithms",
+    "stratascan_policy": "released_0.2.4_defaults",
+    "failure_policy": "timeout_memory_limit_and_errors_are_recorded_not_imputed",
+    "amd_dbscan": "excluded_from_results_after_methodological_screen"
+  },
+  "synthetic": {
+    "quality_seeds": [],
+    "scaling_seeds": [
+      42
+    ],
+    "quality_sizes": [],
+    "scaling_sizes": [
+      1000000,
+      2000000,
+      5000000
+    ],
+    "cases": [
+      {
+        "id": "ultrasparse_16d",
+        "family": "ultrasparse",
+        "dimension": 16,
+        "noise_fraction": 0.95
+      }
+    ]
+  },
+  "analysis": {
+    "metrics": [
+      "macro_target_f1",
+      "target_discovery_rate",
+      "noise_evidence_f1",
+      "runtime_seconds",
+      "process_peak_rss_mb",
+      "completion"
+    ],
+    "uncertainty": "single_seed_descriptive",
+    "expected_records": 168
+  }
+}

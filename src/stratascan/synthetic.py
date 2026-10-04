@@ -3,6 +3,105 @@ from __future__ import annotations
 import numpy as np
 
 
+def make_density_contrast(
+    n: int,
+    *,
+    dimension: int,
+    density_ratio: float,
+    shape: str = "gaussian",
+    noise_fraction: float = 0.25,
+    n_clusters: int = 6,
+    seed: int = 42,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Equal-mass clusters with a controlled peak-density contrast.
+
+    Cluster covariance determinants, rather than radii alone, define the
+    contrast.  If ``r`` is ``density_ratio`` and ``d`` is ``dimension``, the
+    sparsest cluster has marginal standard deviation 0.75 and, when target
+    counts divide evenly, the densest has standard deviation
+    ``0.75 / r**(1/d)``.  Intermediate clusters are spaced geometrically in
+    peak density.  A count correction keeps the Gaussian density at the
+    densest mean exactly ``r`` times that at the sparsest mean even when integer
+    target counts differ by one.
+
+    ``shape="anisotropic"`` applies a rotated, determinant-one axis transform
+    with a 4:1 longest-to-shortest standard-deviation ratio.  It changes shape
+    without changing the declared peak-density contrast.  Target counts,
+    center separation, and background support are otherwise held fixed.
+    """
+    if isinstance(n, bool) or not isinstance(n, (int, np.integer)):
+        raise TypeError("n must be an integer")
+    if isinstance(dimension, bool) or not isinstance(dimension, (int, np.integer)):
+        raise TypeError("dimension must be an integer")
+    if isinstance(n_clusters, bool) or not isinstance(n_clusters, (int, np.integer)):
+        raise TypeError("n_clusters must be an integer")
+    if int(dimension) < 2:
+        raise ValueError("dimension must be at least two")
+    if int(n_clusters) < 3:
+        raise ValueError("n_clusters must be at least three")
+    if not np.isfinite(density_ratio) or float(density_ratio) < 1.0:
+        raise ValueError("density_ratio must be finite and at least one")
+    if not np.isfinite(noise_fraction) or not 0.0 <= float(noise_fraction) < 1.0:
+        raise ValueError("noise_fraction must lie in [0, 1)")
+    if shape not in {"gaussian", "anisotropic"}:
+        raise ValueError("shape must be 'gaussian' or 'anisotropic'")
+
+    n = int(n)
+    dimension = int(dimension)
+    n_clusters = int(n_clusters)
+    n_signal = int(round((1.0 - float(noise_fraction)) * n))
+    if n_signal < 20 * n_clusters:
+        raise ValueError("n and noise_fraction must leave at least 20 points per cluster")
+
+    rng = np.random.default_rng(seed)
+    counts = np.full(n_clusters, n_signal // n_clusters, dtype=np.int64)
+    counts[: n_signal % n_clusters] += 1
+
+    # Relative peak densities run from r (cluster 0) to 1 (last cluster).
+    relative_peak_density = np.geomspace(float(density_ratio), 1.0, n_clusters)
+    count_ratio = counts.astype(np.float64) / float(counts[-1])
+    scales = 0.75 * (count_ratio / relative_peak_density) ** (1.0 / dimension)
+
+    center_radius = 8.0
+    angles = 2.0 * np.pi * np.arange(n_clusters, dtype=np.float64) / n_clusters
+    centers = np.zeros((n_clusters, dimension), dtype=np.float64)
+    centers[:, 0] = center_radius * np.cos(angles)
+    centers[:, 1] = center_radius * np.sin(angles)
+
+    blocks: list[np.ndarray] = []
+    labels: list[np.ndarray] = []
+    for cluster, (count, scale, angle) in enumerate(
+        zip(counts, scales, angles, strict=True)
+    ):
+        root = np.eye(dimension, dtype=np.float64)
+        if shape == "anisotropic":
+            # Product of the axis multipliers is one, preserving det(covariance).
+            axis = np.ones(dimension, dtype=np.float64)
+            axis[:2] = (2.0, 0.5)
+            rotation = np.eye(dimension, dtype=np.float64)
+            cosine, sine = np.cos(angle + 0.31), np.sin(angle + 0.31)
+            rotation[:2, :2] = ((cosine, -sine), (sine, cosine))
+            root = rotation @ np.diag(axis)
+        points = rng.normal(size=(int(count), dimension)) @ root.T
+        points = points * float(scale) + centers[cluster]
+        blocks.append(points.astype(np.float32))
+        labels.append(np.full(int(count), cluster, dtype=np.int64))
+
+    n_noise = n - n_signal
+    # A common uniform background makes the comparison about target-density
+    # contrast; it does not use target labels or change with density_ratio.
+    lower = np.full(dimension, -3.0, dtype=np.float64)
+    upper = np.full(dimension, 3.0, dtype=np.float64)
+    lower[:2] = -12.0
+    upper[:2] = 12.0
+    background = rng.uniform(lower, upper, size=(n_noise, dimension)).astype(np.float32)
+
+    X = np.vstack([*blocks, background])
+    y = np.concatenate([*labels, np.full(n_noise, -1, dtype=np.int64)])
+    order = rng.permutation(n)
+    return np.asarray(X[order], dtype=np.float32, order="C"), y[order]
+
+
 def make_multidensity_2d(n: int, *, seed: int = 42) -> tuple[np.ndarray, np.ndarray]:
     """Six anisotropic clusters embedded in 75% uniform background."""
     rng = np.random.default_rng(seed)

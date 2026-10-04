@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+  "purpose": "separate_noncanonical_stress_test_of_equal_mass_targets_with_locked_peak_density_contrasts",
+  "parameter_mode": "unmodified_v0.2.4_defaults_and_frozen_external_method_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1200,
+    "memory_limit_mb": 8192
+  },
+  "methods": [
+    "StrataSCAN"
+  ],
+  "stochastic_methods": [
+    "StrataSCAN"
+  ],
+  "method_parameters": {
+    "stratascan": "unmodified_v0.2.4_defaults_at_execution_source_hash",
+    "baselines": "controlled_profiles_in_baselines_algorithms_at_execution_source_hash",
+    "evaluation": "benchmarks/evaluation_protocol.v1.json",
+    "seed_semantics": "all_methods_receive_each_seed_so_every_method_sees_the_same_generated_realization",
+    "analysis_boundary": "family_geometry_and_declared_density_ratio_specific_no_global_superiority_claim"
+  },
+  "synthetic": {
+    "quality_seeds": [
+      211,
+      223,
+      227
+    ],
+    "scaling_seeds": [],
+    "quality_sizes": [
+      10000
+    ],
+    "scaling_sizes": [],
+    "cases": [
+      {
+        "id": "density_r16_gaussian_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 16,
+        "shape": "gaussian",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r64_gaussian_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 64,
+        "shape": "gaussian",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r256_gaussian_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 256,
+        "shape": "gaussian",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r64_anisotropic_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 64,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r256_anisotropic_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 256,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r16_gaussian_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 16,
+        "shape": "gaussian",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r64_gaussian_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 64,
+        "shape": "gaussian",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r256_gaussian_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 256,
+        "shape": "gaussian",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r256_anisotropic_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 256,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r16_anisotropic_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 16,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r16_anisotropic_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 16,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r64_anisotropic_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 64,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      }
+    ]
+  },
+  "analysis": {
+    "primary_metric": "macro_target_f1_hungarian",
+    "secondary_metrics": [
+      "macro_target_purity",
+      "macro_target_coverage",
+      "target_discovery_rate",
+      "noise_evidence_f1",
+      "pairwise_f1",
+      "runtime_seconds",
+      "process_peak_rss_mb"
+    ],
+    "uncertainty": "paired_realization_reporting_with_family_geometry_density_ratio_strata"
+  }
+}

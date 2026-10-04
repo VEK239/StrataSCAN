@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-target-discovery-v1-rare-dense-noise-all-methods",
+  "purpose": "paired_all_method_recovery_of_fixed_rare_dense_targets_under_increasing_low_density_background_burden",
+  "parameter_mode": "released_stratascan_defaults_and_frozen_external_method_profiles_without_label_tuning",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1200,
+    "memory_limit_mb": 8192
+  },
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "AMD-DBSCAN",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "stochastic_methods": [
+    "StrataSCAN"
+  ],
+  "method_parameters": {
+    "stratascan": "current_public_defaults_at_manifest_source_hash",
+    "baselines": "controlled_reference_profiles_in_baselines_algorithms",
+    "evaluation": "benchmarks/evaluation_protocol.v1.json",
+    "controlled_factor": "global_background_support_area_only",
+    "invariants": [
+      "target_coordinates_and_labels_within_seed",
+      "signal_count_300",
+      "three_equal_100_observation_targets",
+      "target_covariance_and_centers",
+      "background_intensity_3_points_per_square_unit",
+      "background_strip_height_10",
+      "background_inner_edge_6",
+      "background_coordinates_are_seeded_prefixes_within_seed"
+    ]
+  },
+  "synthetic": {
+    "size_mode": "fixed_signal_count",
+    "quality_seeds": [
+      211,
+      223,
+      227,
+      229,
+      233
+    ],
+    "scaling_seeds": [],
+    "quality_sizes": [
+      300
+    ],
+    "scaling_sizes": [],
+    "cases": [
+      {
+        "id": "global_contamination_noise25",
+        "family": "global_contamination_invariance",
+        "dimension": 2,
+        "noise_fraction": 0.25,
+        "background_intensity": 3.0,
+        "background_strip_height": 10.0,
+        "background_inner_edge": 6.0
+      },
+      {
+        "id": "global_contamination_noise50",
+        "family": "global_contamination_invariance",
+        "dimension": 2,
+        "noise_fraction": 0.5,
+        "background_intensity": 3.0,
+        "background_strip_height": 10.0,
+        "background_inner_edge": 6.0
+      },
+      {
+        "id": "global_contamination_noise75",
+        "family": "global_contamination_invariance",
+        "dimension": 2,
+        "noise_fraction": 0.75,
+        "background_intensity": 3.0,
+        "background_strip_height": 10.0,
+        "background_inner_edge": 6.0
+      },
+      {
+        "id": "global_contamination_noise90",
+        "family": "global_contamination_invariance",
+        "dimension": 2,
+        "noise_fraction": 0.9,
+        "background_intensity": 3.0,
+        "background_strip_height": 10.0,
+        "background_inner_edge": 6.0
+      },
+      {
+        "id": "global_contamination_noise95",
+        "family": "global_contamination_invariance",
+        "dimension": 2,
+        "noise_fraction": 0.95,
+        "background_intensity": 3.0,
+        "background_strip_height": 10.0,
+        "background_inner_edge": 6.0
+      },
+      {
+        "id": "global_contamination_noise99",
+        "family": "global_contamination_invariance",
+        "dimension": 2,
+        "noise_fraction": 0.99,
+        "background_intensity": 3.0,
+        "background_strip_height": 10.0,
+        "background_inner_edge": 6.0
+      }
+    ]
+  },
+  "analysis": {
+    "expected_records": 270,
+    "primary_metric": "macro_target_f1",
+    "matching": "Hungarian_maximum_pairwise_f1_under_target-discovery-v1",
+    "stratascan_stability_definition": {
+      "completion_rate": 1.0,
+      "target_discovery_rate_every_cell": 1.0,
+      "minimum_macro_target_f1_every_cell": 0.8
+    },
+    "secondary_metrics": [
+      "macro_target_purity",
+      "macro_target_coverage",
+      "noise_evidence_f1",
+      "candidate_clusters_per_target",
+      "runtime_seconds",
+      "peak_rss_mb"
+    ],
+    "seed_policy": "report_all_five_prespecified_seeds_without_exclusion_or_replacement",
+    "comparison_policy": "all_methods_receive_identical_paired_realizations_and_frozen_profiles",
+    "interpretation": "Tests rare dense target recovery while global low-density background burden increases. It does not test increasing local target-background density overlap."
+  }
+}
