@@ -1,0 +1,81 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub release tag to publish
+        required: true
+        default: v0.2.4
+        type: string
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pypi-publish
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'VEK239/StrataSCAN' && (github.event_name == 'release' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and verify the existing release artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft')" = false
+          mkdir artifacts
+          gh release download "$RELEASE_TAG" --dir artifacts --pattern '*.whl' --pattern '*.tar.gz' --pattern SHA256SUMS.txt
+          cd artifacts
+          python - <<'PY'
+          import hashlib, pathlib, re
+          root = pathlib.Path('.')
+          distributions = list(root.glob('*.whl')) + list(root.glob('*.tar.gz'))
+          assert len(list(root.glob('*.whl'))) == len(list(root.glob('*.tar.gz'))) == 1
+          expected = {p.name for p in distributions}
+          entries = {}
+          for line in (root / 'SHA256SUMS.txt').read_text().splitlines():
+              digest, name = line.split()
+              assert re.fullmatch(r'[0-9a-f]{64}', digest)
+              assert name in expected and name not in entries
+              entries[name] = digest
+          assert entries.keys() == expected
+          for path in distributions:
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == entries[path.name]
+          PY
+      - name: Transfer verified distributions
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pypi-distributions
+          path: |
+            artifacts/*.whl
+            artifacts/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/p/stratascan
+    permissions:
+      id-token: write
+    steps:
+      - name: Retrieve verified distributions
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: pypi-distributions
+          path: dist
+      - name: Publish through PyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
