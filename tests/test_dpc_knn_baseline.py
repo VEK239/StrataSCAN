@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from baselines.dpc_knn import (
+from stratascan.baselines.dpc_knn import (
     METHOD_ID,
     _fit_dpc_knn_2016,
     _gb_auto_centers,

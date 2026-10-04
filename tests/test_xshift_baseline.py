@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from baselines import dispatch_baseline
+from stratascan.baselines import dispatch_baseline
 
 
 def test_xshift_separates_two_angular_modes_deterministically() -> None:

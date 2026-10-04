@@ -300,8 +300,7 @@ def input_paths(
     paths = [
         protocol_path.resolve(),
         *sorted((REPO / "benchmarks").glob("*.py")),
-        *sorted((REPO / "baselines").glob("*.py")),
-        *sorted((REPO / "src" / "stratascan").glob("*.py")),
+        *sorted((REPO / "src" / "stratascan").rglob("*.py")),
     ]
     if evaluation_protocol_path is not None:
         paths.append(evaluation_protocol_path.resolve())

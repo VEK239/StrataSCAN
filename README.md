@@ -57,6 +57,33 @@ print("Rejected points:", np.count_nonzero(labels == -1))
 
 Labels `0, 1, ...` identify clusters; **`-1` means noise / abstention**. Cluster numbers have no ordering or identity across separate fits. `fit_predict(X)` directly returns the labels. Fitted attributes include `labels_`, `n_clusters_`, `core_sample_indices_`, `stratification_`, and `profile_`. `StrataSCAN` is an alias of `OptimizationStrataSCAN`. The API fits the supplied observations; it does not provide an out-of-sample `predict` method.
 
+## Use the comparator methods
+
+The installed package also includes the comparator implementations in `stratascan.baselines`. For all optional graph and Leiden dependencies, install:
+
+```bash
+python -m pip install -e ".[baselines]"
+```
+
+Call a comparator directly on a finite numeric array:
+
+```python
+from stratascan.baselines import dispatch_baseline, run_dpc_knn_2016
+
+profile = "low_dim" if X.shape[1] <= 2 else "high_dim"
+result = dispatch_baseline("DBSCAN", X, profile, seed=42)
+labels = result.labels
+print(result.metadata)
+
+# Automatic DPC-kNN hybrid: no manual centre selection or true cluster count.
+dpc = run_dpc_knn_2016(X)
+print(dpc.labels)
+```
+
+`dispatch_baseline` supports `DBSCAN`, `HDBSCAN`, `OPTICS`, `SNN-DBSCAN`, `VDBSCAN-2007`, `AMD-DBSCAN`, `kNN-DBSCAN`, `kNN+Leiden`, and `X-shift`. The profiles select the existing frozen settings; graph construction uses exact KD-tree in low dimensions and FAISS HNSW in high dimensions, with X-shift's angular geometry handled internally. Scaling features is the caller's responsibility. Some methods can emit noise label `-1`; DPC-kNN assigns every point to a cluster. DPC computes exact blockwise pairwise distances, so large inputs can be expensive even though it avoids storing the full distance matrix.
+
+These are controlled reference implementations and library adapters; their metadata identifies the implementation and settings. DPC-kNN combines the 2016 core with the 2020 automatic centre selector. They can be used independently of the benchmark runner. X-shift is included for users but is outside the current article comparison.
+
 ## How the algorithm works
 
 1. **Look at several neighbourhood sizes.** Build one graph with 32 neighbours per observation. Distances at ranks 4, 8, 16, and 32 describe both the immediate surroundings and what happens farther away.
@@ -138,7 +165,7 @@ StrataSCAN obtains the highest target F1 among completed runs on each of these t
 
 The article also evaluates **DPC-kNN with automatic gap-based centre selection**, fixed `p=0.02`, no true cluster count, and no manual decision graph. Its canonical assignment has no noise label. The single stratification ablation processes all non-background observations as one density layer: mean target F1 changes from **0.828 to 0.735**, and discovery from **0.827 to 0.687**. It tests stratification within the complete pipeline; it does not isolate every stage's contribution.
 
-DPC-kNN obtains mean target F1 **0.116** and discovery **0.071**, completing 21/21 main-panel cells. Its existing implementation is in `baselines/dpc_knn.py`; the ablation uses the existing `signal_strata="single_layer"` option. Both come from the experimental source branch, with their recorded results and runnable protocols included here. See [benchmark instructions](benchmarks/README.md) and [recorded evidence](results/README.md) for the included material.
+DPC-kNN obtains mean target F1 **0.116** and discovery **0.071**, completing 21/21 main-panel cells. Its existing implementation is in `src/stratascan/baselines/dpc_knn.py`; the ablation uses the existing `signal_strata="single_layer"` option. Both come from the experimental source branch, with their recorded results and runnable protocols included here. See [benchmark instructions](benchmarks/README.md) and [recorded evidence](results/README.md) for the included material.
 
 ## Limits
 
@@ -149,7 +176,7 @@ Global background burden differs from local target–background density overlap.
 | Path | Contents |
 | --- | --- |
 | `src/stratascan/` | Article estimator, Gamma fitting, density profiles, graph utilities, and metrics |
-| `baselines/` | Existing controlled comparator implementations |
+| `src/stratascan/baselines/` | Existing controlled comparator implementations |
 | `benchmarks/` | Data loaders, evaluator, runner, and named experiment protocols |
 | `results/` | Curated measurements, summaries, and checksums |
 | `assets/` | Figures rendered from the final article figures |

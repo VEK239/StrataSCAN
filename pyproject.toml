@@ -28,6 +28,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "pandas>=2", "build>=1"]
 perf = ["faiss-cpu>=1.8"]
+baselines = ["faiss-cpu>=1.8", "igraph>=0.11", "leidenalg>=0.10"]
 benchmark = ["pandas>=2", "psutil>=5.9", "igraph>=0.11", "leidenalg>=0.10"]
 
 [tool.setuptools.packages.find]

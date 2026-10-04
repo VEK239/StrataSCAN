@@ -172,12 +172,12 @@ def run_knn_dbscan(X: np.ndarray, profile: str) -> BaselineResult:
 
 
 def warm_numba_kernels() -> None:
-    from baselines.snn_kernel import warm
+    from stratascan.baselines.snn_kernel import warm
     warm()
 
 
 def _shared_counts_for_edges(sorted_neigh: np.ndarray, edge_neigh: np.ndarray) -> np.ndarray:
-    from baselines.snn_kernel import shared_counts_numba
+    from stratascan.baselines.snn_kernel import shared_counts_numba
     return shared_counts_numba(sorted_neigh, edge_neigh)
 
 def run_snn_dbscan(X: np.ndarray, profile: str) -> BaselineResult:

@@ -5,8 +5,8 @@ from typing import Any
 
 import numpy as np
 
-from baselines import dispatch_baseline
-from baselines.dpc_knn import METHOD_ID as DPC_KNN_METHOD_ID, run_dpc_knn_2016
+from stratascan.baselines import dispatch_baseline
+from stratascan.baselines.dpc_knn import METHOD_ID as DPC_KNN_METHOD_ID, run_dpc_knn_2016
 from stratascan import StrataSCAN
 from stratascan.optimization import (
     OptimizationStrataSCAN,

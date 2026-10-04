@@ -123,7 +123,7 @@ def execute(
     dataset = load_dataset(job, repo)
     load_seconds = perf_counter() - loaded_at
     if job["method"] == "SNN-DBSCAN":
-        from baselines import warm_numba_kernels
+        from stratascan.baselines import warm_numba_kernels
 
         warm_numba_kernels()
     elif job["method"] == "kNN+Leiden":
