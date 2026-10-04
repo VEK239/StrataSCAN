@@ -23,7 +23,7 @@ StrataSCAN first asks how a point's neighbourhood changes as it expands. Similar
 Use **Python 3.11 or newer**. From a terminal:
 
 ```bash
-git clone --branch publication/oedm2026-article --single-branch https://github.com/VEK239/StrataSCAN.git
+git clone --branch main --single-branch https://github.com/VEK239/StrataSCAN.git
 cd StrataSCAN
 python -m venv .venv
 ```
@@ -217,7 +217,7 @@ If you use this implementation or its recorded experimental evidence, cite the s
   author = {{StrataSCAN contributors}},
   title = {StrataSCAN: Adaptive Density-Stratified Clustering and Reference Baselines},
   version = {0.2.4},
-  url = {https://github.com/VEK239/StrataSCAN/tree/publication/oedm2026-article}
+  url = {https://github.com/VEK239/StrataSCAN/tree/main}
 }
 ```
 

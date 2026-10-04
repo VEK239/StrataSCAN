@@ -7,7 +7,7 @@ authors:
 version: "0.2.4"
 license: MIT
 repository-code: "https://github.com/VEK239/StrataSCAN"
-url: "https://github.com/VEK239/StrataSCAN/tree/publication/oedm2026-article"
+url: "https://github.com/VEK239/StrataSCAN/tree/main"
 abstract: >-
   Installable Python implementations and adapters for StrataSCAN, DBSCAN,
   HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN, AMD-DBSCAN, kNN-DBSCAN,
