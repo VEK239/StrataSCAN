@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "protocol_version": "0.2.4-target-discovery-v1-scaling-comparison",
-  "purpose": "all_non_amd_methods_at_one_two_and_five_million_with_expanded_resources",
+  "purpose": "focused_ultrasparse_16d_comparison",
   "parameter_mode": "released_v0.2.4_defaults_and_frozen_controlled_baseline_profiles",
   "resources": {
     "threads": 1,
@@ -41,52 +41,14 @@
     ],
     "cases": [
       {
-        "id": "multidensity_2d",
-        "family": "multidensity",
-        "dimension": 2,
-        "noise_fraction": 0.75
-      },
-      {
         "id": "ultrasparse_16d",
         "family": "ultrasparse",
         "dimension": 16,
         "noise_fraction": 0.95
-      },
-      {
-        "id": "overlapping_density_16d",
-        "family": "overlapping_density",
-        "dimension": 16,
-        "noise_fraction": 0.8,
-        "signal_fraction": 0.2
-      },
-      {
-        "id": "moons_2d",
-        "family": "moons",
-        "dimension": 2,
-        "noise_fraction": 0.25
-      },
-      {
-        "id": "rings_2d",
-        "family": "rings",
-        "dimension": 2,
-        "noise_fraction": 0.75
-      },
-      {
-        "id": "overlap_8d",
-        "family": "gaussian_overlap",
-        "dimension": 8,
-        "noise_fraction": 0.25
-      },
-      {
-        "id": "imbalanced_16d",
-        "family": "gaussian_imbalanced",
-        "dimension": 16,
-        "noise_fraction": 0.75
       }
     ]
   },
   "analysis": {
-    "failure_quality": null,
     "metrics": [
       "macro_target_f1",
       "target_discovery_rate",

@@ -9,25 +9,9 @@
     "memory_limit_mb": 8192
   },
   "methods": [
-    "DBSCAN",
-    "HDBSCAN",
-    "OPTICS",
-    "SNN-DBSCAN",
-    "VDBSCAN-2007",
-    "AMD-DBSCAN",
-    "kNN-DBSCAN",
-    "kNN+Leiden",
     "StrataSCAN"
   ],
   "stochastic_methods": [
-    "DBSCAN",
-    "HDBSCAN",
-    "OPTICS",
-    "SNN-DBSCAN",
-    "VDBSCAN-2007",
-    "AMD-DBSCAN",
-    "kNN-DBSCAN",
-    "kNN+Leiden",
     "StrataSCAN"
   ],
   "method_parameters": {
@@ -129,11 +113,37 @@
         "shape": "anisotropic",
         "noise_fraction": 0.25,
         "n_clusters": 6
+      },
+      {
+        "id": "density_r16_anisotropic_2d",
+        "family": "density_contrast",
+        "dimension": 2,
+        "density_ratio": 16,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r16_anisotropic_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 16,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
+      },
+      {
+        "id": "density_r64_anisotropic_8d",
+        "family": "density_contrast",
+        "dimension": 8,
+        "density_ratio": 64,
+        "shape": "anisotropic",
+        "noise_fraction": 0.25,
+        "n_clusters": 6
       }
     ]
   },
   "analysis": {
-    "failure_quality": 0.0,
     "primary_metric": "macro_target_f1_hungarian",
     "secondary_metrics": [
       "macro_target_purity",

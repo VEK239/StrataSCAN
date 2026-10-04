@@ -106,8 +106,8 @@ def test_protocol_is_paired_and_uses_locked_target_discovery_evaluation() -> Non
     jobs = expand_jobs(protocol, "synthetic", evaluation)
 
     assert protocol["methods"] == protocol["stochastic_methods"]
-    assert len(protocol["synthetic"]["cases"]) == 9
-    assert len(jobs) == 9 * 9 * 3
+    assert len(protocol["synthetic"]["cases"]) == 12
+    assert len(jobs) == 12 * 1 * 3
     assert {job["seed"] for job in jobs} == {211, 223, 227}
     assert {job["dataset"]["density_ratio"] for job in jobs} == {16, 64, 256}
     assert {job["dataset"]["dimension"] for job in jobs} == {2, 8}

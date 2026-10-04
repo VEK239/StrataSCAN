@@ -5,9 +5,8 @@
   "parameter_mode": "v0.2.4_defaults_at_frozen_source_hash",
   "resources": {
     "threads": 1,
-    "timeout_seconds": 3600,
-    "memory_limit_mb": 8192,
-    "execution_mode": "one_worker_serial"
+    "timeout_seconds": 7200,
+    "memory_limit_mb": 196608
   },
   "methods": [
     "StrataSCAN"
@@ -79,7 +78,6 @@
     ]
   },
   "analysis": {
-    "failure_quality": 0.0,
     "metrics": [
       "macro_target_f1",
       "macro_target_purity",

@@ -1,10 +1,18 @@
 # StrataSCAN
 
-**Density-adaptive clustering with explicit background rejection.** This branch contains the **0.2.4 algorithm and experiment evidence used in the article**. It is a research release under the [MIT license](LICENSE).
+**Adaptive Density-Stratified Clustering on Sparse kNN Graphs**
 
-StrataSCAN looks for supported groups at different local densities. It builds a sparse nearest-neighbour graph, models density strata, and selects core radii using a description-length objective. It returns cluster labels and leaves unsupported observations as noise, without requiring a global DBSCAN radius or a requested number of clusters.
+StrataSCAN finds supported groups at different local densities and leaves unsupported observations unassigned. It chooses local core scales automatically on one sparse nearest-neighbour graph, without requiring a global DBSCAN radius or a requested number of clusters.
 
-![StrataSCAN method overview from the article](assets/method_overview.png)
+This README follows the current article and camera-ready method explanation. The branch provides the **0.2.4 implementation**, existing experiment protocols, and curated measurements under the [MIT license](LICENSE). The executable protocols and stored results cover every experiment in the current article, including DPC-kNN and the stratification ablation.
+
+## Why density stratification?
+
+A dataset can contain compact populations, diffuse populations, and a much larger background. One neighbourhood radius is a difficult compromise: a small radius can break a diffuse group, while a large one can connect groups through background. **A sparse population is not automatically noise.**
+
+StrataSCAN first asks how a point's neighbourhood changes as it expands. Similar neighbourhood profiles define density strata. A stratum is still not a cluster: spatially separate groups can have similar density, so connectivity and evidence for a supported core are checked separately. The initial background is also searched for locally supported structure.
+
+![Method illustration from the current article: neighbourhood shells, Gamma density strata, and adaptive core radii](assets/method_overview.png)
 
 ## Install
 
@@ -51,15 +59,23 @@ Labels `0, 1, ...` identify clusters; **`-1` means noise / abstention**. Cluster
 
 ## How the algorithm works
 
-1. **Neighbour graph.** Construct a graph with 32 neighbours per point and evaluate distance shells at ranks 4, 8, 16, and 32.
-2. **Density model.** Fit full-data local-Poisson Gamma shell profiles with the compiled constrained Gamma EM solver.
-3. **Select strata.** Semantic ICL selects the number of density bases. The search starts at eight bases and expands by four, up to a diagnostic bound of 24. Degenerate duplicate signal profiles receive a tighter local confirmation.
-4. **Separate background.** The largest fitted log-rate gap defines a dense signal prefix; the remaining bases form one semantic background state.
-5. **Choose core radii.** For each signal stratum, evaluate observed fourth-neighbour radii using Gamma posterior log-odds, held-out neighbour-window topology evidence, and description-length component costs. Exact distance ties are handled together.
-6. **Check background overdensities.** Rank-window and accessible-volume evidence can recover finitely supported groups inside the background.
-7. **Extract clusters.** Grow density-ordered components without merging them; attach border points only within a selected core radius. Unsupported points remain rejected.
+1. **Look at several neighbourhood sizes.** Build one graph with 32 neighbours per observation. Distances at ranks 4, 8, 16, and 32 describe both the immediate surroundings and what happens farther away.
+2. **Measure what each expansion adds.** Shell volumes between successive radii express how much extra space is needed to reach the next neighbours. A local homogeneous-Poisson model motivates Gamma distributions for those volumes.
+3. **Identify density strata.** Fit a Gamma mixture to the multiscale profiles and select its order with semantic ICL. The deterministic search starts at up to eight bases and expands by four to a bound of 24. A largest-log-rate-gap split identifies candidate strata and an initial lower-density background group. This split is a modelling heuristic, not a unique physical boundary.
+4. **Select a supported core scale within each stratum.** Sweep observed fourth-neighbour-distance events. Neighbour slots 1â€“4 construct candidate components; slots 5â€“8 score their internal connectivity separately. Exact distance ties are evaluated together.
+5. **Retain components with positive description gain.** Combine evidence that points belong to signal, evidence of internal connectivity, and a cost for describing the selected structure.
+6. **Give the initial background a second chance.** Check whether a connected group is unusual among comparable background windows and whether it has local density contrast with its surroundings. Retain it only when the combined evidence exceeds its description cost; remove accepted components and repeat.
+7. **Grow clusters from denser to sparser strata.** Earlier cluster identities are preserved. Lower-density growth can extend them but cannot merge them. A border point attaches through a labelled neighbour only within that neighbour's selected core radius; otherwise it remains unassigned.
 
-The article defaults are recorded in [release_defaults.json](benchmarks/protocols/release_defaults.json). `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the modelling and extraction settings. Additional explicitly named classes remain in the package for compatibility; the short `StrataSCAN` name selects the article algorithm.
+The central idea is:
+
+$$
+\mathrm{gain}=\mathrm{density\ evidence}+\mathrm{connectivity\ evidence}-\mathrm{description\ cost}.
+$$
+
+All terms use natural logarithms and are expressed in nats. **`gain > 0` means the evidence exceeds the specified cost.** It is an MDL-inspired composite criterion, not a calibrated significance test. The complete algorithm makes decisions in stages; it does not claim a global optimum of one joint objective.
+
+The [release defaults](benchmarks/protocols/release_defaults.json) record the implemented settings. `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the modelling and extraction stages. Explicitly named older classes remain for compatibility; `StrataSCAN` selects the current implementation.
 
 ## Performance and reproducibility
 
@@ -69,23 +85,64 @@ The first fit can include Numba compilation time. Timings depend on hardware, pa
 
 The package version is **0.2.4**. The inherited `profile_["algorithm_version"]` field still reports the **0.2.3 family identifier**; it is not a package-version check. This metadata is preserved with the article implementation.
 
-## Article experiments
+## Results in the current article
 
-![Synthetic validation from the article](assets/synthetic_validation.png)
+### Heterogeneous synthetic structure
 
-![Density contrast and background burden experiments from the article](assets/density_and_noise.png)
+The main panel evaluates seven synthetic families at **20,000 observations with three seeds per family**: 21 cells per method. StrataSCAN completes all 21 and obtains mean Hungarian-matched target F1 **0.828** and discovery rate **0.827**. It has the highest mean target F1 among methods completing the full panel under the same resource limits; the best method varies by family.
 
-The experiments cover seven synthetic families, density contrast and rare dense targets under increasing background burden, large-input execution, and 13 cytometry datasets. Gaia fields provide a supplementary diagnostic. Full instructions and resource budgets are in [benchmarks/README.md](benchmarks/README.md); recorded scores and compact tables are in [results/README.md](results/README.md).
+**AMD-DBSCAN is included in the comparison.** Its mean target F1 is **0.843 over its 12 successful cells out of 21**. That conditional mean covers a different subset and cannot be ranked directly against a complete-panel mean. Failed runs remain in completion denominators and are not replaced with artificial F1 values.
 
-The primary quality score is **macro target F1** after one-to-one Hungarian matching. Discovery requires target purity at least 0.90 and coverage at least 0.10. Background/noise metrics have dataset-specific interpretations. Failures remain visible in the recorded tables. The baseline implementations are controlled reference implementations; AMD-DBSCAN rows are retained for completeness but excluded from article comparative summaries.
+![Current article synthetic panel: target F1 and discovery across seven families](assets/synthetic_validation.png)
 
-![Biological validation from the article](assets/biological_validation.png)
+Targets are matched one-to-one with predicted clusters by Hungarian assignment; unmatched targets receive zero. Target discovery requires purity at least **0.90** and coverage at least **0.10**. The [evaluation contract](benchmarks/evaluation_protocol.v1.json) defines the exact scoring rules.
 
-![Large-input execution envelope from the article](assets/execution_envelope.png)
+### Density contrast and rare targets
 
-## Limits of the evidence
+The density-contrast experiment tests six equal-mass targets under 16â€“256-fold contrasts in 2D/8D and isotropic/anisotropic settings. All **36 StrataSCAN runs** finish; median target F1 spans **0.829â€“0.929**. This is a StrataSCAN capability test, not an all-method superiority test.
 
-High global background burden is different from local overlap between target and background density. The rare-target experiment tests the former. Density overlap can defeat the semantic separation, the adaptive search can reach its component bound, and large inputs can exceed memory limits. The recorded 8 GiB experiment completed five of seven families at five million observations. The cytometry comparison does not show a universal quality advantage. Gaia catalogue non-members are an abstention diagnostic rather than verified physical noise.
+A separate experiment keeps three dense 100-point targets fixed while low-density background increases from **25% to 99%**. StrataSCAN discovers all three targets in every run. At 99% background, median target F1 is **0.979** and true-background F1 is approximately **1.000**. Finding targets and rejecting the unsupported remainder are separate requirements.
+
+![Current article density-contrast and rare-target background experiments](assets/density_and_noise.png)
+
+### Million-point execution
+
+On the **16-D ultra-sparse family with 95% background**, the focused comparison uses one CPU and a **15-hour timeout**. At five million observations:
+
+| Method | Recorded runtime |
+| --- | ---: |
+| StrataSCAN | 22.83 min |
+| kNN-DBSCAN | 20.14 min |
+| SNN-DBSCAN | 21.31 min |
+| DBSCAN | 11.95 h |
+| HDBSCAN, OPTICS, VDBSCAN-2007, kNN+Leiden | >15 h; right-censored |
+
+![Current article runtime comparison on the 16-D ultra-sparse family](assets/ultrasparse_scaling.png)
+
+These are descriptive measurements for this family and resource budget. They do not establish that StrataSCAN is universally fastest. StrataSCAN also completes all seven synthetic families through five million observations. The family-wide runs and the focused comparison have separate recorded resource budgets.
+
+### Three independent cytometry benchmarks
+
+The main biological comparison now uses **Levine, Mosmann, and Nilsson**. Marker panels undergo benchmark-specific arcsinh transformation and robust scaling; Mosmann uses seven type and seven state markers.
+
+| Dataset | StrataSCAN target F1 |
+| --- | ---: |
+| Levine | 0.190 |
+| Mosmann | 0.565 |
+| Nilsson | 0.517 |
+| Median across the three datasets | **0.517** |
+
+StrataSCAN obtains the highest target F1 among completed runs on each of these three datasets in the evaluated generic-method comparison. Broader claims about biological clustering require broader evidence. Reference-negative events are not necessarily physical noise; agreement with abstention is a diagnostic.
+
+### Additional comparison and ablation
+
+The article also evaluates **DPC-kNN with automatic gap-based centre selection**, fixed `p=0.02`, no true cluster count, and no manual decision graph. Its canonical assignment has no noise label. The single stratification ablation processes all non-background observations as one density layer: mean target F1 changes from **0.828 to 0.735**, and discovery from **0.827 to 0.687**. It tests stratification within the complete pipeline; it does not isolate every stage's contribution.
+
+DPC-kNN obtains mean target F1 **0.116** and discovery **0.071**, completing 21/21 main-panel cells. Its existing implementation is in `baselines/dpc_knn.py`; the ablation uses the existing `signal_strata="single_layer"` option. Both come from the experimental source branch, with their recorded results and runnable protocols included here. See [benchmark instructions](benchmarks/README.md) and [recorded evidence](results/README.md) for the included material.
+
+## Limits
+
+Global background burden differs from local targetâ€“background density overlap. Density overlap can defeat the initial semantic split, the component search can reach its bound, and execution can exceed available memory. Approximate neighbour graphs can change results. Background-recovery scores do not provide a guaranteed false-discovery rate. The core-scale search is exact only within its conditional candidate space.
 
 ## Repository map
 
@@ -96,10 +153,9 @@ High global background burden is different from local overlap between target and
 | `benchmarks/` | Data loaders, evaluator, runner, and named experiment protocols |
 | `results/` | Curated measurements, summaries, and checksums |
 | `assets/` | Figures rendered from the final article figures |
-| `scripts/` | Existing Samusik download and preparation utilities |
 | `tests/` | Existing algorithm, neighbour, baseline, and evaluation tests |
 
-Synthetic data are generated by the existing loaders. Primary biological and Gaia data are external; see [data preparation](benchmarks/README.md#external-data). There is one source tree: reproduction uses the same code and protocols, without a duplicate snapshot directory.
+Synthetic data are generated by the existing loaders. Primary biological data are external; see [data preparation](benchmarks/README.md#external-data). There is one source tree: reproduction uses the same code and protocols, without a duplicate snapshot directory.
 
 ## Development
 
