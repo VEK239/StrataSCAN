@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.3-xshift-nilsson-controlled-v1",
+  "purpose": "focused_nilsson_rare_population_comparison_with_controlled_xshift_port",
+  "parameter_mode": "shared_preprocessing_published_nilsson_xshift_k62_vs_released_defaults",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1800,
+    "memory_limit_mb": 8192
+  },
+  "methods": ["X-shift", "StrataSCAN"],
+  "stochastic_methods": [],
+  "method_parameters": {
+    "X-shift": {
+      "implementation": "controlled_python_port_of_vortex_gradient_assignment",
+      "official_source_commit": "75ab0746f3184c3c1bb48180494aa0a753f077e7",
+      "distance": "angular",
+      "knn_backend": "faiss_flat_exact",
+      "density_k_including_self": 62,
+      "density_k_selection": "published_nilsson_label_free_elbow",
+      "root_pair_candidates": "root_knn32_approximation",
+      "mahalanobis_merge_threshold": 2.0
+    },
+    "StrataSCAN": {
+      "version": "0.2.3",
+      "k": 32,
+      "shell_ranks": [4, 8, 16, 32]
+    }
+  },
+  "comparison": {
+    "scope": "nilsson_only",
+    "primary_metric": "macro_target_f1",
+    "target_population": "HSCs",
+    "shared_preprocessing": "arcsinh_150_then_robust_median_iqr_scaling",
+    "xshift_execution_status": "controlled_port_not_official_vortex_binary"
+  },
+  "synthetic": {
+    "quality_seeds": [],
+    "scaling_seeds": [],
+    "quality_sizes": [],
+    "scaling_sizes": [],
+    "cases": []
+  },
+  "cytometry": {
+    "seeds": [42],
+    "datasets": [
+      {
+        "id": "nilsson",
+        "features": "data/processed/nilsson/features.csv",
+        "feature_metadata": "data/processed/nilsson/feature_metadata.csv",
+        "feature_classes": ["type"],
+        "transform": {"name": "arcsinh", "cofactor": 150.0},
+        "metadata": "data/processed/nilsson/event_metadata.csv",
+        "label_column": "population_id",
+        "background_labels": ["other"]
+      }
+    ]
+  },
+  "gaia": {
+    "seeds": [],
+    "data_root": "data/raw/mctnc/MCTNC_open_data_release/MCTNC_open_data_release/data",
+    "profiles": [],
+    "ruwe_max": 1.6
+  }
+}

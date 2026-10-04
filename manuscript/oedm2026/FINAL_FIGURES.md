@@ -7,7 +7,7 @@ Every numerical panel is generated from the five v0.2.4
 |---|---|
 | `fig1_method_pipeline` | Method blocks and exact local threshold event sweep. |
 | `fig2_synthetic_validation` | Development/fresh joint-success target-F1 contrasts and absolute target-F1/discovery anchors. |
-| `fig3_execution_envelope` | StrataSCAN-only 0.5--5M runtime, RSS, and quality envelope. |
+| `fig3_ultrasparse_16d_all_methods_scaling` | Focused all-method runtime audit on sparse 16-D data at 1--5M observations; separate 15-h recovery protocol. |
 | `fig4_biological_validation` | Equal-dataset/equal-study target F1, purity, coverage, discovery, burden, and completion. |
 | `figS3_synthetic_metric_matrix` | Synthetic target F1, discovery, and true-noise F1 matrices. |
 | `figS4_biological_metric_matrix` | Dataset-level biological one-to-one target F1. |

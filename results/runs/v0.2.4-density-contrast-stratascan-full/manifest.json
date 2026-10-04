@@ -1,0 +1,1166 @@
+{
+  "comparison": null,
+  "created_at": "2026-08-17T09:34:44.105867+00:00",
+  "environment": {
+    "cpu_count": 16,
+    "git_commit": "c3192aa25473bf93fa88078cb9233d9870ea22a3",
+    "git_dirty": true,
+    "memory_mb": 15773.3671875,
+    "packages": {
+      "faiss-cpu": "1.14.3",
+      "igraph": "1.0.0",
+      "leidenalg": "0.12.0",
+      "numba": "0.65.1",
+      "numpy": "2.4.6",
+      "pandas": "2.3.3",
+      "psutil": "7.2.2",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.17.1",
+      "threadpoolctl": "3.6.0"
+    },
+    "platform": "Windows-10-10.0.19045-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]"
+  },
+  "evaluation": {
+    "aggregation": {
+      "diagnostic": "target_size_weighted",
+      "primary": "macro_over_targets",
+      "samusik_study_weighting": "equal_weight_per_study"
+    },
+    "discovery_thresholds": {
+      "coverage": 0.1,
+      "purity": 0.9
+    },
+    "failure_policy": {
+      "exclude_from_success_only_runtime": true,
+      "retain_in_completion_denominator": true,
+      "timeout_error_memory_limit": "retain_status_and_missing_quality"
+    },
+    "fragment_min_target_fraction": 0.05,
+    "matching": {
+      "objective": "pairwise_f1",
+      "strategy": "hungarian",
+      "unmatched_target_score": 0.0
+    },
+    "protocol_version": "target-discovery-v1",
+    "schema_version": 1,
+    "suites": {
+      "cytometry": {
+        "background_semantics": "heterogeneous_biological_background",
+        "dataset_overrides": {
+          "mosmann": {
+            "mode": "target_discovery"
+          },
+          "nilsson": {
+            "mode": "target_discovery"
+          }
+        },
+        "mode": "full_partition"
+      },
+      "gaia": {
+        "background_semantics": "reference_negative_background",
+        "mode": "target_discovery"
+      },
+      "synthetic": {
+        "background_semantics": "known_synthetic_noise",
+        "mode": "full_partition"
+      }
+    }
+  },
+  "evaluation_artifacts": {
+    "audit_arrays": [
+      "target_labels",
+      "predicted_labels",
+      "target_sizes",
+      "predicted_sizes",
+      "target_predicted_contingency"
+    ],
+    "format": "numpy_npz_compressed",
+    "lossless_arrays": [
+      "y_true",
+      "y_pred"
+    ],
+    "path_template": "evaluation_state/{job_id}.npz",
+    "required_for_status": "ok"
+  },
+  "execution": {
+    "max_workers": 1,
+    "parallel_resource_measurements": false
+  },
+  "expanded_job_count": 243,
+  "expected_job_count": 27,
+  "inputs": [
+    {
+      "bytes": 3339,
+      "path": "benchmarks\\protocol.v0.2.4-density-contrast.json",
+      "sha256": "979ed5dd40a0b017e4b10415ce128645af434c4682c4f07004d77ef2558bf014"
+    },
+    {
+      "bytes": 49,
+      "path": "benchmarks\\__init__.py",
+      "sha256": "923d594099fc3b454105f6152dee5c297c4e732c51c57e7aa7b01cedbc0b142c"
+    },
+    {
+      "bytes": 15183,
+      "path": "benchmarks\\datasets.py",
+      "sha256": "af3500bbc07a41c8a49775a3d97908006d0d56426183636136fd113ac1844e3a"
+    },
+    {
+      "bytes": 17461,
+      "path": "benchmarks\\evaluation.py",
+      "sha256": "2aa8aad8a4346e06fa19bc4898c3110867b0994e9c4e83824bf62707c9ffb10c"
+    },
+    {
+      "bytes": 14242,
+      "path": "benchmarks\\methods.py",
+      "sha256": "36491d1deea38e7c03208b2fedb30f7bd8765f25b8cfd012562a8c3da024c8b8"
+    },
+    {
+      "bytes": 46899,
+      "path": "benchmarks\\run_benchmark.py",
+      "sha256": "f21bf93eac9161c291993f8fae9cdfab72cda59dffb01c3023e90cb0864eb183"
+    },
+    {
+      "bytes": 4778,
+      "path": "benchmarks\\run_campaign.py",
+      "sha256": "1bcc81bdf7128d67950cd30027ed44d4ec65396d00994510dfdd237c07da2ce8"
+    },
+    {
+      "bytes": 4488,
+      "path": "benchmarks\\run_gated_scalability.py",
+      "sha256": "b5d6c3c09cdd8c297c34d2142acad5dc4c1a156dc51338481b367dd4fc62bde5"
+    },
+    {
+      "bytes": 6341,
+      "path": "benchmarks\\worker.py",
+      "sha256": "676461e2bb39958df8548f64dc35d98bcb70e1c22d9e011cc97af3897db1c273"
+    },
+    {
+      "bytes": 199,
+      "path": "baselines\\__init__.py",
+      "sha256": "549d9ffa0f4ff266c7156644a6cd6a165378cb3578883148e9c24f8de230b0d7"
+    },
+    {
+      "bytes": 24721,
+      "path": "baselines\\algorithms.py",
+      "sha256": "b89d05786276a055e4926bf01433502b72f2cccd75906dbcd17fca8253d2a8af"
+    },
+    {
+      "bytes": 837,
+      "path": "baselines\\snn_kernel.py",
+      "sha256": "1d472c64e72f1a17099ba3e6c5caf3167c30168651b1aa1f958ebe8740aec339"
+    },
+    {
+      "bytes": 1188,
+      "path": "src\\stratascan\\__init__.py",
+      "sha256": "4e854d52e20db7241f307866575fcedeb3c1a3650c22b540a3fd0aee374c7b18"
+    },
+    {
+      "bytes": 9202,
+      "path": "src\\stratascan\\core.py",
+      "sha256": "ea88134d26b8f5cfc9664a6f01bbe186618aee7ef9205d8ec80422a7227ba09d"
+    },
+    {
+      "bytes": 19847,
+      "path": "src\\stratascan\\experimental.py",
+      "sha256": "72ae27b0ee3707a8206779f3136c40a9b8d106eb1ee9c35f41fda5841fecc22e"
+    },
+    {
+      "bytes": 3224,
+      "path": "src\\stratascan\\metrics.py",
+      "sha256": "797e20de4be768d879fa8ec30c8d96f73fae98634e57551d3bd49cd1e6ed6f94"
+    },
+    {
+      "bytes": 10959,
+      "path": "src\\stratascan\\multiscale.py",
+      "sha256": "b34833408a45f1122849a345eed812aa2f2e1d54537fa22f3a877ce784c49f1b"
+    },
+    {
+      "bytes": 5132,
+      "path": "src\\stratascan\\neighbors.py",
+      "sha256": "42cec099a921e50fe6e2fc2169bf6c64bf0507694b5f81eac2418b7b2bf69c36"
+    },
+    {
+      "bytes": 98965,
+      "path": "src\\stratascan\\optimization.py",
+      "sha256": "9248d82fe9aec99da30337d43e6990efd879e92d1a2c0f62459b765a3c6ea007"
+    },
+    {
+      "bytes": 36029,
+      "path": "src\\stratascan\\predictive.py",
+      "sha256": "101b5123c559c38bbc459361b06602773ecb751e6849155ab5ad9c2caa0011fe"
+    },
+    {
+      "bytes": 1059,
+      "path": "src\\stratascan\\stratification.py",
+      "sha256": "1af9f43c483bd378efba80443db1e7c577285a815168af3df01efcc20470207d"
+    },
+    {
+      "bytes": 55852,
+      "path": "src\\stratascan\\strict_core.py",
+      "sha256": "8f4d051e69089e94f976903c5f96d9e8d8eaed750047bf6715dbacb187df23d0"
+    },
+    {
+      "bytes": 10589,
+      "path": "src\\stratascan\\synthetic.py",
+      "sha256": "d20f71c18f5cddaa9e6d6d0d91f1ffbbafaa45766d2d1394ad6d68a08744316d"
+    },
+    {
+      "bytes": 2324,
+      "path": "src\\stratascan\\types.py",
+      "sha256": "226a2497ba2e6901b209f26e9a1a418ac1e631c9e07837dfdb580379fdcf7dc0"
+    },
+    {
+      "bytes": 10791,
+      "path": "src\\stratascan\\uniform_tail.py",
+      "sha256": "5b3fa17a168865ee34cb666a4b80f6178afe6f6b44f588ae0874967a1547e631"
+    },
+    {
+      "bytes": 1156,
+      "path": "benchmarks\\evaluation_protocol.v1.json",
+      "sha256": "fae5323e907040ffd66effa92ae3d650752e6e87cebe867a27b01231921213d6"
+    }
+  ],
+  "jobs": [
+    {
+      "dataset": {
+        "density_ratio": 16,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r16_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r16_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r16_gaussian_2d__quality__n10000__StrataSCAN__211__5a877addcd95",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 16,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r16_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r16_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r16_gaussian_2d__quality__n10000__StrataSCAN__223__83497c60e00b",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 16,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r16_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r16_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r16_gaussian_2d__quality__n10000__StrataSCAN__227__c0efa51ad5b8",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r64_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_gaussian_2d__quality__n10000__StrataSCAN__211__ada413576f0b",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r64_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_gaussian_2d__quality__n10000__StrataSCAN__223__fb37279acb79",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r64_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_gaussian_2d__quality__n10000__StrataSCAN__227__97fc09d7b559",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r256_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_gaussian_2d__quality__n10000__StrataSCAN__211__3740231dd769",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r256_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_gaussian_2d__quality__n10000__StrataSCAN__223__b6040e7aace7",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r256_gaussian_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_gaussian_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_gaussian_2d__quality__n10000__StrataSCAN__227__1dbcbf800d88",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r64_anisotropic_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_anisotropic_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_anisotropic_2d__quality__n10000__StrataSCAN__211__fbe5fec4ff7d",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r64_anisotropic_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_anisotropic_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_anisotropic_2d__quality__n10000__StrataSCAN__223__1d0a388b932d",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r64_anisotropic_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_anisotropic_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_anisotropic_2d__quality__n10000__StrataSCAN__227__65e4bc5d5de8",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r256_anisotropic_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_anisotropic_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_anisotropic_2d__quality__n10000__StrataSCAN__211__5ee02c6f21d5",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r256_anisotropic_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_anisotropic_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_anisotropic_2d__quality__n10000__StrataSCAN__223__682aecd05a9a",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 2,
+        "family": "density_contrast",
+        "id": "density_r256_anisotropic_2d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_anisotropic_2d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_anisotropic_2d__quality__n10000__StrataSCAN__227__c3eb402f30c1",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 16,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r16_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r16_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r16_gaussian_8d__quality__n10000__StrataSCAN__211__6e011beb3134",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 16,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r16_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r16_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r16_gaussian_8d__quality__n10000__StrataSCAN__223__b54581cfcc2d",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 16,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r16_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r16_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r16_gaussian_8d__quality__n10000__StrataSCAN__227__5b71ba7aa839",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r64_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_gaussian_8d__quality__n10000__StrataSCAN__211__b72a4e82c7e5",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r64_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_gaussian_8d__quality__n10000__StrataSCAN__223__5c8949722589",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 64,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r64_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r64_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r64_gaussian_8d__quality__n10000__StrataSCAN__227__bf045169cc20",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r256_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_gaussian_8d__quality__n10000__StrataSCAN__211__e53829044bc7",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r256_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_gaussian_8d__quality__n10000__StrataSCAN__223__9752d2b329f3",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r256_gaussian_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "gaussian",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_gaussian_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_gaussian_8d__quality__n10000__StrataSCAN__227__e6f4efd25183",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r256_anisotropic_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_anisotropic_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_anisotropic_8d__quality__n10000__StrataSCAN__211__d83813e9ff76",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 211,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r256_anisotropic_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_anisotropic_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_anisotropic_8d__quality__n10000__StrataSCAN__223__45a1ace5f933",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 223,
+      "suite": "synthetic"
+    },
+    {
+      "dataset": {
+        "density_ratio": 256,
+        "dimension": 8,
+        "family": "density_contrast",
+        "id": "density_r256_anisotropic_8d",
+        "n": 10000,
+        "n_clusters": 6,
+        "noise_fraction": 0.25,
+        "shape": "anisotropic",
+        "tier": "quality"
+      },
+      "dataset_id": "density_r256_anisotropic_8d__quality__n10000",
+      "evaluation": {
+        "background_semantics": "known_synthetic_noise",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "full_partition",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "synthetic__density_r256_anisotropic_8d__quality__n10000__StrataSCAN__227__dd9b6c08ddfc",
+      "method": "StrataSCAN",
+      "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+      "schema_version": 1,
+      "seed": 227,
+      "suite": "synthetic"
+    }
+  ],
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "AMD-DBSCAN",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "parameter_mode": "unmodified_v0.2.4_defaults_and_frozen_external_method_profiles",
+  "protocol_version": "0.2.4-density-contrast-target-discovery-v1",
+  "purpose": "separate_noncanonical_stress_test_of_equal_mass_targets_with_locked_peak_density_contrasts",
+  "resources": {
+    "memory_limit_mb": 8192,
+    "threads": 1,
+    "timeout_seconds": 1200
+  },
+  "schema_version": 1,
+  "suite": "synthetic"
+}

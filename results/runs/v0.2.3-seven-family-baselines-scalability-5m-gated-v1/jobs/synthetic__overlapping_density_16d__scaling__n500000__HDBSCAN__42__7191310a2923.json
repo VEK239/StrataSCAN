@@ -1,0 +1,13 @@
+{
+  "dataset_id": "overlapping_density_16d__scaling__n500000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__overlapping_density_16d__scaling__n500000__HDBSCAN__42__7191310a2923",
+  "method": "HDBSCAN",
+  "process_peak_rss_mb": 341.83203125,
+  "process_runtime_seconds": 3600.073619499999,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": "C:\\Users\\lizzka239\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\sklearn\\cluster\\_hdbscan\\hdbscan.py:722: FutureWarning: The default value of `copy` will change from False to True in 1.10. Explicitly set a value for `copy` to silence this warning.\n  warn(\n"
+}

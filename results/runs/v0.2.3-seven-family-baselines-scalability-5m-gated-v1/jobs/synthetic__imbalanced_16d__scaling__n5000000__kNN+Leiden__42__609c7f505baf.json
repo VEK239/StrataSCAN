@@ -1,0 +1,13 @@
+{
+  "dataset_id": "imbalanced_16d__scaling__n5000000",
+  "error": "peak_rss_mb=8221.738; limit_mb=8192",
+  "job_id": "synthetic__imbalanced_16d__scaling__n5000000__kNN+Leiden__42__609c7f505baf",
+  "method": "kNN+Leiden",
+  "process_peak_rss_mb": 8221.73828125,
+  "process_runtime_seconds": 2118.440327199991,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "memory_limit",
+  "suite": "synthetic",
+  "traceback": ""
+}

@@ -1,0 +1,10 @@
+{
+  "dataset_id": "imbalanced_16d__scaling__n5000000",
+  "error": "not launched because the same family/method ladder failed at n=None: status=skipped_prior_failure",
+  "job_id": "synthetic__imbalanced_16d__scaling__n5000000__AMD-DBSCAN__42__703b3ad59328",
+  "method": "AMD-DBSCAN",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "skipped_prior_failure",
+  "suite": "synthetic"
+}

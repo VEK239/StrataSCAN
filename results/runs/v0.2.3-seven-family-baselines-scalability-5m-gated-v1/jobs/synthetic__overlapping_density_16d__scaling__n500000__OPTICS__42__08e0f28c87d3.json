@@ -1,0 +1,13 @@
+{
+  "dataset_id": "overlapping_density_16d__scaling__n500000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__overlapping_density_16d__scaling__n500000__OPTICS__42__08e0f28c87d3",
+  "method": "OPTICS",
+  "process_peak_rss_mb": 361.45703125,
+  "process_runtime_seconds": 3600.067336,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": ""
+}

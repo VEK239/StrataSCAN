@@ -1,0 +1,138 @@
+{
+  "dataset_id": "imbalanced_16d__scaling__n500000",
+  "dataset_metadata": {
+    "dimension": 16,
+    "family": "gaussian_imbalanced",
+    "n": 500000
+  },
+  "dimension": 16,
+  "incremental_rss_mb": 1972.3515625,
+  "job_id": "synthetic__imbalanced_16d__scaling__n500000__kNN+Leiden__42__6827e2db797d",
+  "load_seconds": 0.27421399999911955,
+  "method": "kNN+Leiden",
+  "metrics": {
+    "ami_signal": 0.9999145488890688,
+    "ari_signal": 0.9999877867610059,
+    "background_rejection": 0.0,
+    "binary_balanced_accuracy": 0.5,
+    "binary_macro_f1": 0.2,
+    "extra_signal_fragments": 0,
+    "macro_target_f1": 0.9648819022940669,
+    "mean_target_fragments": 1.0,
+    "merged_predicted_clusters": 0,
+    "n_clusters": 9,
+    "noise_aware_macro_f1": 0.0,
+    "noise_f1": 0.0,
+    "noise_fraction": 0.0,
+    "noise_precision": 0.0,
+    "noise_recall": 0.0,
+    "pairwise_f1": 0.041721200034042914,
+    "pairwise_precision": 0.021305038583695604,
+    "pairwise_recall": 0.9999939734472627,
+    "recovered_truth_clusters_f1_080": 8,
+    "recovered_truth_clusters_f1_090": 8,
+    "signal_coverage": 1.0,
+    "signal_f1": 0.4,
+    "signal_precision": 0.25,
+    "signal_recall": 1.0,
+    "spurious_background_majority_clusters": 1,
+    "target_background_hmean_f1": 0.0,
+    "target_background_structure_hmean_f1": 0.0,
+    "target_matches": [
+      {
+        "f1": 0.9549244398124024,
+        "fragments": 1,
+        "matched_predicted_cluster": 8,
+        "precision": 0.9139650872817955,
+        "recall": 0.9997272231314784,
+        "target": "cluster_0",
+        "target_size": 3666
+      },
+      {
+        "f1": 0.9650699527471509,
+        "fragments": 1,
+        "matched_predicted_cluster": 7,
+        "precision": 0.9326647564469914,
+        "recall": 0.9998080245728547,
+        "target": "cluster_1",
+        "target_size": 5209
+      },
+      {
+        "f1": 0.9537709681680095,
+        "fragments": 1,
+        "matched_predicted_cluster": 6,
+        "precision": 0.9116273197828557,
+        "recall": 1.0,
+        "target": "cluster_2",
+        "target_size": 7221
+      },
+      {
+        "f1": 0.95725529007022,
+        "fragments": 1,
+        "matched_predicted_cluster": 5,
+        "precision": 0.9180150049715267,
+        "recall": 1.0,
+        "target": "cluster_3",
+        "target_size": 10156
+      },
+      {
+        "f1": 0.9676363264331753,
+        "fragments": 1,
+        "matched_predicted_cluster": 4,
+        "precision": 0.9373017970401691,
+        "recall": 1.0,
+        "target": "cluster_4",
+        "target_size": 14187
+      },
+      {
+        "f1": 0.9680454812781807,
+        "fragments": 1,
+        "matched_predicted_cluster": 3,
+        "precision": 0.9380699088145896,
+        "recall": 1.0,
+        "target": "cluster_5",
+        "target_size": 19752
+      },
+      {
+        "f1": 0.9718659049261614,
+        "fragments": 1,
+        "matched_predicted_cluster": 2,
+        "precision": 0.9452715453973579,
+        "recall": 1.0,
+        "target": "cluster_6",
+        "target_size": 27048
+      },
+      {
+        "f1": 0.9804868549172346,
+        "fragments": 1,
+        "matched_predicted_cluster": 1,
+        "precision": 0.9617206601466992,
+        "recall": 1.0,
+        "target": "cluster_7",
+        "target_size": 37761
+      }
+    ],
+    "target_success_rate_f1_080": 1.0,
+    "truth_clusters": 8
+  },
+  "n": 500000,
+  "package_version": "0.2.3",
+  "parameters": {
+    "edge_rank": 15,
+    "geometry_profile": "high_dim",
+    "k": 20,
+    "knn_backend": "faiss_hnsw",
+    "resolution": 0.5,
+    "symmetrization": "union",
+    "weights": "1/(1+d)"
+  },
+  "peak_rss_mb": 2218.390625,
+  "process_peak_rss_mb": 2767.7890625,
+  "process_runtime_seconds": 243.52710650000154,
+  "profile": {},
+  "runtime_seconds": 237.53239949999988,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "ok",
+  "suite": "synthetic"
+}

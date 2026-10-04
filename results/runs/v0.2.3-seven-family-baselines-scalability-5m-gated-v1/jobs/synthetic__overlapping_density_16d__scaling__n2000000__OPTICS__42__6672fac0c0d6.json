@@ -1,0 +1,10 @@
+{
+  "dataset_id": "overlapping_density_16d__scaling__n2000000",
+  "error": "not launched because the same family/method ladder failed at n=None: status=skipped_prior_failure",
+  "job_id": "synthetic__overlapping_density_16d__scaling__n2000000__OPTICS__42__6672fac0c0d6",
+  "method": "OPTICS",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "skipped_prior_failure",
+  "suite": "synthetic"
+}

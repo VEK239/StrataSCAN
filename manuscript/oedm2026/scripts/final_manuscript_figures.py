@@ -24,6 +24,8 @@ DEFAULT_OUTPUT = ROOT / "final_figures"
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from ieee_figure_style import IEEE_COLORS, configure_ieee_style as _configure_ieee_style, save_ieee_figure  # noqa: E402
+
 from final_manuscript_statistics import (  # noqa: E402
     EVIDENCE_ROOT,
     EvidenceDesign,
@@ -72,15 +74,7 @@ CANONICAL_DATA_FILES = (
 
 
 def configure_ieee_style() -> None:
-    mpl.rcParams.update({
-        "font.family": "serif", "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
-        "font.size": 7.5, "axes.titlesize": 8.0, "axes.labelsize": 7.5,
-        "xtick.labelsize": 6.4, "ytick.labelsize": 6.4, "legend.fontsize": 6.3,
-        "axes.linewidth": .65, "lines.linewidth": 1.0, "figure.dpi": 160,
-        "savefig.dpi": 600, "pdf.fonttype": 42, "ps.fonttype": 42,
-        "svg.fonttype": "none",
-    })
-
+    _configure_ieee_style()
 
 def method_label(method: str) -> str:
     return METHOD_LABEL.get(method, method)
@@ -140,10 +134,11 @@ def finish_axis(ax: plt.Axes, grid: str | None = "y") -> None:
     if grid:
         ax.grid(axis=grid, color="#BBBBBB", alpha=.35, linewidth=.45)
     ax.set_axisbelow(True)
+    ax.tick_params(which="major", length=3, width=.65)
 
 
 def panel_label(ax: plt.Axes, label: str) -> None:
-    ax.text(-.10, 1.03, label, transform=ax.transAxes, fontweight="bold", fontsize=8.5)
+    ax.text(-.10, 1.03, label, transform=ax.transAxes, fontweight="bold", fontsize=10.5)
 
 
 def save_figure(fig: plt.Figure, output: Path, stem: str) -> list[Path]:
@@ -151,7 +146,7 @@ def save_figure(fig: plt.Figure, output: Path, stem: str) -> list[Path]:
     written = []
     for suffix in (".pdf", ".svg", ".png"):
         path = output / f"{stem}{suffix}"
-        fig.savefig(path, bbox_inches="tight", dpi=600 if suffix == ".png" else None)
+        save_ieee_figure(fig, path, dpi=600 if suffix == ".png" else None)
         written.append(path)
     plt.close(fig)
     return written
@@ -168,76 +163,91 @@ def figure_method_overview(output: Path) -> tuple[list[Path], list[str]]:
     ]
     for index, (x, title, note) in enumerate(boxes):
         ax.add_patch(FancyBboxPatch((x, .27), .17, .48, boxstyle="round,pad=.012", fc="#F3F6F8", ec="#4A5568"))
-        ax.text(x+.085, .57, title, ha="center", va="center", fontweight="bold", fontsize=7)
-        ax.text(x+.085, .41, note, ha="center", va="center", fontsize=6.4, color="#374151")
+        ax.text(x+.085, .57, title, ha="center", va="center", fontweight="bold", fontsize=9)
+        ax.text(x+.085, .41, note, ha="center", va="center", fontsize=8.0, color="#374151")
         if index < len(boxes)-1:
             ax.add_patch(FancyArrowPatch((x+.17, .51), (x+.20, .51), arrowstyle="->", mutation_scale=8, color="#0072B2"))
-    ax.text(.01, .91, "StrataSCAN: blockwise MDL-guided extraction", fontsize=8.5, fontweight="bold")
+    ax.text(.01, .91, "StrataSCAN: blockwise MDL-guided extraction", fontsize=10.5, fontweight="bold")
     return save_figure(fig, output, "fig1_method_pipeline"), []
 
 
 def figure_synthetic_validation(frame: pd.DataFrame, output: Path) -> tuple[list[Path], list[str]]:
+    """Compare every reported algorithm across the seven synthetic families."""
     selected = ensure_n(frame)
-    selected = successful_quality(selected.loc[selected["n"].eq(20_000)], TARGET_METRICS)
-    rows = []
-    fig, axes = plt.subplots(1, 2, figsize=(7.16, 2.65), gridspec_kw={"width_ratios": [1.55, 1]})
-    baselines = [method for method in METHOD_ORDER if method != STRATASCAN]
-    for stage, offset, color in (("development", -.17, "#0072B2"), ("fresh", .17, "#D55E00")):
-        part = selected.loc[selected["evidence_stage"].eq(stage)]
-        medians, lows, highs, labels = [], [], [], []
-        for baseline in baselines:
-            paired = joint_success_delta(part, baseline)
-            clean = paired["delta"].dropna()
-            medians.append(float(clean.median())); lows.append(float(clean.quantile(.25))); highs.append(float(clean.quantile(.75)))
-            labels.append(f"{method_label(baseline)}\n{len(clean)}/{len(paired)}")
-            rows.append({"panel": "contrast", "evidence_stage": stage, "baseline": baseline,
-                         "joint_successful_pairs": len(clean), "declared_pairs": len(paired),
-                         "median_delta": medians[-1], "q1_delta": lows[-1], "q3_delta": highs[-1]})
-        x = np.arange(len(baselines)) + offset
-        axes[0].errorbar(x, medians, yerr=[np.array(medians)-np.array(lows), np.array(highs)-np.array(medians)], fmt="o", color=color, capsize=2, label=stage.capitalize())
-        axes[0].set_xticks(np.arange(len(baselines)), labels, rotation=35, ha="right")
-    axes[0].axhline(0, color="black", linewidth=.7)
-    axes[0].set_ylabel(r"StrataSCAN $-$ baseline target F1")
-    axes[0].set_title("Paired effects; joint/declared pairs", loc="left")
-    axes[0].legend(frameon=False, ncol=2); finish_axis(axes[0]); panel_label(axes[0], "a")
-
-    anchors = selected.loc[selected["method"].eq(STRATASCAN)].groupby("evidence_stage", observed=True)[["macro_target_f1", "target_discovery_rate"]].mean()
-    for index, (stage, color) in enumerate((("development", "#0072B2"), ("fresh", "#D55E00"))):
-        values = anchors.loc[stage, ["macro_target_f1", "target_discovery_rate"]].to_numpy(float)
-        axes[1].bar(np.arange(2)+(-.18 if index == 0 else .18), values, .36, color=color, label=stage.capitalize())
-        for metric, value in zip(("macro_target_f1", "target_discovery_rate"), values, strict=True):
-            rows.append({"panel": "anchor", "evidence_stage": stage, "metric": metric, "mean": value})
-    axes[1].set_xticks(range(2), ["Target F1", "Discovery rate"]); axes[1].set_ylim(0, 1)
-    axes[1].set_title("Absolute StrataSCAN anchors", loc="left"); axes[1].legend(frameon=False)
-    finish_axis(axes[1]); panel_label(axes[1], "b"); fig.tight_layout()
-    pd.DataFrame(rows).to_csv(output / "fig2_synthetic_validation-data.csv", index=False)
+    selected = selected.loc[
+        selected["n"].eq(20_000)
+        & selected["evidence_stage"].eq("fresh")
+        & selected["method"].ne("AMD-DBSCAN")
+    ].copy()
+    selected["case"] = _case(selected["dataset_id"])
+    quality = successful_quality(selected, TARGET_METRICS)
+    methods = [method for method in METHOD_ORDER if method != "AMD-DBSCAN"]
+    fig, axes = plt.subplots(1, 2, figsize=(7.16, 3.25), sharey=True)
+    for axis, metric, title, label in (
+        (axes[0], "macro_target_f1", "Match to known populations", "F1 (higher is better)"),
+        (axes[1], "target_discovery_rate", "Known populations recovered", "Fraction recovered"),
+    ):
+        matrix = quality.groupby(["method", "case"], observed=True)[metric].mean().unstack()
+        matrix = matrix.reindex(index=methods, columns=SYNTHETIC_CASES)
+        image = axis.imshow(matrix.to_numpy(float), vmin=0, vmax=1, cmap="YlGnBu", aspect="auto")
+        for row, method in enumerate(methods):
+            for column, case in enumerate(SYNTHETIC_CASES):
+                value = matrix.loc[method, case]
+                text = "--" if pd.isna(value) else f"{value:.2f}"
+                axis.text(column, row, text, ha="center", va="center", fontsize=8.2,
+                          color="white" if pd.notna(value) and value >= .62 else "#1F2937",
+                          fontweight="bold" if method == STRATASCAN else "normal")
+        axis.set_xticks(range(len(SYNTHETIC_CASES)), [CASE_LABELS[case] for case in SYNTHETIC_CASES],
+                        rotation=32, ha="right")
+        axis.set_title(title, loc="left")
+        axis.set_xlabel("Synthetic family")
+        axis.set_yticks(range(len(methods)), [method_label(method) for method in methods])
+        axis.tick_params(length=0)
+        colorbar = fig.colorbar(image, ax=axis, fraction=.046, pad=.02)
+        colorbar.set_label(label, fontsize=8.5)
+        colorbar.ax.tick_params(labelsize=8.0)
+        panel_label(axis, "a" if axis is axes[0] else "b")
+    fig.tight_layout()
+    selected.to_csv(output / "fig2_synthetic_validation-data.csv", index=False)
     return save_figure(fig, output, "fig2_synthetic_validation"), []
 
 
 def figure_execution_envelope(scaling: pd.DataFrame, output: Path) -> tuple[list[Path], list[str]]:
+    """Show how each synthetic family scales, instead of hiding it in an aggregate."""
     scaled = successful_quality(ensure_n(scaling), [*TARGET_METRICS, *SYNTHETIC_DIAGNOSTICS])
+    scaled["case"] = _case(scaled["dataset_id"])
     successful = scaled.loc[scaled["status"].eq("ok")]
-    fig, axes = plt.subplots(1, 3, figsize=(7.16, 2.55))
-    grouped = successful.groupby("n", observed=True)
-    for ax, metric, title, ylabel in (
-        (axes[0], "runtime_seconds", "Runtime envelope", "Runtime (s)"),
-        (axes[1], "process_peak_rss_mb", "Per-process memory envelope", "Peak RSS (MiB)"),
+    colors = [IEEE_COLORS[index % len(IEEE_COLORS)] for index in range(len(SYNTHETIC_CASES))]
+    fig, axes = plt.subplots(1, 3, figsize=(7.16, 2.75), sharex=True)
+    for case, color in zip(SYNTHETIC_CASES, colors, strict=True):
+        part = successful.loc[successful["case"].eq(case)].sort_values("n")
+        label = CASE_LABELS[case]
+        axes[0].plot(part["n"], part["runtime_seconds"] / 60, marker="o", color=color, label=label)
+        axes[1].plot(part["n"], part["process_peak_rss_mb"] / 1024, marker="o", color=color)
+        axes[2].plot(part["n"], part["macro_target_f1"], marker="o", color=color)
+        failed = scaled.loc[scaled["case"].eq(case) & ~scaled["status"].eq("ok")]
+        if not failed.empty:
+            axes[1].scatter(failed["n"], np.full(len(failed), 8.0), marker="x", s=20, color=color, zorder=4)
+    for axis, ylabel, title, log_y in (
+        (axes[0], "Minutes", "Runtime by data family", True),
+        (axes[1], "Peak RSS (GiB)", "Memory by data family", False),
+        (axes[2], "Population-match F1", "Quality by data family", False),
     ):
-        median = grouped[metric].median(); low = grouped[metric].min(); high = grouped[metric].max()
-        ax.plot(median.index, median.values, marker="o", color="#0072B2")
-        ax.fill_between(median.index, low.reindex(median.index), high.reindex(median.index), color="#0072B2", alpha=.18)
-        ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlabel("Observations"); ax.set_ylabel(ylabel)
-        ax.set_xticks([500_000, 1_000_000, 2_000_000, 5_000_000], ["0.5M", "1M", "2M", "5M"])
-        ax.xaxis.set_minor_locator(mpl.ticker.NullLocator())
-        compact_title = "Runtime; median and range" if ax is axes[0] else "Memory; median and range"
-        ax.set_title(compact_title, loc="left", fontsize=7.2); finish_axis(ax); panel_label(ax, "a" if ax is axes[0] else "b")
-    for metric, label, style in (("macro_target_f1", "Target F1", "-"), ("target_discovery_rate", "Discovery", "--"), ("noise_evidence_f1", "True-noise F1", ":"), ("pairwise_f1", "Pairwise F1", "-.")):
-        curve = grouped[metric].median(); axes[2].plot(curve.index, curve.values, style, marker="o", markersize=3, label=label)
-    axes[2].set_xscale("log"); axes[2].set_ylim(0, 1); axes[2].set_xlabel("Observations")
-    axes[2].set_xticks([500_000, 1_000_000, 2_000_000, 5_000_000], ["0.5M", "1M", "2M", "5M"])
-    axes[2].xaxis.set_minor_locator(mpl.ticker.NullLocator())
-    axes[2].set_title("Quality envelope", loc="left", fontsize=7.2); axes[2].legend(frameon=False, fontsize=5.7)
-    finish_axis(axes[2]); panel_label(axes[2], "c"); fig.tight_layout()
+        axis.set_xscale("log")
+        if log_y:
+            axis.set_yscale("log")
+        axis.set_xticks([500_000, 1_000_000, 2_000_000, 5_000_000], ["0.5M", "1M", "2M", "5M"])
+        axis.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+        axis.set_xlabel("Dataset size")
+        axis.set_ylabel(ylabel)
+        axis.set_title(title, loc="left")
+        finish_axis(axis)
+        panel_label(axis, "abc"[list(axes).index(axis)])
+    axes[1].axhline(8, color="#9B2226", linewidth=.75, linestyle="--")
+    axes[1].text(510_000, 8.12, "8-GiB limit; x = not completed", color="#9B2226", fontsize=8.0)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False, fontsize=8.0)
+    fig.tight_layout(rect=(0, .10, 1, 1))
     scaled.to_csv(output / "fig3_execution_envelope-scaling-data.csv", index=False)
     return save_figure(fig, output, "fig3_execution_envelope"), []
 
@@ -268,15 +278,15 @@ def figure_biological_validation(frame: pd.DataFrame, output: Path) -> tuple[lis
     unavailable = equal_dataset["macro_target_f1"].isna() & equal_study["macro_target_f1"].isna()
     for index in np.flatnonzero(unavailable.to_numpy()):
         axes[0].plot(.015, y[index], marker="x", color="#9B2226", clip_on=False)
-        axes[0].text(.035, y[index], "NA", va="center", fontsize=5.4, color="#9B2226")
+        axes[0].text(.035, y[index], "NA", va="center", fontsize=7.5, color="#9B2226")
     axes[0].set_yticks(y, [method_label(m) for m in methods]); axes[0].set_xlim(0, 1)
-    axes[0].set_title("One-to-one target F1", loc="left"); axes[0].legend(frameon=False, fontsize=5.8)
+    axes[0].set_title("One-to-one target F1", loc="left"); axes[0].legend(frameon=False, fontsize=7.8)
     finish_axis(axes[0], "x"); panel_label(axes[0], "a")
     for metric, marker, label in (("macro_target_purity", "o", "Purity"), ("macro_target_coverage", "s", "Coverage"), ("target_discovery_rate", "^", "Discovery")):
         axes[1].plot(equal_dataset[metric], y, marker=marker, linestyle="none", label=label)
     for index in np.flatnonzero(equal_dataset[list(TARGET_METRICS)].isna().all(axis=1).to_numpy()):
         axes[1].plot(.015, y[index], marker="x", color="#9B2226", clip_on=False)
-        axes[1].text(.035, y[index], "NA", va="center", fontsize=5.4, color="#9B2226")
+        axes[1].text(.035, y[index], "NA", va="center", fontsize=7.5, color="#9B2226")
     axes[1].set_yticks(y, []); axes[1].set_xlim(0, 1); axes[1].set_title("Equal-dataset components", loc="left")
     axes[1].legend(frameon=False); finish_axis(axes[1], "x"); panel_label(axes[1], "b")
     successful = frame.loc[frame["status"].eq("ok")]
@@ -286,7 +296,7 @@ def figure_biological_validation(frame: pd.DataFrame, output: Path) -> tuple[lis
     axes[2].barh(y, completion, color=[METHOD_COLORS[m] for m in methods])
     for index, method in enumerate(methods):
         burden_text = "burden NA" if pd.isna(burden.loc[method]) else f"burden {burden.loc[method]:.1f}"
-        axes[2].text(max(.1, completion.loc[method] + .15), y[index], f"{completion.loc[method]}/{declared.loc[method]}; {burden_text}", va="center", fontsize=4.8)
+        axes[2].text(max(.1, completion.loc[method] + .15), y[index], f"{completion.loc[method]}/{declared.loc[method]}; {burden_text}", va="center", fontsize=8.0)
     axes[2].set_yticks(y, []); axes[2].set_xlim(0, max(14.5, float(completion.max()) + 4))
     axes[2].set_xlabel("Successful datasets"); axes[2].set_title("Completion; burden uses successes only", loc="left")
     finish_axis(axes[2], "x"); panel_label(axes[2], "c"); fig.tight_layout()
@@ -341,13 +351,16 @@ def figure_gaia_validation(frame: pd.DataFrame, output: Path) -> tuple[list[Path
 def figure_noise_factorial(frame: pd.DataFrame, output: Path) -> tuple[list[Path], list[str]]:
     prepared = successful_quality(frame, [*TARGET_METRICS, *SYNTHETIC_DIAGNOSTICS]).copy(); prepared["noise_fraction"] = noise_rate_from_id(prepared["dataset_id"])
     metrics = [("macro_target_f1", "Target F1"), ("target_discovery_rate", "Discovery"), ("noise_evidence_f1", "True-noise F1"), ("pairwise_f1", "Pairwise F1")]
-    fig, axes = plt.subplots(1, 4, figsize=(7.16, 2.2), sharey=True)
+    fig, axes = plt.subplots(1, 4, figsize=(7.16, 2.55), sharey=True)
     for ax, (metric, title) in zip(axes, metrics, strict=True):
         summary = prepared.loc[prepared["status"].eq("ok")].groupby(["method", "noise_fraction"], observed=True)[metric].mean()
         for method in METHOD_ORDER:
             curve = summary.xs(method, level="method"); ax.plot(curve.index, curve.values, marker="o", markersize=2.5, label=method.replace("StrataSCAN-", ""))
         ax.set_title(title, loc="left"); ax.set_xlabel("Known noise fraction"); ax.set_ylim(0, 1); finish_axis(ax)
-    axes[0].set_ylabel("Score"); axes[-1].legend(frameon=False, fontsize=4.7, loc="lower left"); fig.tight_layout()
+    axes[0].set_ylabel("Score")
+    handles, labels = axes[-1].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False, fontsize=7.8)
+    fig.tight_layout(rect=(0, .13, 1, 1))
     prepared.to_csv(output / "figS7_noise_factorial-data.csv", index=False)
     return save_figure(fig, output, "figS7_noise_factorial"), []
 
@@ -416,3 +429,10 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+

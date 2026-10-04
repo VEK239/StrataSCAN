@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.1.1-samusik-all-per-sample",
+  "purpose": "samusik_all_samples_population_stability_benchmark",
+  "parameter_mode": "fixed_predeclared_profiles",
+  "resources": {"threads": 1, "timeout_seconds": 600, "memory_limit_mb": 8192},
+  "methods": ["DBSCAN", "OPTICS", "SNN-DBSCAN", "VDBSCAN-2007", "kNN-DBSCAN", "kNN+Leiden", "StrataSCAN"],
+  "stochastic_methods": ["kNN+Leiden", "StrataSCAN"],
+  "method_parameters": {"min_samples": 5, "min_cluster_size": 5},
+  "synthetic": {"quality_seeds": [42], "scaling_seeds": [42], "quality_sizes": [], "scaling_sizes": [], "cases": []},
+  "cytometry": {
+    "seeds": [23, 42, 73],
+    "datasets": [
+      {"id": "samusik_02", "features": "data/processed/samusik_02/features.csv.gz", "feature_metadata": "data/processed/samusik_02/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_02/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_03", "features": "data/processed/samusik_03/features.csv.gz", "feature_metadata": "data/processed/samusik_03/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_03/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_04", "features": "data/processed/samusik_04/features.csv.gz", "feature_metadata": "data/processed/samusik_04/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_04/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_05", "features": "data/processed/samusik_05/features.csv.gz", "feature_metadata": "data/processed/samusik_05/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_05/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_06", "features": "data/processed/samusik_06/features.csv.gz", "feature_metadata": "data/processed/samusik_06/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_06/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_07", "features": "data/processed/samusik_07/features.csv.gz", "feature_metadata": "data/processed/samusik_07/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_07/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_08", "features": "data/processed/samusik_08/features.csv.gz", "feature_metadata": "data/processed/samusik_08/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_08/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_09", "features": "data/processed/samusik_09/features.csv.gz", "feature_metadata": "data/processed/samusik_09/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_09/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]},
+      {"id": "samusik_10", "features": "data/processed/samusik_10/features.csv.gz", "feature_metadata": "data/processed/samusik_10/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_10/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]}
+    ]
+  },
+  "gaia": {"seeds": [42], "data_root": "data", "profiles": [], "ruwe_max": 1.6}
+}

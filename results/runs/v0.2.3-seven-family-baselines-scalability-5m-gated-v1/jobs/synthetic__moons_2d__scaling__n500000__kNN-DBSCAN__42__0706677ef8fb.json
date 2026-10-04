@@ -1,0 +1,83 @@
+{
+  "dataset_id": "moons_2d__scaling__n500000",
+  "dataset_metadata": {
+    "dimension": 2,
+    "family": "moons",
+    "n": 500000
+  },
+  "dimension": 2,
+  "incremental_rss_mb": 85.4453125,
+  "job_id": "synthetic__moons_2d__scaling__n500000__kNN-DBSCAN__42__0706677ef8fb",
+  "load_seconds": 0.3220091000002867,
+  "method": "kNN-DBSCAN",
+  "metrics": {
+    "ami_signal": 0.10794583992400725,
+    "ari_signal": 6.39611292344036e-05,
+    "background_rejection": 0.986112,
+    "binary_balanced_accuracy": 0.7638973333333333,
+    "binary_macro_f1": 0.6436989974660323,
+    "extra_signal_fragments": 0,
+    "macro_target_f1": 0.0018648993836822597,
+    "mean_target_fragments": 0.0,
+    "merged_predicted_clusters": 0,
+    "n_clusters": 17897,
+    "noise_aware_macro_f1": 0.003717982419166933,
+    "noise_f1": 0.5867856131272716,
+    "noise_fraction": 0.590266,
+    "noise_precision": 0.41765576875510363,
+    "noise_recall": 0.986112,
+    "pairwise_f1": 0.00012435892288020298,
+    "pairwise_precision": 0.9852469153050804,
+    "pairwise_recall": 6.218338586694684e-05,
+    "recovered_truth_clusters_f1_080": 0,
+    "recovered_truth_clusters_f1_090": 0,
+    "signal_coverage": 0.5416826666666666,
+    "signal_f1": 0.7006123818047931,
+    "signal_precision": 0.9915262096872605,
+    "signal_recall": 0.5416826666666666,
+    "spurious_background_majority_clusters": 0,
+    "target_background_hmean_f1": 0.003717982419166933,
+    "target_background_structure_hmean_f1": 0.00034968431546738047,
+    "target_matches": [
+      {
+        "f1": 0.0019181176871763178,
+        "fragments": 0,
+        "matched_predicted_cluster": 72,
+        "precision": 0.9782608695652174,
+        "recall": 0.00096,
+        "target": "cluster_0",
+        "target_size": 187500
+      },
+      {
+        "f1": 0.0018116810801882017,
+        "fragments": 0,
+        "matched_predicted_cluster": 414,
+        "precision": 0.9941520467836257,
+        "recall": 0.0009066666666666666,
+        "target": "cluster_1",
+        "target_size": 187500
+      }
+    ],
+    "target_success_rate_f1_080": 0.0,
+    "truth_clusters": 2
+  },
+  "n": 500000,
+  "package_version": "0.2.3",
+  "parameters": {
+    "eps": 0.0020719557069242,
+    "eps_quantile": 0.25,
+    "geometry_profile": "low_dim",
+    "k": 4,
+    "knn_backend": "kd_tree",
+    "min_samples": 5
+  },
+  "peak_rss_mb": 279.37109375,
+  "process_peak_rss_mb": 266.3359375,
+  "process_runtime_seconds": 137.83680269999968,
+  "profile": {},
+  "runtime_seconds": 5.589672699999937,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "ok",
+  "suite": "synthetic"
+}

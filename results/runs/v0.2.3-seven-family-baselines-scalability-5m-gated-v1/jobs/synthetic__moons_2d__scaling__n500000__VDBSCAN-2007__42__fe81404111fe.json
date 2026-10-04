@@ -1,0 +1,86 @@
+{
+  "dataset_id": "moons_2d__scaling__n500000",
+  "dataset_metadata": {
+    "dimension": 2,
+    "family": "moons",
+    "n": 500000
+  },
+  "dimension": 2,
+  "incremental_rss_mb": 172.9453125,
+  "job_id": "synthetic__moons_2d__scaling__n500000__VDBSCAN-2007__42__fe81404111fe",
+  "load_seconds": 0.2848167000011017,
+  "method": "VDBSCAN-2007",
+  "metrics": {
+    "ami_signal": 0.4844080281431363,
+    "ari_signal": 0.6559909196225638,
+    "background_rejection": 5.6e-05,
+    "binary_balanced_accuracy": 0.500012,
+    "binary_macro_f1": 0.4286230118017347,
+    "extra_signal_fragments": 2,
+    "macro_target_f1": 0.8913590719840139,
+    "mean_target_fragments": 2.0,
+    "merged_predicted_clusters": 1,
+    "n_clusters": 3170,
+    "noise_aware_macro_f1": 0.00022393782347925715,
+    "noise_f1": 0.00011198297858725473,
+    "noise_fraction": 3.8e-05,
+    "noise_precision": 0.3684210526315789,
+    "noise_recall": 5.6e-05,
+    "pairwise_f1": 0.6570059316033219,
+    "pairwise_precision": 0.6481656010628843,
+    "pairwise_recall": 0.6660907431541857,
+    "recovered_truth_clusters_f1_080": 2,
+    "recovered_truth_clusters_f1_090": 0,
+    "signal_coverage": 0.999968,
+    "signal_f1": 0.8571340406248821,
+    "signal_precision": 0.7500045001710065,
+    "signal_recall": 0.999968,
+    "spurious_background_majority_clusters": 3,
+    "target_background_hmean_f1": 0.00022393782347925715,
+    "target_background_structure_hmean_f1": 0.0003358494987449456,
+    "target_matches": [
+      {
+        "f1": 0.8928275186925339,
+        "fragments": 2,
+        "matched_predicted_cluster": 0,
+        "precision": 0.9910723000540087,
+        "recall": 0.812304,
+        "target": "cluster_0",
+        "target_size": 187500
+      },
+      {
+        "f1": 0.8898906252754939,
+        "fragments": 2,
+        "matched_predicted_cluster": 1,
+        "precision": 0.9909422898205474,
+        "recall": 0.8075413333333333,
+        "target": "cluster_1",
+        "target_size": 187500
+      }
+    ],
+    "target_success_rate_f1_080": 1.0,
+    "truth_clusters": 2
+  },
+  "n": 500000,
+  "package_version": "0.2.3",
+  "parameters": {
+    "eps_values": [
+      0.0035702059976756573,
+      0.04326178506016731
+    ],
+    "geometry_profile": "low_dim",
+    "knee_prominence": 0.03,
+    "knn_backend": "kd_tree",
+    "max_eps_values": 3,
+    "min_samples": 5
+  },
+  "peak_rss_mb": 366.5234375,
+  "process_peak_rss_mb": 369.0703125,
+  "process_runtime_seconds": 42.27372009999999,
+  "profile": {},
+  "runtime_seconds": 17.233652099999745,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "ok",
+  "suite": "synthetic"
+}

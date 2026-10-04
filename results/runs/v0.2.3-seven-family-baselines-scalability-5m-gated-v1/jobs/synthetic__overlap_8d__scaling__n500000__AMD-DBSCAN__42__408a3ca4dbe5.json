@@ -1,0 +1,14 @@
+{
+  "dataset_id": "overlap_8d__scaling__n500000",
+  "error": "Unable to allocate 1.82 TiB for an array with shape (500000, 500000) and data type float64",
+  "error_type": "MemoryError",
+  "job_id": "synthetic__overlap_8d__scaling__n500000__AMD-DBSCAN__42__408a3ca4dbe5",
+  "method": "AMD-DBSCAN",
+  "process_peak_rss_mb": 245.37890625,
+  "process_runtime_seconds": 3.5551605000000563,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "error",
+  "suite": "synthetic",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\lizzka239\\projects\\StrataSCAN\\benchmarks\\worker.py\", line 119, in main\n    result = execute(job, args.repo.resolve())\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\lizzka239\\projects\\StrataSCAN\\benchmarks\\worker.py\", line 86, in execute\n    method = run_method(job[\"method\"], dataset.X, int(job[\"seed\"]))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\lizzka239\\projects\\StrataSCAN\\benchmarks\\methods.py\", line 366, in run_method\n    result = dispatch_baseline(method, X, profile, seed=seed)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\lizzka239\\projects\\StrataSCAN\\baselines\\algorithms.py\", line 351, in dispatch_baseline\n    return run_amd_dbscan(X, profile)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\lizzka239\\projects\\StrataSCAN\\baselines\\algorithms.py\", line 278, in run_amd_dbscan\n    distances = cdist(X, X, metric=\"euclidean\")\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\lizzka239\\AppData\\Roaming\\Python\\Python311\\site-packages\\scipy\\spatial\\distance.py\", line 2926, in cdist\n    return cdist_fn(XA, XB, out=out, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nnumpy._core._exceptions._ArrayMemoryError: Unable to allocate 1.82 TiB for an array with shape (500000, 500000) and data type float64\n"
+}

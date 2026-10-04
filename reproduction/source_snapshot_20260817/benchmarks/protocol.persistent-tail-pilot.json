@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "protocol_version": "persistent-tail-pilot-v1",
+  "purpose": "small_paired_pilot_for_three_local_density_tail_criteria",
+  "parameter_mode": "fixed_experimental_profiles",
+  "resources": {"threads": 1, "timeout_seconds": 600, "memory_limit_mb": 8192},
+  "methods": [
+    "StrataSCAN",
+    "StrataSCAN-PersistentContrast",
+    "StrataSCAN-PersistentDBCV",
+    "StrataSCAN-GammaLLRBootstrap"
+  ],
+  "stochastic_methods": [
+    "StrataSCAN",
+    "StrataSCAN-PersistentContrast",
+    "StrataSCAN-PersistentDBCV",
+    "StrataSCAN-GammaLLRBootstrap"
+  ],
+  "method_parameters": {
+    "common": {"k": 32, "min_samples": 5, "min_cluster_size": 5},
+    "StrataSCAN-PersistentContrast": {"levels": 16, "max_quantile": 0.30},
+    "StrataSCAN-PersistentDBCV": {"levels": 16, "max_quantile": 0.30},
+    "StrataSCAN-GammaLLRBootstrap": {"levels": 16, "max_quantile": 0.30, "bootstrap_replicates": 39}
+  },
+  "synthetic": {
+    "quality_seeds": [23, 42, 73],
+    "scaling_seeds": [42],
+    "quality_sizes": [5000],
+    "scaling_sizes": [],
+    "cases": [
+      {"id": "multidensity_2d", "family": "multidensity", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "ultrasparse_16d", "family": "ultrasparse", "dimension": 16, "noise_fraction": 0.95},
+      {"id": "overlapping_density_16d", "family": "overlapping_density", "dimension": 16, "noise_fraction": 0.80, "signal_fraction": 0.20},
+      {"id": "imbalanced_16d", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  },
+  "cytometry": {
+    "seeds": [42],
+    "datasets": [
+      {"id": "samusik_01", "features": "data/processed/samusik_01/features.csv.gz", "feature_metadata": "data/processed/samusik_01/feature_metadata.csv", "feature_classes": ["type"], "transform": {"name": "arcsinh", "cofactor": 5.0}, "metadata": "data/processed/samusik_01/event_metadata.csv.gz", "label_column": "population_id", "background_labels": ["unassigned"]}
+    ]
+  },
+  "gaia": {
+    "seeds": [42],
+    "data_root": "data/raw/mctnc/MCTNC_open_data_release/MCTNC_open_data_release/data",
+    "profiles": ["unsupervised_field"],
+    "field_selection": {"strategy": "stable_hash", "count": 4, "salt": "persistent-tail-pilot-v1"},
+    "ruwe_max": 1.6
+  }
+}

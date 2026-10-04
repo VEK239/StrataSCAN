@@ -1,6 +1,6 @@
 dataset_id,best_target_f1,winning_methods
 levine,0.1901834180369206,StrataSCAN
-mosmann,0.2790697674418604,SNN-DBSCAN
+mosmann,0.5654761904761905,StrataSCAN
 nilsson,0.5168800931315483,StrataSCAN
 samusik_01,0.282529892247133,kNN+Leiden
 samusik_02,0.3173733770112808,kNN+Leiden

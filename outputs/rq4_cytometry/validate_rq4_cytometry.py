@@ -22,7 +22,7 @@ def main() -> None:
     assert len(summary) == 9
     strata = summary["StrataSCAN"]
     assert int(strata["completed"]) == 13
-    assert math.isclose(float(strata["median_target_f1"]), 0.2020834725757677, abs_tol=1e-15)
+    assert math.isclose(float(strata["median_target_f1"]), 0.2033431136404888, abs_tol=1e-15)
     assert int(summary["AMD-DBSCAN"]["completed"]) == 0
     assert math.isnan(float(summary["AMD-DBSCAN"]["median_target_f1"]))
 

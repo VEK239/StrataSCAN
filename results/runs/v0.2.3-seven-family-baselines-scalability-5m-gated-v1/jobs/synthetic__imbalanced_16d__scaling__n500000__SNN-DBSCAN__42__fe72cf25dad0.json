@@ -1,0 +1,136 @@
+{
+  "dataset_id": "imbalanced_16d__scaling__n500000",
+  "dataset_metadata": {
+    "dimension": 16,
+    "family": "gaussian_imbalanced",
+    "n": 500000
+  },
+  "dimension": 16,
+  "incremental_rss_mb": 292.14453125,
+  "job_id": "synthetic__imbalanced_16d__scaling__n500000__SNN-DBSCAN__42__fe72cf25dad0",
+  "load_seconds": 0.29387449999921955,
+  "method": "SNN-DBSCAN",
+  "metrics": {
+    "ami_signal": 0.0,
+    "ari_signal": 0.0,
+    "background_rejection": 1.0,
+    "binary_balanced_accuracy": 0.5,
+    "binary_macro_f1": 0.42857142857142855,
+    "extra_signal_fragments": 0,
+    "macro_target_f1": 0.0,
+    "mean_target_fragments": 0.0,
+    "merged_predicted_clusters": 0,
+    "n_clusters": 0,
+    "noise_aware_macro_f1": 0.0,
+    "noise_f1": 0.8571428571428571,
+    "noise_fraction": 1.0,
+    "noise_precision": 0.75,
+    "noise_recall": 1.0,
+    "pairwise_f1": 0.0,
+    "pairwise_precision": 0.0,
+    "pairwise_recall": 0.0,
+    "recovered_truth_clusters_f1_080": 0,
+    "recovered_truth_clusters_f1_090": 0,
+    "signal_coverage": 0.0,
+    "signal_f1": 0.0,
+    "signal_precision": 0.0,
+    "signal_recall": 0.0,
+    "spurious_background_majority_clusters": 0,
+    "target_background_hmean_f1": 0.0,
+    "target_background_structure_hmean_f1": 0.0,
+    "target_matches": [
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_0",
+        "target_size": 3666
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_1",
+        "target_size": 5209
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_2",
+        "target_size": 7221
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_3",
+        "target_size": 10156
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_4",
+        "target_size": 14187
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_5",
+        "target_size": 19752
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_6",
+        "target_size": 27048
+      },
+      {
+        "f1": 0.0,
+        "fragments": 0,
+        "matched_predicted_cluster": null,
+        "precision": 0.0,
+        "recall": 0.0,
+        "target": "cluster_7",
+        "target_size": 37761
+      }
+    ],
+    "target_success_rate_f1_080": 0.0,
+    "truth_clusters": 8
+  },
+  "n": 500000,
+  "package_version": "0.2.3",
+  "parameters": {
+    "eps": 13,
+    "geometry_profile": "high_dim",
+    "k": 20,
+    "knn_backend": "faiss_hnsw",
+    "min_samples": 5
+  },
+  "peak_rss_mb": 549.62890625,
+  "process_peak_rss_mb": 565.1953125,
+  "process_runtime_seconds": 142.11260719999882,
+  "profile": {},
+  "runtime_seconds": 136.82940000000053,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "ok",
+  "suite": "synthetic"
+}

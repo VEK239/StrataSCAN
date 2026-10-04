@@ -8,6 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from manuscript.oedm2026.scripts.ieee_figure_style import configure_ieee_style
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,15 +28,15 @@ TABLE_METHODS = [
     "StrataSCAN", "HDBSCAN", "VDBSCAN-2007", "kNN+Leiden",
     "DBSCAN", "kNN-DBSCAN", "OPTICS", "SNN-DBSCAN",
 ]
-COLOR = "#8b1e3f"
-BLUE = "#24758a"
+COLOR = "#0072B2"
+BLUE = "#D55E00"
 
 
 def _save(fig: plt.Figure, stem: str) -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
     fig.savefig(FIGURES / f"{stem}.pdf", bbox_inches="tight")
     fig.savefig(FIGURES / f"{stem}.svg", bbox_inches="tight")
-    fig.savefig(FIGURES / f"{stem}.png", dpi=220, bbox_inches="tight")
+    fig.savefig(FIGURES / f"{stem}.png", dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -53,10 +54,10 @@ def table_i() -> None:
         cells=("macro_target_f1", "size"),
     ).reindex(TABLE_METHODS)
     if summary["cells"].ne(21).any():
-        raise ValueError("Table I requires 21 successful fresh cells per displayed method")
+        raise ValueError("Table I requires 21 successful synthetic-panel cells per displayed method")
     lines = [
-        r"\begin{table}[t]", r"\centering", r"\caption{Synthetic target recovery on three fresh seeds across seven families.}",
-        r"\label{tab:synthetic-fresh}", r"\setlength{\tabcolsep}{4.2pt}", r"\begin{tabular}{lcc}", r"\toprule",
+        r"\begin{table}[t]", r"\centering", r"\caption{Synthetic target recovery across seven families and three repeated seeds.}",
+        r"\label{tab:synthetic-panel}", r"\setlength{\tabcolsep}{4.2pt}", r"\begin{tabular}{lcc}", r"\toprule",
         r"Method & Target F1 & Discovery \\", r"\midrule",
     ]
     for method, row in summary.iterrows():
@@ -68,7 +69,7 @@ def table_i() -> None:
         lines.append(f"{label} & {f1} & {discovery} \\\\")
     lines += [
         r"\bottomrule", r"\end{tabular}",
-        r"\begin{minipage}{0.98\columnwidth}\footnotesize Target F1 is the mean $\pm$ sample SD across 21 fresh cells. Discovery is the mean fraction of reference targets matched at purity $\geq0.90$ and coverage $\geq0.10$.\end{minipage}",
+        r"\begin{minipage}{0.98\columnwidth}\footnotesize Target F1 is the mean $\pm$ sample SD across 21 cells. Discovery is the mean fraction of reference targets matched at purity $\geq0.90$ and coverage $\geq0.10$.\end{minipage}",
         r"\end{table}",
     ]
     (TABLES / "table_rq1_synthetic_fresh.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -114,34 +115,31 @@ def figure_2() -> None:
     ax.set_xticks(range(3), [r"$16\times$", r"$64\times$", r"$256\times$"])
     ax.set_yticks(range(4), [x[0] for x in row_specs])
     ax.set_xlabel("Peak-density contrast")
-    ax.set_title("(a) Six targets; 25% background", loc="left", fontsize=8)
+    ax.set_title("(a) Six targets; 25% background", loc="left", fontsize=10)
     for i in range(matrix.shape[0]):
         for j in range(matrix.shape[1]):
             text = "not tested" if np.isnan(matrix[i, j]) else f"{matrix[i, j]:.3f}"
             color = "#666666" if np.isnan(matrix[i, j]) else ("white" if matrix[i, j] < .82 else "black")
-            ax.text(j, i, text, ha="center", va="center", fontsize=6.5, color=color)
+            ax.text(j, i, text, ha="center", va="center", fontsize=8.5, color=color)
     cb = fig.colorbar(image, ax=ax, fraction=.046, pad=.03)
-    cb.set_label("Median target F1", fontsize=7)
-    cb.ax.tick_params(labelsize=6)
+    cb.set_label("Median target F1", fontsize=8.5)
+    cb.ax.tick_params(labelsize=8)
 
     ax = axes[1]
     x = noise["noise_fraction"].to_numpy(float) * 100
     for prefix, label, color, marker, ls in [
         ("macro_target_f1", "Target F1", COLOR, "o", "-"),
-        ("noise_evidence_f1", "Known-background F1", BLUE, "s", "--"),
+        ("noise_evidence_f1", "Noise-rejection F1", BLUE, "s", "--"),
     ]:
         med = noise[f"{prefix}_median"].to_numpy(float)
-        lo = noise[f"{prefix}_min"].to_numpy(float)
-        hi = noise[f"{prefix}_max"].to_numpy(float)
-        ax.errorbar(x, med, yerr=np.vstack([med - lo, hi - med]), color=color, marker=marker,
-                    linestyle=ls, lw=1.3, ms=3.5, capsize=2, label=label)
+        ax.plot(x, med, color=color, marker=marker, linestyle=ls, lw=1.3, ms=3.5, label=label)
     ax.set_ylim(0, 1.04)
     ax.set_xticks(x)
-    ax.set_xlabel("Low-density background (%)")
+    ax.set_xlabel("Noise fraction in data (%)")
     ax.set_ylabel("F1")
-    ax.set_title("(b) Three fixed dense targets", loc="left", fontsize=8)
-    ax.text(.02, .62, "Discovery: 3/3 targets in every run", transform=ax.transAxes, fontsize=6.5)
-    ax.legend(frameon=False, fontsize=6.5, loc="lower right")
+    ax.set_title("(b) Three fixed dense targets", loc="left", fontsize=10)
+    ax.text(.02, .62, "Discovery: 3/3 targets in every run", transform=ax.transAxes, fontsize=8.5)
+    ax.legend(frameon=False, fontsize=8.5, loc="lower right")
     ax.grid(axis="y", color="#dddddd", lw=.5)
     fig.tight_layout(w_pad=1.0)
     _save(fig, "fig2_density_noise")
@@ -198,15 +196,15 @@ def figure_4() -> None:
     for i in range(values.shape[0]):
         for j in range(values.shape[1]):
             if np.isnan(values[i, j]):
-                ax.text(j, i, r"$\times$", ha="center", va="center", color="#b2182b", fontsize=7)
+                ax.text(j, i, r"$\times$", ha="center", va="center", color="#b2182b", fontsize=8.5)
             else:
                 ax.text(j, i, f"{values[i, j]:.2f}", ha="center", va="center",
-                        color="white" if values[i, j] > .55 else "black", fontsize=5.5)
+                        color="white" if values[i, j] > .55 else "black", fontsize=7.8)
     ax.set_xlabel("Cytometry dataset (S1--S10: Samusik samples)")
-    ax.set_title("One-to-one macro target F1; absolute values", fontsize=8)
+    ax.set_title("One-to-one macro target F1; absolute values", fontsize=10)
     cb = fig.colorbar(image, ax=ax, fraction=.025, pad=.02)
-    cb.set_label("Target F1", fontsize=7)
-    cb.ax.tick_params(labelsize=6)
+    cb.set_label("Target F1", fontsize=8.5)
+    cb.ax.tick_params(labelsize=8)
     fig.tight_layout()
     _save(fig, "fig4_cytometry")
 
@@ -225,7 +223,7 @@ def figure_4() -> None:
 
 
 def main() -> None:
-    plt.rcParams.update({"font.size": 7, "axes.labelsize": 7, "xtick.labelsize": 6.5, "ytick.labelsize": 6.5})
+    configure_ieee_style()
     table_i()
     table_ii()
     figure_2()
@@ -235,3 +233,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+

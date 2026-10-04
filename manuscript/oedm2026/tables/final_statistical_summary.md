@@ -13,15 +13,15 @@ This generated report is accepted only after exact identity and evaluator-semant
 
 | Method | Equal-study target F1 | Purity | Coverage | Discovery rate | Abstention F1 diagnostic | Successful datasets |
 |---|---:|---:|---:|---:|---:|---:|
-| DBSCAN | 0.011 | 0.091 | 0.008 | 0.000 | 0.788 | 13/13 |
+| DBSCAN | 0.011 | 0.091 | 0.008 | 0.000 | 0.789 | 13/13 |
 | HDBSCAN | 0.065 | 0.043 | 0.370 | 0.000 | 0.243 | 11/13 |
-| OPTICS | 0.002 | 0.102 | 0.001 | 0.000 | 0.822 | 13/13 |
-| SNN-DBSCAN | 0.099 | 0.466 | 0.061 | 0.256 | 0.822 | 13/13 |
-| VDBSCAN-2007 | 0.019 | 0.101 | 0.299 | 0.000 | 0.150 | 12/13 |
+| OPTICS | 0.003 | 0.136 | 0.002 | 0.000 | 0.766 | 12/13 |
+| SNN-DBSCAN | 0.136 | 0.441 | 0.093 | 0.006 | 0.822 | 13/13 |
+| VDBSCAN-2007 | 0.025 | 0.135 | 0.353 | 0.000 | 0.155 | 11/13 |
 | AMD-inspired | NA | NA | NA | NA | NA | 0/13 |
-| kNN-DBSCAN | 0.010 | 0.092 | 0.008 | 0.000 | 0.788 | 13/13 |
+| kNN-DBSCAN | 0.010 | 0.092 | 0.008 | 0.000 | 0.789 | 13/13 |
 | kNN+Leiden | 0.210 | 0.150 | 0.699 | 0.000 | 0.000 | 11/13 |
-| StrataSCAN | 0.217 | 0.288 | 0.472 | 0.011 | 0.336 | 13/13 |
+| StrataSCAN | 0.358 | 0.392 | 0.454 | 0.011 | 0.390 | 13/13 |
 
 ## Gaia validation
 

@@ -318,9 +318,6 @@ def plot_figure(density: pd.DataFrame, strata_noise: pd.DataFrame, output: Path)
     ]
     for metric, label, color, marker, linestyle in specs:
         y = block[f"{metric}_median"].to_numpy(float)
-        low = block[f"{metric}_min"].to_numpy(float)
-        high = block[f"{metric}_max"].to_numpy(float)
-        ax.fill_between(x, low, high, color=color, alpha=0.10, linewidth=0)
         ax.plot(
             x,
             y,
@@ -332,14 +329,14 @@ def plot_figure(density: pd.DataFrame, strata_noise: pd.DataFrame, output: Path)
             label=label,
         )
     ax.set_xticks(x, ["25", "50", "75", "90", "95", "99"])
-    ax.set_xlabel("Low-density background (%)")
-    ax.set_ylabel("Score")
+    ax.set_xlabel("Noise fraction in data (%)")
+    ax.set_ylabel("F1")
     ax.set_ylim(0.0, 1.015)
     ax.set_yticks([0.0, 0.5, 0.8, 1.0])
     ax.legend(loc="lower right", frameon=False)
     ax.text(0.01, 0.98, "(b)", transform=ax.transAxes, ha="left", va="top", fontweight="bold")
     ax.annotate(
-        "99%: .979 / 1.000",
+        "99% noise: 0.979 / 1.000",
         xy=(5, float(block.loc[block["noise_fraction"] == 0.99, "macro_target_f1_median"].iloc[0])),
         xytext=(3.30, 0.69),
         fontsize=6.6,

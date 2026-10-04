@@ -1,0 +1,13 @@
+{
+  "dataset_id": "multidensity_2d__scaling__n1000000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__multidensity_2d__scaling__n1000000__OPTICS__42__8390a4480277",
+  "method": "OPTICS",
+  "process_peak_rss_mb": 432.12109375,
+  "process_runtime_seconds": 3600.0653885000065,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": ""
+}

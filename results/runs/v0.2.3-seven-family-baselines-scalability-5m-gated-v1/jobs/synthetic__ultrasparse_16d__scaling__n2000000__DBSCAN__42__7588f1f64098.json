@@ -1,0 +1,13 @@
+{
+  "dataset_id": "ultrasparse_16d__scaling__n2000000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__ultrasparse_16d__scaling__n2000000__DBSCAN__42__7588f1f64098",
+  "method": "DBSCAN",
+  "process_peak_rss_mb": 809.68359375,
+  "process_runtime_seconds": 28390.706912300026,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": ""
+}

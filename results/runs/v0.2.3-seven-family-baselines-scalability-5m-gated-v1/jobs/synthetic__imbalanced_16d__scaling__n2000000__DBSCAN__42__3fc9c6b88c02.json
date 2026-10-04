@@ -1,0 +1,10 @@
+{
+  "dataset_id": "imbalanced_16d__scaling__n2000000",
+  "error": "not launched because the same family/method ladder failed at n=None: status=timeout",
+  "job_id": "synthetic__imbalanced_16d__scaling__n2000000__DBSCAN__42__3fc9c6b88c02",
+  "method": "DBSCAN",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "skipped_prior_failure",
+  "suite": "synthetic"
+}

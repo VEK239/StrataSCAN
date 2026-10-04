@@ -1,0 +1,13 @@
+{
+  "dataset_id": "moons_2d__scaling__n1000000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__moons_2d__scaling__n1000000__OPTICS__42__f4558fc94c51",
+  "method": "OPTICS",
+  "process_peak_rss_mb": 395.8671875,
+  "process_runtime_seconds": 3600.073773600001,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": ""
+}

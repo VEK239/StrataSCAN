@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-08-17T21:33:48.997343</dc:date>
+    <dc:date>2026-08-20T17:00:56.391555</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -40,16 +40,16 @@ Q 6.400944 28.971288 6.400944 30.069
 L 6.400944 73.97748 
 Q 6.400944 75.075192 11.19528 75.075192 
 z
-" clip-path="url(#p9b287bf686)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 81.113655 52.02324 
 Q 85.105132 52.02324 87.978574 52.02324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
     <path d="M 84.778574 50.42324 
 L 87.978574 52.02324 
 L 84.778574 53.62324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
    </g>
    <g id="patch_4">
     <path d="M 91.10088 75.075192 
@@ -62,16 +62,16 @@ Q 86.306544 28.971288 86.306544 30.069
 L 86.306544 73.97748 
 Q 86.306544 75.075192 91.10088 75.075192 
 z
-" clip-path="url(#p9b287bf686)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 161.019255 52.02324 
 Q 165.010732 52.02324 167.884174 52.02324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
     <path d="M 164.684174 50.42324 
 L 167.884174 52.02324 
 L 164.684174 53.62324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
    </g>
    <g id="patch_6">
     <path d="M 171.00648 75.075192 
@@ -84,16 +84,16 @@ Q 166.212144 28.971288 166.212144 30.069
 L 166.212144 73.97748 
 Q 166.212144 75.075192 171.00648 75.075192 
 z
-" clip-path="url(#p9b287bf686)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
     <path d="M 240.924855 52.02324 
 Q 244.916332 52.02324 247.789774 52.02324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
     <path d="M 244.589774 50.42324 
 L 247.789774 52.02324 
 L 244.589774 53.62324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
    </g>
    <g id="patch_8">
     <path d="M 250.91208 75.075192 
@@ -106,16 +106,16 @@ Q 246.117744 28.971288 246.117744 30.069
 L 246.117744 73.97748 
 Q 246.117744 75.075192 250.91208 75.075192 
 z
-" clip-path="url(#p9b287bf686)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
    </g>
    <g id="patch_9">
     <path d="M 320.830455 52.02324 
 Q 324.821932 52.02324 327.695374 52.02324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
     <path d="M 324.495374 50.42324 
 L 327.695374 52.02324 
 L 324.495374 53.62324 
-" clip-path="url(#p9b287bf686)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: none; stroke: #0072b2; stroke-linecap: round"/>
    </g>
    <g id="patch_10">
     <path d="M 330.81768 75.075192 
@@ -128,71 +128,71 @@ Q 326.023344 28.971288 326.023344 30.069
 L 326.023344 73.97748 
 Q 326.023344 75.075192 330.81768 75.075192 
 z
-" clip-path="url(#p9b287bf686)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
+" clip-path="url(#pd1e4eae8ef)" style="fill: #f3f6f8; stroke: #4a5568; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
-    <text style="font-weight: 700; font-size: 7px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle" x="45.15516" y="48.14967" transform="rotate(-0 45.15516 48.14967)">Sparse kNN graph</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle" x="45.15516" y="48.611096" transform="rotate(-0 45.15516 48.611096)">Sparse kNN graph</text>
    </g>
    <g id="text_2">
-    <text style="font-size: 6.4px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="45.15516" y="62.702215" transform="rotate(-0 45.15516 62.702215)">fixed ranks</text>
+    <text style="font-size: 8px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="45.15516" y="63.085059" transform="rotate(-0 45.15516 63.085059)">fixed ranks</text>
    </g>
    <g id="text_3">
-    <text style="font-weight: 700; font-size: 7px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle" x="125.06076" y="48.14967" transform="rotate(-0 125.06076 48.14967)">Shell volumes</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle" x="125.06076" y="48.611096" transform="rotate(-0 125.06076 48.611096)">Shell volumes</text>
    </g>
    <g id="text_4">
-    <text style="font-size: 6.4px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="125.06076" y="62.702215" transform="rotate(-0 125.06076 62.702215)">Gamma mixture</text>
+    <text style="font-size: 8px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="125.06076" y="63.085059" transform="rotate(-0 125.06076 63.085059)">Gamma mixture</text>
    </g>
    <g id="text_5">
-    <text style="font-weight: 700; font-size: 7px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle" x="204.96636" y="48.151653" transform="rotate(-0 204.96636 48.151653)">Density strata</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle" x="204.96636" y="48.613645" transform="rotate(-0 204.96636 48.613645)">Density strata</text>
    </g>
    <g id="text_6">
-    <text style="font-size: 6.4px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="204.96636" y="62.702215" transform="rotate(-0 204.96636 62.702215)">semantic background</text>
+    <text style="font-size: 8px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="204.96636" y="63.085059" transform="rotate(-0 204.96636 63.085059)">semantic background</text>
    </g>
    <g id="text_7">
-    <text style="font-weight: 700; font-size: 7px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle" x="284.87196" y="48.14967" transform="rotate(-0 284.87196 48.14967)">Exact event sweep</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle" x="284.87196" y="48.611096" transform="rotate(-0 284.87196 48.611096)">Exact event sweep</text>
    </g>
    <g id="text_8">
     <!-- threshold code $\log |V_s|$ -->
-    <g style="fill: #374151" transform="translate(254.82396 62.86684)">
+    <g style="fill: #374151" transform="translate(249.99196 63.09084)">
      <text>
-      <tspan x="0" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">t</tspan>
-      <tspan x="1.775528" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">h</tspan>
-      <tspan x="4.97084" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">r</tspan>
-      <tspan x="7.098969" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">e</tspan>
-      <tspan x="9.93544" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">s</tspan>
-      <tspan x="12.422424" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">h</tspan>
-      <tspan x="15.617737" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">o</tspan>
-      <tspan x="18.813049" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">l</tspan>
-      <tspan x="20.588577" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">d</tspan>
-      <tspan x="23.78389" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151"> </tspan>
-      <tspan x="25.381546" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">c</tspan>
-      <tspan x="28.218018" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">o</tspan>
-      <tspan x="31.41333" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">d</tspan>
-      <tspan x="34.608643" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151">e</tspan>
-      <tspan x="37.445114" y="-0.109375" style="font-size: 6.4px; font-family: 'Times New Roman'; fill: #374151"> </tspan>
-      <tspan x="39.04277" y="-0.109375" style="font-size: 6.4px; font-family: 'DejaVu Sans'; fill: #374151">l</tspan>
-      <tspan x="40.818298" y="-0.109375" style="font-size: 6.4px; font-family: 'DejaVu Sans'; fill: #374151">o</tspan>
-      <tspan x="44.728195" y="-0.109375" style="font-size: 6.4px; font-family: 'DejaVu Sans'; fill: #374151">g</tspan>
-      <tspan x="48.784744" y="-0.109375" style="font-size: 6.4px; font-family: 'DejaVu Sans'; fill: #374151">|</tspan>
-      <tspan x="57.815204" y="-0.109375" style="font-size: 6.4px; font-family: 'DejaVu Sans'; fill: #374151">|</tspan>
-      <tspan x="50.937836" y="-0.109375" style="font-style: oblique; font-size: 6.4px; font-family: 'DejaVu Sans'; fill: #374151">V</tspan>
-      <tspan x="55.309555" y="0.850622" style="font-style: oblique; font-size: 4.48px; font-family: 'DejaVu Sans'; fill: #374151">s</tspan>
+      <tspan x="0" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">t</tspan>
+      <tspan x="2.222656" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">h</tspan>
+      <tspan x="6.222656" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">r</tspan>
+      <tspan x="8.886719" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">e</tspan>
+      <tspan x="12.4375" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">s</tspan>
+      <tspan x="15.550781" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">h</tspan>
+      <tspan x="19.550781" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">o</tspan>
+      <tspan x="23.550781" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">l</tspan>
+      <tspan x="25.773438" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">d</tspan>
+      <tspan x="29.773438" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151"> </tspan>
+      <tspan x="31.773438" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">c</tspan>
+      <tspan x="35.324219" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">o</tspan>
+      <tspan x="39.324219" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">d</tspan>
+      <tspan x="43.324219" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151">e</tspan>
+      <tspan x="46.875" y="-0.4375" style="font-size: 8px; font-family: 'Times New Roman'; fill: #374151"> </tspan>
+      <tspan x="48.875" y="-0.4375" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #374151">l</tspan>
+      <tspan x="51.098969" y="-0.4375" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #374151">o</tspan>
+      <tspan x="55.098923" y="-0.4375" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #374151">g</tspan>
+      <tspan x="59.098877" y="-0.4375" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #374151">|</tspan>
+      <tspan x="68.12516" y="-0.4375" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #374151">|</tspan>
+      <tspan x="60.698853" y="-0.4375" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #374151">V</tspan>
+      <tspan x="65.586792" y="0.7625" style="font-style: italic; font-size: 5.6px; font-family: 'STIXGeneral'; fill: #374151">s</tspan>
      </text>
     </g>
    </g>
    <g id="text_9">
-    <text style="font-weight: 700; font-size: 7px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle" x="364.77756" y="48.151653" transform="rotate(-0 364.77756 48.151653)">Non-merging growth</text>
+    <text style="font-weight: 700; font-size: 9px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle" x="364.77756" y="48.613645" transform="rotate(-0 364.77756 48.613645)">Non-merging growth</text>
    </g>
    <g id="text_10">
-    <text style="font-size: 6.4px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="364.77756" y="62.702215" transform="rotate(-0 364.77756 62.702215)">clusters or abstention</text>
+    <text style="font-size: 8px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: middle; fill: #374151" x="364.77756" y="63.085059" transform="rotate(-0 364.77756 63.085059)">clusters or abstention</text>
    </g>
    <g id="text_11">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Times New Roman', 'Times', 'DejaVu Serif', serif; text-anchor: start" x="11.19528" y="15.43284" transform="rotate(-0 11.19528 15.43284)">StrataSCAN: blockwise MDL-guided extraction</text>
+    <text style="font-weight: 700; font-size: 10.5px; font-family: 'Times New Roman', 'Times', 'Nimbus Roman', 'DejaVu Serif', serif; text-anchor: start" x="11.19528" y="15.43284" transform="rotate(-0 11.19528 15.43284)">StrataSCAN: blockwise MDL-guided extraction</text>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p9b287bf686">
+  <clipPath id="pd1e4eae8ef">
    <rect x="7.2" y="7.2" width="399.528" height="91.476"/>
   </clipPath>
  </defs>

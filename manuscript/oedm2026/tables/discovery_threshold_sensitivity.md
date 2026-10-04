@@ -7,10 +7,10 @@ Assignments and target matches are frozen. The locked primary remains purity 0.9
 | cytometry | AMD-inspired | NA | NA | NA | 0/13 |
 | cytometry | DBSCAN | 0.000 | 0.000--0.000 | 1 | 13/13 |
 | cytometry | HDBSCAN | 0.000 | 0.000--0.004 | 0 | 11/13 |
-| cytometry | OPTICS | 0.000 | 0.000--0.000 | 1 | 13/13 |
-| cytometry | SNN-DBSCAN | 0.096 | 0.013--0.103 | 1 | 13/13 |
+| cytometry | OPTICS | 0.000 | 0.000--0.000 | 1 | 12/13 |
+| cytometry | SNN-DBSCAN | 0.019 | 0.013--0.026 | 1 | 13/13 |
 | cytometry | StrataSCAN | 0.035 | 0.013--0.035 | 1 | 13/13 |
-| cytometry | VDBSCAN-2007 | 0.000 | 0.000--0.000 | 1 | 12/13 |
+| cytometry | VDBSCAN-2007 | 0.000 | 0.000--0.000 | 1 | 11/13 |
 | cytometry | kNN+Leiden | 0.000 | 0.000--0.000 | 1 | 11/13 |
 | cytometry | kNN-DBSCAN | 0.000 | 0.000--0.000 | 1 | 13/13 |
 | gaia | AMD-inspired | 0.919 | 0.911--0.919 | 1 | 359/359 |

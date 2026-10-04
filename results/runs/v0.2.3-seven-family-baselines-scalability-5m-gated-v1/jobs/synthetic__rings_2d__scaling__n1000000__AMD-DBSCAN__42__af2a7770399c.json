@@ -1,0 +1,10 @@
+{
+  "dataset_id": "rings_2d__scaling__n1000000",
+  "error": "not launched because the same family/method ladder failed at n=None: status=error",
+  "job_id": "synthetic__rings_2d__scaling__n1000000__AMD-DBSCAN__42__af2a7770399c",
+  "method": "AMD-DBSCAN",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "skipped_prior_failure",
+  "suite": "synthetic"
+}

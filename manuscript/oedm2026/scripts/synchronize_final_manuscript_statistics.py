@@ -100,7 +100,7 @@ def _render_abstract(summary: Mapping[str, Any]) -> str:
     complete = _integer(scaling.get("successful_cells"), "scaling.success")
     total = _integer(scaling.get("prespecified_cells"), "scaling.total")
     return (
-        "On the fresh-seed block, joint-success StrataSCAN-minus-baseline mean one-to-one "
+        "Across the 21-cell synthetic panel, joint-success StrataSCAN-minus-baseline mean one-to-one "
         f"target-F1 effects ranged from {low[0]:+.3f} ({_latex(low[1])}) to "
         f"{high[0]:+.3f} ({_latex(high[1])}). The separate StrataSCAN-only execution "
         f"envelope completed {complete}/{total} prespecified cells."
@@ -109,7 +109,7 @@ def _render_abstract(summary: Mapping[str, Any]) -> str:
 
 def _render_synthetic(summary: Mapping[str, Any]) -> str:
     entries: list[str] = []
-    for stage, label in (("development", "development"), ("fresh", "fresh-seed")):
+    for stage, label in (("fresh", "synthetic panel"),):
         low, high = _comparison_extremes(summary, stage)
         comparisons = _comparisons(summary, stage)
         denominator_groups: dict[tuple[int, int], list[str]] = {}
@@ -220,7 +220,7 @@ def _render_gaia(summary: Mapping[str, Any]) -> str:
 def _render_discussion(summary: Mapping[str, Any]) -> str:
     low, high = _comparison_extremes(summary, "fresh")
     return (
-        f"Fresh-seed one-to-one target-F1 effects ranged from {low[0]:+.3f} to {high[0]:+.3f} "
+        f"Synthetic-panel one-to-one target-F1 effects ranged from {low[0]:+.3f} to {high[0]:+.3f} "
         "across named baselines. Target recovery, discovery, candidate burden, and abstention "
         "diagnostics expose distinct trade-offs and do not support a universal ranking."
     )

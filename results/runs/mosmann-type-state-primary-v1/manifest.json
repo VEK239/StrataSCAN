@@ -1,0 +1,596 @@
+{
+  "comparison": null,
+  "created_at": "2026-08-20T11:12:42.334076+00:00",
+  "environment": {
+    "cpu_count": 16,
+    "git_commit": "9a8e3bb983a8e2091c2e5f7de73a6cf619a412c2",
+    "git_dirty": true,
+    "memory_mb": 15773.3671875,
+    "packages": {
+      "faiss-cpu": "1.14.3",
+      "igraph": "1.0.0",
+      "leidenalg": "0.12.0",
+      "numba": "0.65.1",
+      "numpy": "2.4.6",
+      "pandas": "2.3.3",
+      "psutil": "7.2.2",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.17.1",
+      "threadpoolctl": "3.6.0"
+    },
+    "platform": "Windows-10-10.0.19045-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]"
+  },
+  "evaluation": {
+    "aggregation": {
+      "diagnostic": "target_size_weighted",
+      "primary": "macro_over_targets",
+      "samusik_study_weighting": "equal_weight_per_study"
+    },
+    "discovery_thresholds": {
+      "coverage": 0.1,
+      "purity": 0.9
+    },
+    "failure_policy": {
+      "exclude_from_success_only_runtime": true,
+      "retain_in_completion_denominator": true,
+      "timeout_error_memory_limit": "retain_status_and_missing_quality"
+    },
+    "fragment_min_target_fraction": 0.05,
+    "matching": {
+      "objective": "pairwise_f1",
+      "strategy": "hungarian",
+      "unmatched_target_score": 0.0
+    },
+    "protocol_version": "target-discovery-v1",
+    "schema_version": 1,
+    "suites": {
+      "cytometry": {
+        "background_semantics": "heterogeneous_biological_background",
+        "dataset_overrides": {
+          "mosmann": {
+            "mode": "target_discovery"
+          },
+          "nilsson": {
+            "mode": "target_discovery"
+          }
+        },
+        "mode": "full_partition"
+      },
+      "gaia": {
+        "background_semantics": "reference_negative_background",
+        "mode": "target_discovery"
+      },
+      "synthetic": {
+        "background_semantics": "known_synthetic_noise",
+        "mode": "full_partition"
+      }
+    }
+  },
+  "evaluation_artifacts": {
+    "audit_arrays": [
+      "target_labels",
+      "predicted_labels",
+      "target_sizes",
+      "predicted_sizes",
+      "target_predicted_contingency"
+    ],
+    "format": "numpy_npz_compressed",
+    "lossless_arrays": [
+      "y_true",
+      "y_pred"
+    ],
+    "path_template": "evaluation_state/{job_id}.npz",
+    "required_for_status": "ok"
+  },
+  "execution": {
+    "max_workers": 2,
+    "parallel_resource_measurements": true
+  },
+  "expanded_job_count": 9,
+  "expected_job_count": 8,
+  "inputs": [
+    {
+      "bytes": 1750,
+      "path": "benchmarks\\protocol.mosmann-type-state-primary.json",
+      "sha256": "514170980beb2ac73a20b608f36e6bf0c95a135e185161a9e591b94498588438"
+    },
+    {
+      "bytes": 49,
+      "path": "benchmarks\\__init__.py",
+      "sha256": "923d594099fc3b454105f6152dee5c297c4e732c51c57e7aa7b01cedbc0b142c"
+    },
+    {
+      "bytes": 15551,
+      "path": "benchmarks\\datasets.py",
+      "sha256": "bf12ca03c2ba288a90408296838cf224b59c1aa61c609a2b4fc2e9b627d22868"
+    },
+    {
+      "bytes": 17824,
+      "path": "benchmarks\\evaluation.py",
+      "sha256": "890eb88683d474c5f70b7feb903e11253de04b7ee5c31e8ecac27df9427a1f4d"
+    },
+    {
+      "bytes": 14242,
+      "path": "benchmarks\\methods.py",
+      "sha256": "36491d1deea38e7c03208b2fedb30f7bd8765f25b8cfd012562a8c3da024c8b8"
+    },
+    {
+      "bytes": 47307,
+      "path": "benchmarks\\run_benchmark.py",
+      "sha256": "c4eb1722d9430a4255a6c609e4e98235bf329f22956181ae19ed56c9f04352a8"
+    },
+    {
+      "bytes": 4778,
+      "path": "benchmarks\\run_campaign.py",
+      "sha256": "1bcc81bdf7128d67950cd30027ed44d4ec65396d00994510dfdd237c07da2ce8"
+    },
+    {
+      "bytes": 4598,
+      "path": "benchmarks\\run_gated_scalability.py",
+      "sha256": "41fe04536a874f6eb5c1077e8f12adaf56d2853a3e96d3c69f965a7697ab4d29"
+    },
+    {
+      "bytes": 6568,
+      "path": "benchmarks\\run_stratascan_thread_scaling_v1.py",
+      "sha256": "a3b13041cbd4c369efedb36c34b13cdcb2e9e75e82b60db6976006ab1ccc9b54"
+    },
+    {
+      "bytes": 6535,
+      "path": "benchmarks\\worker.py",
+      "sha256": "fdc6ebbc714d1979f98c9f6c6b6a9779072e0dd58943b88a23211b82aed55317"
+    },
+    {
+      "bytes": 199,
+      "path": "baselines\\__init__.py",
+      "sha256": "549d9ffa0f4ff266c7156644a6cd6a165378cb3578883148e9c24f8de230b0d7"
+    },
+    {
+      "bytes": 25334,
+      "path": "baselines\\algorithms.py",
+      "sha256": "cf72898d7416e123a2d58c9bf200e74690071b8b18ca103f011ea1e50098cded"
+    },
+    {
+      "bytes": 837,
+      "path": "baselines\\snn_kernel.py",
+      "sha256": "1d472c64e72f1a17099ba3e6c5caf3167c30168651b1aa1f958ebe8740aec339"
+    },
+    {
+      "bytes": 1189,
+      "path": "src\\stratascan\\__init__.py",
+      "sha256": "a8b628329a6b12ab9ba592ecc0f7337aa9ad310bbeb228a2c0dcf888f17a1810"
+    },
+    {
+      "bytes": 9202,
+      "path": "src\\stratascan\\core.py",
+      "sha256": "ea88134d26b8f5cfc9664a6f01bbe186618aee7ef9205d8ec80422a7227ba09d"
+    },
+    {
+      "bytes": 19847,
+      "path": "src\\stratascan\\experimental.py",
+      "sha256": "72ae27b0ee3707a8206779f3136c40a9b8d106eb1ee9c35f41fda5841fecc22e"
+    },
+    {
+      "bytes": 3224,
+      "path": "src\\stratascan\\metrics.py",
+      "sha256": "797e20de4be768d879fa8ec30c8d96f73fae98634e57551d3bd49cd1e6ed6f94"
+    },
+    {
+      "bytes": 10959,
+      "path": "src\\stratascan\\multiscale.py",
+      "sha256": "b34833408a45f1122849a345eed812aa2f2e1d54537fa22f3a877ce784c49f1b"
+    },
+    {
+      "bytes": 5132,
+      "path": "src\\stratascan\\neighbors.py",
+      "sha256": "42cec099a921e50fe6e2fc2169bf6c64bf0507694b5f81eac2418b7b2bf69c36"
+    },
+    {
+      "bytes": 99181,
+      "path": "src\\stratascan\\optimization.py",
+      "sha256": "ccfbb6f6d44af8fe04e7da7a23695f00e4d23328241981cdfe6499ad9668bd2d"
+    },
+    {
+      "bytes": 36204,
+      "path": "src\\stratascan\\predictive.py",
+      "sha256": "b05d0d63d20074278762ea8dce3cb6efde29e2e1fb5ac911ff2ae64d2f56e74e"
+    },
+    {
+      "bytes": 1059,
+      "path": "src\\stratascan\\stratification.py",
+      "sha256": "1af9f43c483bd378efba80443db1e7c577285a815168af3df01efcc20470207d"
+    },
+    {
+      "bytes": 55852,
+      "path": "src\\stratascan\\strict_core.py",
+      "sha256": "8f4d051e69089e94f976903c5f96d9e8d8eaed750047bf6715dbacb187df23d0"
+    },
+    {
+      "bytes": 10823,
+      "path": "src\\stratascan\\synthetic.py",
+      "sha256": "86f99886e807e507c97b0b5113513a0e8a99bf5dd06c82050bdb2c180286aab4"
+    },
+    {
+      "bytes": 2324,
+      "path": "src\\stratascan\\types.py",
+      "sha256": "226a2497ba2e6901b209f26e9a1a418ac1e631c9e07837dfdb580379fdcf7dc0"
+    },
+    {
+      "bytes": 10791,
+      "path": "src\\stratascan\\uniform_tail.py",
+      "sha256": "5b3fa17a168865ee34cb666a4b80f6178afe6f6b44f588ae0874967a1547e631"
+    },
+    {
+      "bytes": 1198,
+      "path": "benchmarks\\evaluation_protocol.v1.json",
+      "sha256": "49b59bd7921e24a904af811e622f5404bfc25748f8ac82b6790704a18c924715"
+    },
+    {
+      "bytes": 128169250,
+      "path": "data\\processed\\mosmann\\features.csv",
+      "sha256": "989e5b4db2df27cd503f0798d59ebece8b3a09a2fb0e373ba7025017b401d5b8"
+    },
+    {
+      "bytes": 911,
+      "path": "data\\processed\\mosmann\\feature_metadata.csv",
+      "sha256": "7a35122e1ebbbf8dea40cb607b9f1c486777193e1498f95cd3fe577431636bb5"
+    },
+    {
+      "bytes": 6232719,
+      "path": "data\\processed\\mosmann\\event_metadata.csv",
+      "sha256": "dbb4e26fb3d1520dc39a983dd259080e466e70be294d43c20a5c4875c7dc0f2c"
+    }
+  ],
+  "jobs": [
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__DBSCAN__42__e76f6f91d14e",
+      "method": "DBSCAN",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__HDBSCAN__42__7587936f51bf",
+      "method": "HDBSCAN",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__OPTICS__42__40c04c7f8067",
+      "method": "OPTICS",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__SNN-DBSCAN__42__391dd9b64163",
+      "method": "SNN-DBSCAN",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__VDBSCAN-2007__42__d24993dfdfa2",
+      "method": "VDBSCAN-2007",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__kNN-DBSCAN__42__55bbfe4a874e",
+      "method": "kNN-DBSCAN",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__kNN+Leiden__42__958ae5d43483",
+      "method": "kNN+Leiden",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    },
+    {
+      "dataset": {
+        "background_labels": [
+          "other"
+        ],
+        "feature_classes": [
+          "type",
+          "state"
+        ],
+        "feature_metadata": "data/processed/mosmann/feature_metadata.csv",
+        "features": "data/processed/mosmann/features.csv",
+        "id": "mosmann",
+        "label_column": "population_id",
+        "metadata": "data/processed/mosmann/event_metadata.csv",
+        "transform": {
+          "cofactor": 150.0,
+          "name": "arcsinh"
+        }
+      },
+      "dataset_id": "mosmann",
+      "evaluation": {
+        "background_semantics": "heterogeneous_biological_background",
+        "discovery_thresholds": {
+          "coverage": 0.1,
+          "purity": 0.9
+        },
+        "fragment_min_target_fraction": 0.05,
+        "matching": {
+          "objective": "pairwise_f1",
+          "strategy": "hungarian"
+        },
+        "mode": "target_discovery",
+        "protocol_version": "target-discovery-v1"
+      },
+      "job_id": "cytometry__mosmann__StrataSCAN__42__7364b8b9cf67",
+      "method": "StrataSCAN",
+      "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+      "schema_version": 1,
+      "seed": 42,
+      "suite": "cytometry"
+    }
+  ],
+  "methods": [
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "VDBSCAN-2007",
+    "AMD-DBSCAN",
+    "kNN-DBSCAN",
+    "kNN+Leiden",
+    "StrataSCAN"
+  ],
+  "parameter_mode": "v0.2.4_frozen_method_profiles_with_primary_mosmann_type_plus_state_panel",
+  "protocol_version": "v0.2.4-target-discovery-v1-mosmann-type-state-primary",
+  "purpose": "replace the primary Mosmann type-only panel with the biologically aligned type-plus-state panel for every compared method",
+  "resources": {
+    "memory_limit_mb": 8192,
+    "threads": 1,
+    "timeout_seconds": 1800
+  },
+  "schema_version": 1,
+  "suite": "cytometry"
+}

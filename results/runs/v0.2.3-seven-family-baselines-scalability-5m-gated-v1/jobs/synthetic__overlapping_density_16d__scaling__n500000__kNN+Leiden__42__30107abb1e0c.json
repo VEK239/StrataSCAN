@@ -1,0 +1,13 @@
+{
+  "dataset_id": "overlapping_density_16d__scaling__n500000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__overlapping_density_16d__scaling__n500000__kNN+Leiden__42__30107abb1e0c",
+  "method": "kNN+Leiden",
+  "process_peak_rss_mb": 2849.6953125,
+  "process_runtime_seconds": 3600.3111686999982,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": ""
+}

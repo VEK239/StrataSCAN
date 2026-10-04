@@ -1,0 +1,65 @@
+{
+  "diagnostic_path_normalization": {
+    "changed_cells": {
+      "error": 0,
+      "traceback": 0
+    },
+    "columns": [
+      "error",
+      "traceback"
+    ],
+    "rules": {
+      "other_user_home_absolute_paths": "<user-home>/...",
+      "path_separators": "POSIX forward slash",
+      "python_environment_absolute_paths": "<python-env>/...",
+      "repository_absolute_paths": "<repo>/..."
+    },
+    "scope": "textual diagnostics only; scientific metrics, identities, and statuses unchanged"
+  },
+  "discovery_coverage_threshold": 0.1,
+  "discovery_purity_threshold": 0.9,
+  "evaluation_generation_counts": {
+    "native_target_discovery_v1": 504
+  },
+  "evaluation_protocol_version": "target-discovery-v1",
+  "matching_objective": "pairwise_f1",
+  "matching_strategy": "hungarian",
+  "methods": [
+    "AMD-DBSCAN",
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "StrataSCAN",
+    "VDBSCAN-2007",
+    "kNN+Leiden",
+    "kNN-DBSCAN"
+  ],
+  "output": "results/published/v0.2.4/target-discovery-v1/synthetic_release.csv",
+  "purpose": "canonical synthetic release evidence",
+  "rows": 504,
+  "schema_version": 1,
+  "sha256": "37a52224a55b7d9bc0723a095dba8f1b9fe6cc82dbc240b42b83a46dc23a37c7",
+  "sources": [
+    {
+      "bytes": 2922497,
+      "path": "results/runs/v0.2.4-target-discovery-v1-synthetic/results.csv",
+      "sha256": "2eb10c8a29fe1684dba1c3fc4e5371675fb34a71286e5103445ddc5291292a8f"
+    },
+    {
+      "bytes": 499371,
+      "path": "results/runs/v0.2.4-target-discovery-v1-synthetic/manifest.json",
+      "sha256": "37b29e0945cd761d311128cee76d0e5380ab98cc325e68acf3962b0a0b14b70c"
+    },
+    {
+      "bytes": 338,
+      "path": "results/runs/v0.2.4-target-discovery-v1-synthetic/validation.json",
+      "sha256": "6efff5491eb98e7a08d7e4a5531413eb7032389d9503c3120b7202ac67a60d9a"
+    }
+  ],
+  "status_counts": {
+    "memory_limit": 23,
+    "ok": 481
+  },
+  "transformation": "native rows copied after validation; evidence_stage inferred only from frozen seed sets"
+}

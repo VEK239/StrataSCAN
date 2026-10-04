@@ -23,8 +23,8 @@
       "OPTICS": {
         "attempts": 13,
         "declared_datasets": 13,
-        "successful_attempts": 13,
-        "successful_datasets": 13
+        "successful_attempts": 12,
+        "successful_datasets": 12
       },
       "SNN-DBSCAN": {
         "attempts": 13,
@@ -41,8 +41,8 @@
       "VDBSCAN-2007": {
         "attempts": 13,
         "declared_datasets": 13,
-        "successful_attempts": 12,
-        "successful_datasets": 12
+        "successful_attempts": 11,
+        "successful_datasets": 11
       },
       "kNN+Leiden": {
         "attempts": 13,
@@ -73,18 +73,18 @@
         "unmatched_predicted_cluster_count": null
       },
       "DBSCAN": {
-        "background_abstention_f1_diagnostic": 0.6100250608395712,
-        "background_abstention_fraction": 0.89687335121382,
-        "background_abstention_precision_diagnostic": 0.49108582959152713,
-        "background_majority_predicted_clusters": 160.53846153846155,
-        "candidate_clusters_per_target": 156.2554945054945,
+        "background_abstention_f1_diagnostic": 0.6101934862813112,
+        "background_abstention_fraction": 0.8971749486906485,
+        "background_abstention_precision_diagnostic": 0.49108593366783077,
+        "background_majority_predicted_clusters": 74.61538461538461,
+        "candidate_clusters_per_target": 70.33241758241758,
         "macro_target_coverage": 0.009172721841872077,
         "macro_target_f1": 0.009705734862617969,
         "macro_target_purity": 0.10824691941144432,
-        "predicted_abstention_fraction": 0.9162167656323905,
-        "predicted_cluster_count": 179.0,
+        "predicted_abstention_fraction": 0.9165182801900722,
+        "predicted_cluster_count": 93.07692307692308,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 175.0
+        "unmatched_predicted_cluster_count": 89.07692307692308
       },
       "HDBSCAN": {
         "background_abstention_f1_diagnostic": 0.11871899194429626,
@@ -101,60 +101,60 @@
         "unmatched_predicted_cluster_count": 2.8181818181818183
       },
       "OPTICS": {
-        "background_abstention_f1_diagnostic": 0.6354867456399546,
-        "background_abstention_fraction": 0.9709703097711516,
-        "background_abstention_precision_diagnostic": 0.497829360434435,
-        "background_majority_predicted_clusters": 63.69230769230769,
-        "candidate_clusters_per_target": 58.988095238095234,
-        "macro_target_coverage": 0.0027063890132040876,
-        "macro_target_f1": 0.0030976756298553695,
-        "macro_target_purity": 0.07189710896101194,
-        "predicted_abstention_fraction": 0.9743734627298563,
-        "predicted_cluster_count": 77.3076923076923,
+        "background_abstention_f1_diagnostic": 0.6059285720407935,
+        "background_abstention_fraction": 0.9701486586858143,
+        "background_abstention_precision_diagnostic": 0.45600516589525303,
+        "background_majority_predicted_clusters": 9.416666666666666,
+        "candidate_clusters_per_target": 4.320436507936508,
+        "macro_target_coverage": 0.002931921430971095,
+        "macro_target_f1": 0.0033558152656766502,
+        "macro_target_purity": 0.07788853470776293,
+        "predicted_abstention_fraction": 0.9738349685215039,
+        "predicted_cluster_count": 24.166666666666668,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 74.61538461538461
+        "unmatched_predicted_cluster_count": 21.25
       },
       "SNN-DBSCAN": {
-        "background_abstention_f1_diagnostic": 0.6379676478625096,
-        "background_abstention_fraction": 0.9881780520762322,
-        "background_abstention_precision_diagnostic": 0.497974914702498,
-        "background_majority_predicted_clusters": 52.38461538461539,
-        "candidate_clusters_per_target": 23.022435897435898,
-        "macro_target_coverage": 0.04259764512790297,
-        "macro_target_f1": 0.06402016936389554,
-        "macro_target_purity": 0.40068408203970807,
-        "predicted_abstention_fraction": 0.9915110809915014,
-        "predicted_cluster_count": 89.92307692307692,
-        "target_discovery_rate": 0.09615384615384613,
-        "unmatched_predicted_cluster_count": 77.3076923076923
+        "background_abstention_f1_diagnostic": 0.6380461407653684,
+        "background_abstention_fraction": 0.9883271041111127,
+        "background_abstention_precision_diagnostic": 0.4979825218632273,
+        "background_majority_predicted_clusters": 44.15384615384615,
+        "candidate_clusters_per_target": 14.791666666666666,
+        "macro_target_coverage": 0.05247767335655505,
+        "macro_target_f1": 0.07559404889469719,
+        "macro_target_purity": 0.3929917743474004,
+        "predicted_abstention_fraction": 0.9916525250793715,
+        "predicted_cluster_count": 81.6923076923077,
+        "target_discovery_rate": 0.01923076923076921,
+        "unmatched_predicted_cluster_count": 69.07692307692308
       },
       "StrataSCAN": {
-        "background_abstention_f1_diagnostic": 0.3956007362683969,
-        "background_abstention_fraction": 0.4478210589545324,
-        "background_abstention_precision_diagnostic": 0.5185530129788757,
-        "background_majority_predicted_clusters": 303.53846153846155,
-        "candidate_clusters_per_target": 65.55952380952381,
-        "macro_target_coverage": 0.2723061307954857,
-        "macro_target_f1": 0.17718820090201645,
-        "macro_target_purity": 0.3178559947452457,
-        "predicted_abstention_fraction": 0.4363254297882924,
-        "predicted_cluster_count": 623.1538461538462,
+        "background_abstention_f1_diagnostic": 0.4122757440846683,
+        "background_abstention_fraction": 0.45812855058539653,
+        "background_abstention_precision_diagnostic": 0.5185536291253307,
+        "background_majority_predicted_clusters": 371.15384615384613,
+        "candidate_clusters_per_target": 133.17490842490844,
+        "macro_target_coverage": 0.2666604003791131,
+        "macro_target_f1": 0.2205452047645302,
+        "macro_target_purity": 0.3499778209503006,
+        "predicted_abstention_fraction": 0.44663163974642184,
+        "predicted_cluster_count": 690.7692307692307,
         "target_discovery_rate": 0.035256410256410235,
-        "unmatched_predicted_cluster_count": 610.0
+        "unmatched_predicted_cluster_count": 677.6153846153846
       },
       "VDBSCAN-2007": {
-        "background_abstention_f1_diagnostic": 0.14639946086884603,
-        "background_abstention_fraction": 0.08566800138045079,
-        "background_abstention_precision_diagnostic": 0.6061113091120506,
-        "background_majority_predicted_clusters": 21.583333333333332,
-        "candidate_clusters_per_target": 17.27827380952381,
-        "macro_target_coverage": 0.1454339863975007,
-        "macro_target_f1": 0.0328882157674505,
-        "macro_target_purity": 0.09976153469251277,
-        "predicted_abstention_fraction": 0.0698251291592248,
-        "predicted_cluster_count": 26.75,
+        "background_abstention_f1_diagnostic": 0.14732382381652764,
+        "background_abstention_fraction": 0.08680945933407434,
+        "background_abstention_precision_diagnostic": 0.5705971873657453,
+        "background_majority_predicted_clusters": 7.7272727272727275,
+        "candidate_clusters_per_target": 3.030844155844156,
+        "macro_target_coverage": 0.14614483253372051,
+        "macro_target_f1": 0.0358705928062148,
+        "macro_target_purity": 0.10882703362730418,
+        "predicted_abstention_fraction": 0.0695065989639205,
+        "predicted_cluster_count": 13.363636363636363,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 22.666666666666668
+        "unmatched_predicted_cluster_count": 9.0
       },
       "kNN+Leiden": {
         "background_abstention_f1_diagnostic": 0.0,
@@ -171,18 +171,18 @@
         "unmatched_predicted_cluster_count": 1.0909090909090908
       },
       "kNN-DBSCAN": {
-        "background_abstention_f1_diagnostic": 0.610040471200512,
-        "background_abstention_fraction": 0.896994855294329,
-        "background_abstention_precision_diagnostic": 0.491079430260914,
-        "background_majority_predicted_clusters": 170.76923076923077,
-        "candidate_clusters_per_target": 165.51510989010993,
+        "background_abstention_f1_diagnostic": 0.6102108461576747,
+        "background_abstention_fraction": 0.8972999461782251,
+        "background_abstention_precision_diagnostic": 0.4910795355409612,
+        "background_majority_predicted_clusters": 82.6923076923077,
+        "candidate_clusters_per_target": 77.43818681318682,
         "macro_target_coverage": 0.008995463072598523,
         "macro_target_f1": 0.009470427792881908,
         "macro_target_purity": 0.11029115197734804,
-        "predicted_abstention_fraction": 0.9163580065615158,
-        "predicted_cluster_count": 194.30769230769232,
+        "predicted_abstention_fraction": 0.9166630135658115,
+        "predicted_cluster_count": 106.23076923076923,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 190.23076923076923
+        "unmatched_predicted_cluster_count": 102.15384615384616
       }
     },
     "discovery_rule": {
@@ -216,18 +216,18 @@
         "unmatched_predicted_cluster_count": null
       },
       "DBSCAN": {
-        "background_abstention_f1_diagnostic": 0.7881341474728186,
-        "background_abstention_fraction": 0.903565570198937,
-        "background_abstention_precision_diagnostic": 0.7455812094452376,
-        "background_majority_predicted_clusters": 512.075,
-        "candidate_clusters_per_target": 506.5366071428572,
+        "background_abstention_f1_diagnostic": 0.7886815301584738,
+        "background_abstention_fraction": 0.9045457619986297,
+        "background_abstention_precision_diagnostic": 0.7455815476932243,
+        "background_majority_predicted_clusters": 232.825,
+        "candidate_clusters_per_target": 227.28660714285715,
         "macro_target_coverage": 0.00834297727131903,
         "macro_target_f1": 0.01119760900936166,
         "macro_target_purity": 0.0914992819154739,
-        "predicted_abstention_fraction": 0.9079898330133088,
-        "predicted_cluster_count": 550.7,
+        "predicted_abstention_fraction": 0.9089697553257741,
+        "predicted_cluster_count": 271.45,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 547.6
+        "unmatched_predicted_cluster_count": 268.35
       },
       "HDBSCAN": {
         "background_abstention_f1_diagnostic": 0.24250204110767526,
@@ -244,60 +244,60 @@
         "unmatched_predicted_cluster_count": 13.7
       },
       "OPTICS": {
-        "background_abstention_f1_diagnostic": 0.8222220798183338,
-        "background_abstention_fraction": 0.9827187486064669,
-        "background_abstention_precision_diagnostic": 0.746800982297801,
-        "background_majority_predicted_clusters": 202.275,
-        "candidate_clusters_per_target": 191.28005952380954,
-        "macro_target_coverage": 0.0013550632787353335,
-        "macro_target_f1": 0.0019385366940511727,
-        "macro_target_purity": 0.10201978800771487,
-        "predicted_abstention_fraction": 0.983581871656408,
-        "predicted_cluster_count": 240.9,
+        "background_abstention_f1_diagnostic": 0.7662344968144836,
+        "background_abstention_fraction": 0.9833482905435561,
+        "background_abstention_precision_diagnostic": 0.6624947447621949,
+        "background_majority_predicted_clusters": 31.366666666666664,
+        "candidate_clusters_per_target": 16.706746031746032,
+        "macro_target_coverage": 0.001806751038313778,
+        "macro_target_f1": 0.0025847155920682304,
+        "macro_target_purity": 0.1360263840102865,
+        "predicted_abstention_fraction": 0.9844973644651818,
+        "predicted_cluster_count": 82.86666666666666,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 237.325
+        "unmatched_predicted_cluster_count": 78.10000000000001
       },
       "SNN-DBSCAN": {
-        "background_abstention_f1_diagnostic": 0.8217565955920656,
-        "background_abstention_fraction": 0.9853205055128065,
-        "background_abstention_precision_diagnostic": 0.7469050492872444,
-        "background_majority_predicted_clusters": 99.6,
-        "candidate_clusters_per_target": 70.25729166666666,
-        "macro_target_coverage": 0.0608063533890943,
-        "macro_target_f1": 0.09885828008915623,
-        "macro_target_purity": 0.4657376366099724,
-        "predicted_abstention_fraction": 0.986167406743574,
-        "predicted_cluster_count": 182.675,
-        "target_discovery_rate": 0.25625,
-        "unmatched_predicted_cluster_count": 174.975
+        "background_abstention_f1_diagnostic": 0.8220116975263568,
+        "background_abstention_fraction": 0.9858049246261681,
+        "background_abstention_precision_diagnostic": 0.7469297725596145,
+        "background_majority_predicted_clusters": 72.85,
+        "candidate_clusters_per_target": 43.50729166666667,
+        "macro_target_coverage": 0.09291644513221356,
+        "macro_target_f1": 0.13647338856426158,
+        "macro_target_purity": 0.44073763660997245,
+        "predicted_abstention_fraction": 0.9866271000291513,
+        "predicted_cluster_count": 155.925,
+        "target_discovery_rate": 0.006249999999999993,
+        "unmatched_predicted_cluster_count": 148.225
       },
       "StrataSCAN": {
-        "background_abstention_f1_diagnostic": 0.3360522648481933,
-        "background_abstention_fraction": 0.30326316515905727,
-        "background_abstention_precision_diagnostic": 0.7541922665304901,
-        "background_majority_predicted_clusters": 706.375,
-        "candidate_clusters_per_target": 180.79970238095237,
-        "macro_target_coverage": 0.47185272417578195,
-        "macro_target_f1": 0.21708836186535097,
-        "macro_target_purity": 0.2877303312827978,
-        "predicted_abstention_fraction": 0.29913128544479495,
-        "predicted_cluster_count": 1250.8,
+        "background_abstention_f1_diagnostic": 0.39024604025107545,
+        "background_abstention_fraction": 0.33676251295936555,
+        "background_abstention_precision_diagnostic": 0.7541942690064689,
+        "background_majority_predicted_clusters": 926.125,
+        "candidate_clusters_per_target": 400.5497023809524,
+        "macro_target_coverage": 0.45350410032257094,
+        "macro_target_f1": 0.35799862441852065,
+        "macro_target_purity": 0.3921262664492264,
+        "predicted_abstention_fraction": 0.33262646780871563,
+        "predicted_cluster_count": 1470.55,
         "target_discovery_rate": 0.011458333333333326,
-        "unmatched_predicted_cluster_count": 1242.925
+        "unmatched_predicted_cluster_count": 1462.675
       },
       "VDBSCAN-2007": {
-        "background_abstention_f1_diagnostic": 0.15000509611517332,
-        "background_abstention_fraction": 0.08424285491984307,
-        "background_abstention_precision_diagnostic": 0.8157260881211881,
-        "background_majority_predicted_clusters": 58.75,
-        "candidate_clusters_per_target": 51.14037698412699,
-        "macro_target_coverage": 0.299263883617292,
-        "macro_target_f1": 0.01893171548730148,
-        "macro_target_purity": 0.10131475714564518,
-        "predicted_abstention_fraction": 0.07384649193434066,
-        "predicted_cluster_count": 63.583333333333336,
+        "background_abstention_f1_diagnostic": 0.15459630533878166,
+        "background_abstention_fraction": 0.08795315192959345,
+        "background_abstention_precision_diagnostic": 0.7553792347211145,
+        "background_majority_predicted_clusters": 20.333333333333332,
+        "candidate_clusters_per_target": 10.187169312169312,
+        "macro_target_coverage": 0.3531469518566952,
+        "macro_target_f1": 0.025214931202720902,
+        "macro_target_purity": 0.1350726607242578,
+        "predicted_abstention_fraction": 0.07401900214326355,
+        "predicted_cluster_count": 26.777777777777775,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 59.55555555555556
+        "unmatched_predicted_cluster_count": 21.740740740740744
       },
       "kNN+Leiden": {
         "background_abstention_f1_diagnostic": 0.0,
@@ -314,18 +314,18 @@
         "unmatched_predicted_cluster_count": 6.0
       },
       "kNN-DBSCAN": {
-        "background_abstention_f1_diagnostic": 0.7881413258706333,
-        "background_abstention_fraction": 0.9036197708028552,
-        "background_abstention_precision_diagnostic": 0.7455770003417823,
-        "background_majority_predicted_clusters": 544.2,
-        "candidate_clusters_per_target": 536.4334821428572,
+        "background_abstention_f1_diagnostic": 0.788695044481412,
+        "background_abstention_fraction": 0.9046113161755173,
+        "background_abstention_precision_diagnostic": 0.7455773425019355,
+        "background_majority_predicted_clusters": 257.95,
+        "candidate_clusters_per_target": 250.18348214285714,
         "macro_target_coverage": 0.007822036696586487,
         "macro_target_f1": 0.010400174793142928,
         "macro_target_purity": 0.09190985376729692,
-        "predicted_abstention_fraction": 0.9080535074909688,
-        "predicted_cluster_count": 595.725,
+        "predicted_abstention_fraction": 0.90904478025493,
+        "predicted_cluster_count": 309.475,
         "target_discovery_rate": 0.0,
-        "unmatched_predicted_cluster_count": 592.6
+        "unmatched_predicted_cluster_count": 306.35
       }
     },
     "per_dataset_target_f1_effects": {
@@ -341,13 +341,11 @@
       },
       "mosmann": {
         "delta_vs_each_baseline": {
-          "DBSCAN": 0.0018351402635118,
-          "OPTICS": 0.0018351402635118,
-          "SNN-DBSCAN": -0.2772346271783486,
-          "VDBSCAN-2007": 0.0017530719224686019,
-          "kNN-DBSCAN": 0.0018351402635118
+          "DBSCAN": 0.5654761904761905,
+          "SNN-DBSCAN": 0.13594598913390865,
+          "kNN-DBSCAN": 0.5654761904761905
         },
-        "stratascan": 0.0018351402635118
+        "stratascan": 0.5654761904761905
       },
       "nilsson": {
         "delta_vs_each_baseline": {
@@ -5170,9 +5168,9 @@
     "cytometry": {
       "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\published\\v0.2.4\\target-discovery-v1\\cytometry.csv",
       "provenance_path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\published\\v0.2.4\\target-discovery-v1\\cytometry-provenance.json",
-      "provenance_sha256": "758420c828ded5fc104dc5c2c60c3a86bd61d131a8a66ad236234e4e55521123",
+      "provenance_sha256": "45b3b3eaa114b6a4a1d5c2a148d442320b6f266e60b7e4599c8aa4b8e5248a85",
       "rows": 117,
-      "sha256": "bb1e7c144c1f4623f4b6d9409086608f862b2478d0d8004be369a5e7dea9cd94"
+      "sha256": "9dd7519d4f80490aaaa622eab12a584707b23c6928f578897a6ba39a9f58904e"
     },
     "gaia": {
       "path": "C:\\Users\\lizzka239\\projects\\StrataSCAN\\results\\published\\v0.2.4\\target-discovery-v1\\gaia.csv",

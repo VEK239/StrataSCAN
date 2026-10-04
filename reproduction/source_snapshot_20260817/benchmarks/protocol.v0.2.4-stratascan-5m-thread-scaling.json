@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.4-stratascan-5m-thread-scaling-v1",
+  "purpose": "intra_run_cpu_thread_scaling_of_released_stratascan_at_five_million_points",
+  "parameter_mode": "released_v0.2.4_defaults_with_only_n_jobs_varied",
+  "resources": {
+    "thread_counts": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "timeout_seconds_per_family_task": 7200,
+    "memory_limit_mb": 196608
+  },
+  "method": "StrataSCAN",
+  "seed": 42,
+  "n": 5000000,
+  "cases": [
+    {
+      "id": "multidensity_2d",
+      "family": "multidensity",
+      "dimension": 2,
+      "noise_fraction": 0.75
+    },
+    {
+      "id": "ultrasparse_16d",
+      "family": "ultrasparse",
+      "dimension": 16,
+      "noise_fraction": 0.95
+    },
+    {
+      "id": "overlapping_density_16d",
+      "family": "overlapping_density",
+      "dimension": 16,
+      "noise_fraction": 0.8,
+      "signal_fraction": 0.2
+    },
+    {
+      "id": "moons_2d",
+      "family": "moons",
+      "dimension": 2,
+      "noise_fraction": 0.25
+    },
+    {
+      "id": "rings_2d",
+      "family": "rings",
+      "dimension": 2,
+      "noise_fraction": 0.75
+    },
+    {
+      "id": "overlap_8d",
+      "family": "gaussian_overlap",
+      "dimension": 8,
+      "noise_fraction": 0.25
+    },
+    {
+      "id": "imbalanced_16d",
+      "family": "gaussian_imbalanced",
+      "dimension": 16,
+      "noise_fraction": 0.75
+    }
+  ],
+  "analysis": {
+    "logical_result_count": 28,
+    "primary_runtime": "fit_wall_seconds_excluding_dataset_generation_and_evaluation",
+    "summary": "median_and_interquartile_range_across_seven_families",
+    "speedup_reference": "paired_one_thread_runtime_within_family_and_node",
+    "quality_guard": [
+      "macro_target_f1",
+      "target_discovery_rate",
+      "label_sha256"
+    ],
+    "failure_policy": "retain_all_completed_thread_results; family_task_wall_timeout_is_120_minutes"
+  }
+}

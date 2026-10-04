@@ -1,0 +1,140 @@
+{
+  "dataset_id": "overlapping_density_16d__scaling__n1000000",
+  "dataset_metadata": {
+    "dimension": 16,
+    "family": "overlapping_density",
+    "n": 1000000
+  },
+  "dimension": 16,
+  "incremental_rss_mb": 2496.8828125,
+  "job_id": "synthetic__overlapping_density_16d__scaling__n1000000__VDBSCAN-2007__42__60e21fb7dd31",
+  "load_seconds": 0.491295200001332,
+  "method": "VDBSCAN-2007",
+  "metrics": {
+    "ami_signal": 0.004585969099225921,
+    "ari_signal": -0.0015085566502125048,
+    "background_rejection": 0.03036625,
+    "binary_balanced_accuracy": 0.511295625,
+    "binary_macro_f1": 0.19842716224785137,
+    "extra_signal_fragments": 0,
+    "macro_target_f1": 0.0496397042295363,
+    "mean_target_fragments": 1.0,
+    "merged_predicted_clusters": 1,
+    "n_clusters": 506,
+    "noise_aware_macro_f1": 0.05384621059859446,
+    "noise_f1": 0.05883164940763917,
+    "noise_fraction": 0.025848,
+    "noise_precision": 0.9398406066233365,
+    "noise_recall": 0.03036625,
+    "pairwise_f1": 0.011298327482082563,
+    "pairwise_precision": 0.005682021848003768,
+    "pairwise_recall": 0.9768874340872507,
+    "recovered_truth_clusters_f1_080": 0,
+    "recovered_truth_clusters_f1_090": 0,
+    "signal_coverage": 0.992225,
+    "signal_f1": 0.33802267508806355,
+    "signal_precision": 0.20371050924291076,
+    "signal_recall": 0.992225,
+    "spurious_background_majority_clusters": 500,
+    "target_background_hmean_f1": 0.05384621059859446,
+    "target_background_structure_hmean_f1": 0.023875561827779664,
+    "target_matches": [
+      {
+        "f1": 0.029997595078129515,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.015227234095158623,
+        "recall": 0.999797077922078,
+        "target": "cluster_0",
+        "target_size": 14784
+      },
+      {
+        "f1": 0.03528855758147386,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.017961357583999093,
+        "recall": 0.9994840632882367,
+        "target": "cluster_1",
+        "target_size": 17444
+      },
+      {
+        "f1": 0.040143266417794435,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.020483261992695956,
+        "recall": 0.9987943939317828,
+        "target": "cluster_2",
+        "target_size": 19907
+      },
+      {
+        "f1": 0.04532146668545999,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.02318750997996281,
+        "recall": 0.9974739641037004,
+        "target": "cluster_3",
+        "target_size": 22565
+      },
+      {
+        "f1": 0.05031198976569137,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.02580831260076543,
+        "recall": 0.99527233721346,
+        "target": "cluster_4",
+        "target_size": 25171
+      },
+      {
+        "f1": 0.05510818920792118,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.02834154909626608,
+        "recall": 0.9917090227461158,
+        "target": "cluster_5",
+        "target_size": 27741
+      },
+      {
+        "f1": 0.06361707727522871,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.03286923286923287,
+        "recall": 0.9856961907998394,
+        "target": "cluster_6",
+        "target_size": 32369
+      },
+      {
+        "f1": 0.07732949182459134,
+        "fragments": 1,
+        "matched_predicted_cluster": 0,
+        "precision": 0.04025878365501007,
+        "recall": 0.9765111572003299,
+        "target": "cluster_7",
+        "target_size": 40019
+      }
+    ],
+    "target_success_rate_f1_080": 0.0,
+    "truth_clusters": 8
+  },
+  "n": 1000000,
+  "package_version": "0.2.3",
+  "parameters": {
+    "eps_values": [
+      3.6504299640655518,
+      4.889659404754639
+    ],
+    "geometry_profile": "high_dim",
+    "knee_prominence": 0.08,
+    "knn_backend": "faiss_hnsw",
+    "max_eps_values": 7,
+    "min_samples": 5
+  },
+  "peak_rss_mb": 2748.99609375,
+  "process_peak_rss_mb": 3153.33984375,
+  "process_runtime_seconds": 2903.278847399997,
+  "profile": {},
+  "runtime_seconds": 2886.326231500003,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "ok",
+  "suite": "synthetic"
+}

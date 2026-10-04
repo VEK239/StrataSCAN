@@ -1,6 +1,6 @@
 path,bytes,sha256
 results/runs/v0.2.4-target-discovery-v1-scaling/results.csv,36550075,7ced8abe02741209fa4d79dc58faa476bc196d3aeedb15b1b4531eb63b74d68c
 results/runs/v0.2.4-target-discovery-v1-scaling/validation.json,334,ecf4766119d8cd7da6a9f2089bf4403ef721068d6b032ef6be80f35384385ec4
-benchmarks/protocol.v0.2.4-target-discovery-v1-scaling.json,1962,69f549ca82261089f10f1a90f0df6530d614cbf7938acf4b6030d40bac7b9c43
+benchmarks/protocol.v0.2.4-target-discovery-v1-scaling.json,2012,d6379172b69280537860a571ef19ce80ad7ef3e70ac73fec81b642f854bf38cd
 results/runs/v0.2.3-seven-family-baselines-scalability-5m-gated-v1/manifest.json,130250,e679d6ba590d3abd5f3ba62f70220c72c22de1a86882c9464f1141be0d9c8edb
 results/runs/v0.2.3-seven-family-baselines-scalability-5m-gated-v1/jobs/*.json,364239,e9da085f2f1f376b7228222a67c3d454ad35395915e3d719c1a5cd50691fcd55

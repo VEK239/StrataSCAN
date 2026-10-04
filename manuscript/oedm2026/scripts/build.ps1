@@ -38,7 +38,10 @@ try {
 
     Invoke-CheckedPython (Join-Path $manuscriptRoot 'scripts\final_manuscript_figures.py') `
         --output $finalFigures
+    # Build the plain study-by-method RQ4 table from canonical evidence.
+    Invoke-CheckedPython (Join-Path $repositoryRoot 'scripts\build_biological_validation_latex_table.py')
     Invoke-CheckedPython (Join-Path $repositoryRoot 'scripts\build_revised_results_presentation.py')
+    Invoke-CheckedPython (Join-Path $repositoryRoot 'outputs\rq3_scaling\build_ieee_ultrasparse_16d_scaling.py')
     Invoke-CheckedPython (Join-Path $manuscriptRoot 'scripts\synchronize_final_manuscript_statistics.py') `
         --check
 }
@@ -73,3 +76,4 @@ finally {
 }
 
 Write-Output "Built and manifested: $promotedPdf"
+

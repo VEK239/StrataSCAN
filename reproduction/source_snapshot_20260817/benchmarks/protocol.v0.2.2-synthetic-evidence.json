@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "protocol_version": "0.2.2-locked-synthetic-evidence-v1",
+  "purpose": "locked_multi_seed_noise_sweep_against_supported_baselines_and_single_component_ablations",
+  "parameter_mode": "released_defaults_and_named_single_component_ablations_fixed_before_execution",
+  "resources": {"threads": 1, "timeout_seconds": 1200, "memory_limit_mb": 8192},
+  "methods": [
+    "DBSCAN", "HDBSCAN", "OPTICS", "SNN-DBSCAN", "VDBSCAN-2007", "AMD-DBSCAN", "kNN-DBSCAN", "kNN+Leiden",
+    "StrataSCAN", "StrataSCAN-FixedComponentBound", "StrataSCAN-ContinuousBackground", "StrataSCAN-RateChangepoint", "StrataSCAN-WideGraph"
+  ],
+  "stochastic_methods": ["kNN+Leiden", "StrataSCAN", "StrataSCAN-FixedComponentBound", "StrataSCAN-ContinuousBackground", "StrataSCAN-RateChangepoint", "StrataSCAN-WideGraph"],
+  "method_parameters": {
+    "baseline_policy": "controlled_reference_profiles_in_baselines_algorithms",
+    "released_method": "StrataSCAN_0.2.2_defaults",
+    "ablations": {
+      "StrataSCAN-FixedComponentBound": "disable_only_adaptive_component-bound_expansion_at_1_to_8",
+      "StrataSCAN-ContinuousBackground": "replace_only_discrete_gamma_background_basis_with_continuous_gamma_rate_background",
+      "StrataSCAN-RateChangepoint": "replace_only_largest-rate-gap_semantic_role_with_rate-changepoint_MDL",
+      "StrataSCAN-WideGraph": "existing_k_256_graph-width_control"
+    }
+  },
+  "synthetic": {
+    "quality_seeds": [23, 42, 73, 101, 151],
+    "scaling_seeds": [],
+    "quality_sizes": [5000],
+    "scaling_sizes": [],
+    "cases": [
+      {"id": "moons_noise25", "family": "moons", "dimension": 2, "noise_fraction": 0.25},
+      {"id": "moons_noise50", "family": "moons", "dimension": 2, "noise_fraction": 0.50},
+      {"id": "moons_noise75", "family": "moons", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "rings_noise25", "family": "rings", "dimension": 2, "noise_fraction": 0.25},
+      {"id": "rings_noise50", "family": "rings", "dimension": 2, "noise_fraction": 0.50},
+      {"id": "rings_noise75", "family": "rings", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "overlap8d_noise25", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.25},
+      {"id": "overlap8d_noise50", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.50},
+      {"id": "overlap8d_noise75", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.75},
+      {"id": "imbalanced16d_noise25", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.25},
+      {"id": "imbalanced16d_noise50", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.50},
+      {"id": "imbalanced16d_noise75", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  },
+  "analysis": {
+    "failure_quality": 0.0,
+    "uncertainty": "seed_level_median_iqr_and_deterministic_bootstrap_95pct_mean_interval",
+    "metrics": ["macro_target_f1", "noise_f1", "pairwise_f1", "target_background_structure_hmean_f1", "target_success_rate_f1_080", "mean_target_fragments", "spurious_background_majority_clusters", "merged_predicted_clusters"],
+    "comparisons": "retain_every_seed_level_StrataSCAN_minus_comparator_delta_and_report_positive_negative_zero_counts"
+  }
+}

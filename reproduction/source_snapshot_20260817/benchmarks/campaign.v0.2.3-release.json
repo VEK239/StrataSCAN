@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "campaign_version": "v0.2.3-seven-family-release",
+  "purpose": "single_entrypoint_for_release_robustness_scalability_and_ablation_benchmarks",
+  "phases": [
+    {
+      "name": "robustness",
+      "protocol": "protocol.v0.2.3-seven-family-robustness.json",
+      "suite": "synthetic",
+      "output": "01-robustness",
+      "max_workers": 1
+    },
+    {
+      "name": "scaling-replicated",
+      "protocol": "protocol.v0.2.3-seven-family-scaling-replicated.json",
+      "suite": "synthetic",
+      "output": "02-scaling-replicated",
+      "max_workers": 1
+    },
+    {
+      "name": "scaling-endpoint",
+      "protocol": "protocol.v0.2.3-seven-family-scaling-endpoint.json",
+      "suite": "synthetic",
+      "output": "03-scaling-endpoint",
+      "max_workers": 1
+    },
+    {
+      "name": "ablations",
+      "protocol": "protocol.v0.2.3-seven-family-ablations.json",
+      "suite": "synthetic",
+      "output": "04-ablations",
+      "max_workers": 1
+    }
+  ]
+}

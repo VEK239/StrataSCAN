@@ -1,0 +1,121 @@
+{
+  "diagnostic_path_normalization": {
+    "changed_cells": {
+      "error": 0,
+      "traceback": 15
+    },
+    "columns": [
+      "error",
+      "traceback"
+    ],
+    "rules": {
+      "other_user_home_absolute_paths": "<user-home>/...",
+      "path_separators": "POSIX forward slash",
+      "python_environment_absolute_paths": "<python-env>/...",
+      "repository_absolute_paths": "<repo>/..."
+    },
+    "scope": "textual diagnostics only; scientific metrics, identities, and statuses unchanged"
+  },
+  "discovery_coverage_threshold": 0.1,
+  "discovery_purity_threshold": 0.9,
+  "evaluation_generation_counts": {
+    "native_target_discovery_v1": 117
+  },
+  "evaluation_protocol_version": "target-discovery-v1",
+  "matching_objective": "pairwise_f1",
+  "matching_strategy": "hungarian",
+  "methods": [
+    "AMD-DBSCAN",
+    "DBSCAN",
+    "HDBSCAN",
+    "OPTICS",
+    "SNN-DBSCAN",
+    "StrataSCAN",
+    "VDBSCAN-2007",
+    "kNN+Leiden",
+    "kNN-DBSCAN"
+  ],
+  "mosmann_marker_panel_revision": {
+    "effective_date": "2026-08-20",
+    "evaluation_generation_metadata": "successful replacement rows explicitly tagged native_target_discovery_v1; scientific metrics unchanged",
+    "new_feature_classes": [
+      "type",
+      "state"
+    ],
+    "non_mosmann_rows_changed": 0,
+    "old_feature_classes": [
+      "type"
+    ],
+    "old_rows_archive": {
+      "bytes": 1184249,
+      "path": "outputs/rq4_cytometry/mosmann_type_only_retired.csv",
+      "sha256": "1a60b75702e141caefa941f76ba8e818e10e763d01a56d4c9050c3f244a9a890"
+    },
+    "reason": "the sole Mosmann reference population is an activation-state target",
+    "replacement_rows": 9
+  },
+  "output": "results/published/v0.2.4/target-discovery-v1/cytometry.csv",
+  "purpose": "canonical cytometry evidence",
+  "rows": 117,
+  "schema_version": 1,
+  "sha256": "9dd7519d4f80490aaaa622eab12a584707b23c6928f578897a6ba39a9f58904e",
+  "sources": [
+    {
+      "bytes": 1750,
+      "path": "benchmarks/protocol.mosmann-type-state-primary.json",
+      "sha256": "514170980beb2ac73a20b608f36e6bf0c95a135e185161a9e591b94498588438"
+    },
+    {
+      "bytes": 9782,
+      "path": "results/runs/mosmann-type-state-primary-amd-v1/manifest.json",
+      "sha256": "123fd708db25f72ac18fad847b37c896439144c269f2f2cba203fcb6cf38a5d7"
+    },
+    {
+      "bytes": 1958,
+      "path": "results/runs/mosmann-type-state-primary-amd-v1/results.csv",
+      "sha256": "c980bf8304c87fc1dd272fe6170af4a8a8e746e1c2cb9ee6c0659e91b6aae2ef"
+    },
+    {
+      "bytes": 310,
+      "path": "results/runs/mosmann-type-state-primary-amd-v1/validation.json",
+      "sha256": "936792d96f8af026c083862c7e03c0a54610ae5f639643cb9a6ed55162931fe4"
+    },
+    {
+      "bytes": 18807,
+      "path": "results/runs/mosmann-type-state-primary-v1/manifest.json",
+      "sha256": "1463440e53bce95b9aae048402e39a9d25746bc91caf9de8fa6d9b1d754bd180"
+    },
+    {
+      "bytes": 1702788,
+      "path": "results/runs/mosmann-type-state-primary-v1/results.csv",
+      "sha256": "bc0114c963b3edcc03651f2c781106d2dc18599cf90d96f3e6a9cde49892c6c4"
+    },
+    {
+      "bytes": 326,
+      "path": "results/runs/mosmann-type-state-primary-v1/validation.json",
+      "sha256": "30faab53300d88cb1fb41f05d2c966f5299aa13bdbb698b0b4648d45b744b9ba"
+    },
+    {
+      "bytes": 164293,
+      "path": "results/runs/v0.2.4-target-discovery-v1-cytometry/manifest.json",
+      "sha256": "bbd28cd4599566eb02617acf0d219a7123556e94ce42927b039d3e5ab511e0a8"
+    },
+    {
+      "bytes": 5534673,
+      "path": "results/runs/v0.2.4-target-discovery-v1-cytometry/results.csv",
+      "sha256": "66b5c95f6b373c7ff3a54a5cafac3e3c42587af2dd5de75a1a792c31eb280e50"
+    },
+    {
+      "bytes": 373,
+      "path": "results/runs/v0.2.4-target-discovery-v1-cytometry/validation.json",
+      "sha256": "fcdd4b5583d4b33791806f7aea391a33f27f067e91acca979ba990537f0643ea"
+    }
+  ],
+  "status_counts": {
+    "error": 13,
+    "memory_limit": 1,
+    "ok": 97,
+    "timeout": 6
+  },
+  "transformation": "validated native freeze with all nine Mosmann method rows replaced by the primary 14-marker type-plus-state campaign; all non-Mosmann rows unchanged"
+}

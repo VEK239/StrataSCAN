@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "protocol_version": "wide-graph-control-v1",
+  "purpose": "isolate_wide_knn_graph_effect_from_adaptive_tail_test",
+  "parameter_mode": "fixed_experimental_profile",
+  "resources": {"threads": 1, "timeout_seconds": 600, "memory_limit_mb": 8192},
+  "methods": ["StrataSCAN-WideGraph"],
+  "stochastic_methods": ["StrataSCAN-WideGraph"],
+  "method_parameters": {"StrataSCAN-WideGraph": {"k": 256, "tail_probe_outer_rank": 32}},
+  "synthetic": {
+    "quality_seeds": [23, 42, 73],
+    "scaling_seeds": [42],
+    "quality_sizes": [5000],
+    "scaling_sizes": [],
+    "cases": [
+      {"id": "multidensity_2d", "family": "multidensity", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "ultrasparse_16d", "family": "ultrasparse", "dimension": 16, "noise_fraction": 0.95},
+      {"id": "overlapping_density_16d", "family": "overlapping_density", "dimension": 16, "noise_fraction": 0.80, "signal_fraction": 0.20},
+      {"id": "imbalanced_16d", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  },
+  "cytometry": {"seeds": [42], "datasets": []},
+  "gaia": {"seeds": [42], "data_root": "data/raw/mctnc/MCTNC_open_data_release/MCTNC_open_data_release/data", "profiles": ["unsupervised_field"], "field_selection": {"strategy": "stable_hash", "count": 1, "salt": "wide-graph-control-v1"}, "ruwe_max": 1.6}
+}

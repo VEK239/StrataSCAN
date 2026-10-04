@@ -1,0 +1,10 @@
+{
+  "dataset_id": "ultrasparse_16d__scaling__n2000000",
+  "error": "not launched because the same family/method ladder failed at n=None: status=timeout",
+  "job_id": "synthetic__ultrasparse_16d__scaling__n2000000__VDBSCAN-2007__42__0efaeb64842b",
+  "method": "VDBSCAN-2007",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "skipped_prior_failure",
+  "suite": "synthetic"
+}

@@ -1,0 +1,82 @@
+{
+  "dataset_id": "moons_2d__scaling__n500000",
+  "dataset_metadata": {
+    "dimension": 2,
+    "family": "moons",
+    "n": 500000
+  },
+  "dimension": 2,
+  "incremental_rss_mb": 295.82421875,
+  "job_id": "synthetic__moons_2d__scaling__n500000__SNN-DBSCAN__42__9884184d1bb6",
+  "load_seconds": 0.26691240000036487,
+  "method": "SNN-DBSCAN",
+  "metrics": {
+    "ami_signal": 0.13484836824295668,
+    "ari_signal": 0.0002720244913267084,
+    "background_rejection": 0.095624,
+    "binary_balanced_accuracy": 0.4989986666666667,
+    "binary_macro_f1": 0.4783248629977285,
+    "extra_signal_fragments": 0,
+    "macro_target_f1": 0.0032426685571174526,
+    "mean_target_fragments": 0.0,
+    "merged_predicted_clusters": 0,
+    "n_clusters": 13400,
+    "noise_aware_macro_f1": 0.006336167809945316,
+    "noise_f1": 0.13773672960250744,
+    "noise_fraction": 0.097126,
+    "noise_precision": 0.2461338879393777,
+    "noise_recall": 0.095624,
+    "pairwise_f1": 0.0005437705934537726,
+    "pairwise_precision": 0.7186635400930457,
+    "pairwise_recall": 0.0002719881954925982,
+    "recovered_truth_clusters_f1_080": 0,
+    "recovered_truth_clusters_f1_090": 0,
+    "signal_coverage": 0.9023733333333334,
+    "signal_f1": 0.8189129963929496,
+    "signal_precision": 0.7495841058663778,
+    "signal_recall": 0.9023733333333334,
+    "spurious_background_majority_clusters": 3081,
+    "target_background_hmean_f1": 0.006336167809945316,
+    "target_background_structure_hmean_f1": 0.001392331676132756,
+    "target_matches": [
+      {
+        "f1": 0.003035353884986714,
+        "fragments": 0,
+        "matched_predicted_cluster": 658,
+        "precision": 0.9930313588850174,
+        "recall": 0.00152,
+        "target": "cluster_0",
+        "target_size": 187500
+      },
+      {
+        "f1": 0.003449983229248191,
+        "fragments": 0,
+        "matched_predicted_cluster": 33,
+        "precision": 0.9908256880733946,
+        "recall": 0.001728,
+        "target": "cluster_1",
+        "target_size": 187500
+      }
+    ],
+    "target_success_rate_f1_080": 0.0,
+    "truth_clusters": 2
+  },
+  "n": 500000,
+  "package_version": "0.2.3",
+  "parameters": {
+    "eps": 13,
+    "geometry_profile": "low_dim",
+    "k": 20,
+    "knn_backend": "kd_tree",
+    "min_samples": 5
+  },
+  "peak_rss_mb": 529.73046875,
+  "process_peak_rss_mb": 551.7265625,
+  "process_runtime_seconds": 110.2706061000008,
+  "profile": {},
+  "runtime_seconds": 18.445430800000395,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "ok",
+  "suite": "synthetic"
+}

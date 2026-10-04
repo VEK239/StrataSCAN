@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "protocol_version": "optimization-v0.2.0-dev10-gaia-full",
+  "purpose": "full_gaia_validation_after_clean_real_data_pilot",
+  "parameter_mode": "fixed_before_full_gaia_validation",
+  "resources": {"threads": 1, "timeout_seconds": 1800, "memory_limit_mb": 8192},
+  "methods": ["StrataSCAN", "StrataSCAN-Optimization"],
+  "stochastic_methods": [],
+  "method_parameters": {"k": 32, "shell_ranks": [4, 8, 16, 32], "gamma_component_range": [1, 8], "gamma_component_criterion": "icl", "gamma_restarts": 3, "gamma_fit_rows": "all", "core_rank": 4, "connectivity_rank": 4, "border_rule": "inside_neighbour_core_radius"},
+  "gaia": {"seeds": [42], "data_root": "data/raw/mctnc/MCTNC_open_data_release/MCTNC_open_data_release/data", "profiles": ["unsupervised_field"], "ruwe_max": 1.6}
+}

@@ -1,0 +1,13 @@
+{
+  "dataset_id": "overlapping_density_16d__scaling__n2000000",
+  "error": "timeout_seconds=3600",
+  "job_id": "synthetic__overlapping_density_16d__scaling__n2000000__DBSCAN__42__83512efa145c",
+  "method": "DBSCAN",
+  "process_peak_rss_mb": 809.7578125,
+  "process_runtime_seconds": 3600.0778078000003,
+  "schema_version": 1,
+  "seed": 42,
+  "status": "timeout",
+  "suite": "synthetic",
+  "traceback": ""
+}

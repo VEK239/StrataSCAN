@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "protocol_version": "optimization-v0.2.0-dev4",
+  "purpose": "compare_frozen_0.1.2_to_mdl_strict_core_dev4_with_fixed_knn_and_gamma_shells",
+  "parameter_mode": "fixed_predeclared_profiles",
+  "resources": {
+    "threads": 1,
+    "timeout_seconds": 1800,
+    "memory_limit_mb": 8192
+  },
+  "methods": ["StrataSCAN", "StrataSCAN-Optimization"],
+  "stochastic_methods": [],
+  "method_parameters": {
+    "k": 32,
+    "shell_ranks": [4, 8, 16, 32],
+    "gamma_model": "frozen_predictive_constrained_multiscale_0.1.2",
+    "core_rank": 4,
+    "connectivity_rank": 4,
+    "dense_core_selection": "shared_rate_exact_observed_d4_event_sweep",
+    "topology_evidence": "jeffreys_beta_bernoulli_bayes_factor",
+    "component_code": "log_reference_population_root_code",
+    "threshold_code": "log_stratum_size",
+    "tail_guardrail": "inherited_0.1.2_rank_window_until_null_is_replaced",
+    "border_noise_rule": "bic_selected_local_or_directed_normalized_core_radius_model"
+  },
+  "synthetic": {
+    "quality_seeds": [42],
+    "scaling_seeds": [],
+    "quality_sizes": [5000],
+    "scaling_sizes": [],
+    "cases": [
+      {"id": "multidensity_2d", "family": "multidensity", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "ultrasparse_16d", "family": "ultrasparse", "dimension": 16, "noise_fraction": 0.95},
+      {"id": "overlapping_density_16d", "family": "overlapping_density", "dimension": 16, "noise_fraction": 0.80, "signal_fraction": 0.20},
+      {"id": "moons_2d", "family": "moons", "dimension": 2, "noise_fraction": 0.25},
+      {"id": "rings_2d", "family": "rings", "dimension": 2, "noise_fraction": 0.75},
+      {"id": "overlap_8d", "family": "gaussian_overlap", "dimension": 8, "noise_fraction": 0.25},
+      {"id": "imbalanced_16d", "family": "gaussian_imbalanced", "dimension": 16, "noise_fraction": 0.75}
+    ]
+  }
+}

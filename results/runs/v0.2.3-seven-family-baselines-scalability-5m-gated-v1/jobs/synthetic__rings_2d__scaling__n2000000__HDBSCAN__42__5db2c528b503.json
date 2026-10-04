@@ -1,0 +1,10 @@
+{
+  "dataset_id": "rings_2d__scaling__n2000000",
+  "error": "not launched because the same family/method ladder failed at n=None: status=timeout",
+  "job_id": "synthetic__rings_2d__scaling__n2000000__HDBSCAN__42__5db2c528b503",
+  "method": "HDBSCAN",
+  "schema_version": 1,
+  "seed": 42,
+  "status": "skipped_prior_failure",
+  "suite": "synthetic"
+}
