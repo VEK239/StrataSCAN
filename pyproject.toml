@@ -5,7 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "stratascan"
 version = "0.2.4"
-description = "Semantic-MDL Gamma-stratified clustering for variable-density data"
+description = "Adaptive density-stratified clustering and reusable density/graph clustering reference implementations"
+keywords = ["clustering", "density-based-clustering", "variable-density", "knn", "stratascan", "dbscan", "hdbscan", "optics", "snn-dbscan", "vdbscan", "amd-dbscan", "knn-dbscan", "leiden", "x-shift", "dpc-knn"]
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -24,6 +25,12 @@ dependencies = [
   "scipy>=1.13",
   "scikit-learn>=1.5",
 ]
+
+[project.urls]
+Repository = "https://github.com/VEK239/StrataSCAN"
+Documentation = "https://github.com/VEK239/StrataSCAN/blob/publication/oedm2026-article/README.md"
+Issues = "https://github.com/VEK239/StrataSCAN/issues"
+Citation = "https://github.com/VEK239/StrataSCAN/blob/publication/oedm2026-article/CITATION.cff"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pandas>=2", "build>=1"]

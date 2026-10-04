@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, cite it and record the exact Git commit. Cite original methodological publications for comparator methods as well."
+type: software
+title: "StrataSCAN: Adaptive Density-Stratified Clustering and Reference Baselines"
+authors:
+  - name: "StrataSCAN contributors"
+version: "0.2.4"
+license: MIT
+repository-code: "https://github.com/VEK239/StrataSCAN"
+url: "https://github.com/VEK239/StrataSCAN/tree/publication/oedm2026-article"
+abstract: >-
+  Installable Python implementations and adapters for StrataSCAN, DBSCAN,
+  HDBSCAN, OPTICS, SNN-DBSCAN, VDBSCAN, AMD-DBSCAN, kNN-DBSCAN,
+  kNN plus Leiden, X-shift, and an automatic DPC-kNN hybrid.
+  Includes executable protocols and recorded evidence for adaptive
+  density-stratified clustering on sparse nearest-neighbor graphs.
+keywords:
+  - clustering
+  - density-based clustering
+  - variable-density clustering
+  - nearest-neighbor graphs
+  - density peaks clustering
+  - StrataSCAN
+  - DBSCAN
+  - HDBSCAN
+  - OPTICS
+  - SNN-DBSCAN
+  - VDBSCAN
+  - AMD-DBSCAN
+  - kNN-DBSCAN
+  - Leiden
+  - X-shift
+  - DPC-kNN
