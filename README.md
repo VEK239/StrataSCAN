@@ -62,7 +62,7 @@ Labels `0, 1, ...` identify clusters; **`-1` means noise / abstention**. Cluster
 1. **Look at several neighbourhood sizes.** Build one graph with 32 neighbours per observation. Distances at ranks 4, 8, 16, and 32 describe both the immediate surroundings and what happens farther away.
 2. **Measure what each expansion adds.** Shell volumes between successive radii express how much extra space is needed to reach the next neighbours. A local homogeneous-Poisson model motivates Gamma distributions for those volumes.
 3. **Identify density strata.** Fit a Gamma mixture to the multiscale profiles and select its order with semantic ICL. The deterministic search starts at up to eight bases and expands by four to a bound of 24. A largest-log-rate-gap split identifies candidate strata and an initial lower-density background group. This split is a modelling heuristic, not a unique physical boundary.
-4. **Select a supported core scale within each stratum.** Sweep observed fourth-neighbour-distance events. Neighbour slots 1â€“4 construct candidate components; slots 5â€“8 score their internal connectivity separately. Exact distance ties are evaluated together.
+4. **Select a supported core scale within each stratum.** Sweep observed fourth-neighbour-distance events. Neighbour slots 1–4 construct candidate components; slots 5–8 score their internal connectivity separately. Exact distance ties are evaluated together.
 5. **Retain components with positive description gain.** Combine evidence that points belong to signal, evidence of internal connectivity, and a cost for describing the selected structure.
 6. **Give the initial background a second chance.** Check whether a connected group is unusual among comparable background windows and whether it has local density contrast with its surroundings. Retain it only when the combined evidence exceeds its description cost; remove accepted components and repeat.
 7. **Grow clusters from denser to sparser strata.** Earlier cluster identities are preserved. Lower-density growth can extend them but cannot merge them. A border point attaches through a labelled neighbour only within that neighbour's selected core radius; otherwise it remains unassigned.
@@ -75,7 +75,7 @@ $$
 
 All terms use natural logarithms and are expressed in nats. **`gain > 0` means the evidence exceeds the specified cost.** It is an MDL-inspired composite criterion, not a calibrated significance test. The complete algorithm makes decisions in stages; it does not claim a global optimum of one joint objective.
 
-The [release defaults](benchmarks/protocols/release_defaults.json) record the implemented settings. `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the modelling and extraction stages. Explicitly named older classes remain for compatibility; `StrataSCAN` selects the current implementation.
+The [release defaults](benchmarks/protocols/release_defaults.json) record the implemented settings. `GammaMDLConfig` and `OptimizationStrictCoreConfig` expose the modelling and extraction stages. The public API exposes the article estimator and its current configuration classes.
 
 ## Performance and reproducibility
 
@@ -99,7 +99,7 @@ Targets are matched one-to-one with predicted clusters by Hungarian assignment; 
 
 ### Density contrast and rare targets
 
-The density-contrast experiment tests six equal-mass targets under 16â€“256-fold contrasts in 2D/8D and isotropic/anisotropic settings. All **36 StrataSCAN runs** finish; median target F1 spans **0.829â€“0.929**. This is a StrataSCAN capability test, not an all-method superiority test.
+The density-contrast experiment tests six equal-mass targets under 16–256-fold contrasts in 2D/8D and isotropic/anisotropic settings. All **36 StrataSCAN runs** finish; median target F1 spans **0.829–0.929**. This is a StrataSCAN capability test, not an all-method superiority test.
 
 A separate experiment keeps three dense 100-point targets fixed while low-density background increases from **25% to 99%**. StrataSCAN discovers all three targets in every run. At 99% background, median target F1 is **0.979** and true-background F1 is approximately **1.000**. Finding targets and rejecting the unsupported remainder are separate requirements.
 
@@ -142,13 +142,13 @@ DPC-kNN obtains mean target F1 **0.116** and discovery **0.071**, completing 21/
 
 ## Limits
 
-Global background burden differs from local targetâ€“background density overlap. Density overlap can defeat the initial semantic split, the component search can reach its bound, and execution can exceed available memory. Approximate neighbour graphs can change results. Background-recovery scores do not provide a guaranteed false-discovery rate. The core-scale search is exact only within its conditional candidate space.
+Global background burden differs from local target–background density overlap. Density overlap can defeat the initial semantic split, the component search can reach its bound, and execution can exceed available memory. Approximate neighbour graphs can change results. Background-recovery scores do not provide a guaranteed false-discovery rate. The core-scale search is exact only within its conditional candidate space.
 
 ## Repository map
 
 | Path | Contents |
 | --- | --- |
-| `src/stratascan/` | Article implementation and its existing compatibility modules |
+| `src/stratascan/` | Article estimator, Gamma fitting, density profiles, graph utilities, and metrics |
 | `baselines/` | Existing controlled comparator implementations |
 | `benchmarks/` | Data loaders, evaluator, runner, and named experiment protocols |
 | `results/` | Curated measurements, summaries, and checksums |

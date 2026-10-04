@@ -24,11 +24,11 @@ Replace `ID` with a listed identifier. Omit `--job-id` to execute the entire pro
 | `scaling_comparison.json` | 24 | 16-D ultra-sparse family, 1/2/5 million points, 8 methods | 1 thread, 192 GiB, 15 h |
 | `cytometry.json` | 27 | Levine, Mosmann, Nilsson; seed 42; 9 methods | 1 thread, 8 GiB, 30 min |
 
-Select `--suite cytometry` for the biological protocol; all other matrices use `--suite synthetic`. `release_defaults.json` is a settings reference. `global_contamination.json` retains the original invariant-input control used by existing tests; the article's six-level rare-target comparison is in `rare_dense_noise.json`.
+Select `--suite cytometry` for the biological protocol; all other matrices use `--suite synthetic`. `release_defaults.json` is a settings reference.
 
 DPC-kNN was added in a separately budgeted campaign: its main-panel cap is longer than the original comparison cap. Completion and quality must be read together. Its fixed `p=0.02` and automatic gap-based centre selection use neither reference labels nor the true cluster count. It assigns every observation to a cluster and has no noise label. The baseline implementations are controlled reference implementations, not official author packages.
 
-For the ablation, only density stratification is removed: all non-background observations share one layer. Other extraction, recovery and growth steps are preserved. Additional experimental switches remain in the imported source but are not part of the published ablation matrix.
+For the ablation, only density stratification is removed: all non-background observations share one layer. Other extraction, recovery and growth steps are preserved.
 
 ## Timing conditions
 
@@ -38,7 +38,7 @@ The family-wide scaling CSV records 8 GiB / 1 h for the original 0.5-million con
 
 ## Evaluation
 
-The [versioned evaluation contract](evaluation_protocol.v1.json) defines Hungarian one-to-one target matching and discovery at purity >= 0.90 and coverage >= 0.10. Unmatched targets score zero. Timeouts, errors and memory-limit failures have missing quality, not measured zero quality. AMD-DBSCAN remains included; its main-panel mean is conditional on 12 successful cells out of 21. See [recorded results](../results/README.md).
+The [versioned evaluation contract](evaluation_protocol.v1.json) defines Hungarian one-to-one target matching and discovery at purity >= 0.90 and coverage >= 0.10. Unmatched targets score zero. Timeouts, errors and memory-limit failures have missing quality, not measured zero quality. AMD-DBSCAN remains included; its main-panel mean is conditional on 12 successful cells out of 21. See [recorded results](../results/README.md). X-shift is retained as an optional comparator outside the article matrix.
 
 ## External data
 
@@ -51,3 +51,5 @@ The primary cytometry inputs are external and are not redistributed. For each da
 The loader checks alignment, selects markers, applies arcsinh transformation, and performs median/MAD robust scaling. Levine uses type markers and cofactor 5; Mosmann uses seven type plus seven state markers and cofactor 150; Nilsson uses type markers and cofactor 150. Reference-negative events are not necessarily physical noise, so abstention agreement is a diagnostic.
 
 Automated exports for these three studies were not found in the existing branches. Preparing the external CSVs is the remaining manual step for biological re-execution; the runnable loader and recorded comparison are included. A synthetic run does not require biological data.
+
+The built package contains the clustering library. Use the Git checkout described in the root README for benchmark scripts, protocols, figures and recorded results.

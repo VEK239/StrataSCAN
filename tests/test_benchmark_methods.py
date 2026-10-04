@@ -26,28 +26,8 @@ def test_public_benchmark_profile_records_patch_release(monkeypatch) -> None:
     assert result.parameters["hard_component_bound"] == 24
 
 
-def test_oedm_snapshot_profile_and_search_are_explicitly_fixed(monkeypatch) -> None:
-    monkeypatch.setattr(methods, "OptimizationStrataSCAN", _FakeEstimator)
-    result = methods.run_method("StrataSCAN-Optimization", np.zeros((4, 2)), seed=7)
-    gamma = _FakeEstimator.last_gamma_config
-    assert gamma is not None
-    assert gamma.max_components == 8
-    assert gamma.hard_max_components == 8
-    assert gamma.adaptive_components is False
-    assert result.parameters["version"] == "0.2.0-dev10-oedm2026-evaluated"
-    assert result.parameters["component_selection"] == "basis_icl_fixed_candidate_range"
-    assert "adaptive" not in result.parameters["stratification_model"]
-    assert "adaptive" not in result.parameters["background_model"]
 
 
-def test_component_ablation_changes_only_declared_gamma_control(monkeypatch) -> None:
-    monkeypatch.setattr(methods, "OptimizationStrataSCAN", _FakeEstimator)
-    result = methods.run_method("StrataSCAN-FixedComponentBound", np.zeros((4, 2)), seed=7)
-    gamma = _FakeEstimator.last_gamma_config
-    assert gamma is not None
-    assert gamma.adaptive_components is False
-    assert gamma.max_components == gamma.hard_max_components == 8
-    assert result.parameters["ablation_of"] == "adaptive_component_bound"
 
 
 def test_structural_ablations_change_exactly_one_declared_control(monkeypatch) -> None:

@@ -1,5 +1,0 @@
-include README.md
-include LICENSE
-recursive-include assets *.png
-recursive-include baselines *.py
-recursive-include benchmarks *.py *.json *.md

@@ -14,9 +14,9 @@ from scipy.sparse.csgraph import connected_components, dijkstra
 from scipy.special import betainc, digamma, gammainc, gammaln, kve, logsumexp
 
 from .core import StrataSCAN as GraphStrataSCAN
-from .multiscale import _shell_volumes, multiscale_density_signatures
+from .density_profiles import _shell_volumes, multiscale_density_signatures
 from .neighbors import Backend, HNSWConfig
-from .predictive import (
+from .gamma_fit import (
     PredictiveMultiscaleConfig,
     _fit_constrained_gamma,
     _fit_once,
@@ -1151,7 +1151,7 @@ def _validated_rate_prefix_components(
     assignment = np.argmax(responsibilities, axis=1)
     mask = np.isin(assignment, proposed)
     core_distance = np.asarray(graph.distances[:, rank - 1], dtype=np.float64)
-    from .strict_core import _rank_window_component_sizes
+    from .graph_components import _rank_window_component_sizes
 
     rows = np.flatnonzero(mask).astype(np.int64)
     widths: list[int] = []
@@ -1933,7 +1933,7 @@ def _adaptive_background_core(
     intrinsic dimension estimated from the background graph itself.
     """
 
-    from .strict_core import _rank_window_component_sizes
+    from .graph_components import _rank_window_component_sizes
 
     original_rows = np.flatnonzero(background).astype(np.int64)
     selected = np.zeros(graph.n_samples, dtype=bool)

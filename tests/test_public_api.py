@@ -13,20 +13,13 @@ def test_release_exports_only_current_algorithm() -> None:
     assert stratascan.__version__ == "0.2.4"
     assert set(stratascan.__all__) == {
         "GammaMDLConfig",
-        "GammaStrictCoreConfig",
-        "GammaStrictCoreResult",
         "HNSWConfig",
         "KNNGraph",
-        "MultiscaleConfig",
         "OptimizationStrataSCAN",
         "OptimizationStrictCoreConfig",
         "OptimizationStrictCoreResult",
-        "PredictiveMultiscaleConfig",
-        "PredictiveMultiscaleStrataSCAN",
         "StrataSCAN",
-        "UniformTailConfig",
         "build_knn_graph",
-        "gamma_strict_core_from_graph",
     }
 
 

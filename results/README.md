@@ -1,6 +1,6 @@
 # Recorded article evidence
 
-These are existing measurements collected from the experiment branches and local outputs. No new scientific experiments were substituted for the article evidence. Tables retain method identities, seeds, scores and completion statuses; verbose profiles, unavailable prediction references, absolute paths and tracebacks were removed. [integrity.json](integrity.json) records CSV row counts, checksums, source hashes and the imported experimental source commit.
+These are existing measurements collected from the experiment branches and local outputs. No new scientific experiments were substituted for the article evidence. Tables retain method identities, seeds, scores and completion statuses; verbose profiles, unavailable prediction references, absolute paths and tracebacks were removed.
 
 | CSV | Rows | Current article panel |
 | --- | ---: | --- |
@@ -13,8 +13,6 @@ These are existing measurements collected from the experiment branches and local
 | [cytometry.csv](cytometry.csv) | 27 | Levine, Mosmann, Nilsson × 9 methods; Mosmann uses type + state markers |
 
 [summaries/](summaries/) contains compact synthetic method/family scores, the published ablation, density contrast, and rare-target trajectories. Means use successful cells; `completed` and `total` make that denominator explicit. Failed-run quality is never imputed. AMD-DBSCAN completes 12/21 fresh synthetic cells; its conditional mean 0.843 cannot be ranked directly against the full-panel StrataSCAN mean 0.828.
-
-The imported [independent validation report](validation.json) checks the original 135-cell additional campaign, including two extra ablations omitted from this release's result tables. It reports no missing/duplicate cells, consistent input fingerprints, metric recomputation agreement within 1.11e-16, and exact agreement of the 21 full-pipeline cells with the original comparison. This is a saved validation result, not a claim that the entire campaign was rerun for this release.
 
 The latest density-contrast figure contains the full 12-scenario factorial. Nine later completion cells supplement the earlier 27-cell run, giving 36 cells. Earlier manuscript prose still counted 27; this release describes the complete figure and its stored measurements.
 
